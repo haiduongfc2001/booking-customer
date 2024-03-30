@@ -10,10 +10,11 @@
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
+    "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@heroicons/react": "2.0.18",
+    "@mui/icons-material": "^5.15.14",
     "@mui/material": "^5.15.14",
-    "@mui/icons-material": "^5.15.7",
     "@mui/styles": "^5.15.11",
     "@mui/system": "5.14.20",
     "@mui/x-data-grid": "^6.19.5",
