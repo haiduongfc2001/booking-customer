@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
         marginTop: "auto",
       }}
     >
-      <Container maxWidth="md">
+      <Container maxWidth="lg" sx={{ px: "60px !important" }}>
         <Grid container spacing={2} justifyContent="center" alignItems="center">
           <Grid item xs={12}>
             <Typography variant="body1" align="center" color="primary.lightest">

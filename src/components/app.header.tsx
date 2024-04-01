@@ -159,7 +159,7 @@ export default function Header() {
   return (
     <Box sx={{ flexGrow: 1, maxHeight: "68px" }}>
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar sx={{ px: "60px !important" }}>
           <IconButton
             size="large"
             edge="start"
