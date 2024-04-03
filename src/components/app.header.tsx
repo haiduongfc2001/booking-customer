@@ -12,10 +12,14 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
-import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import HotelIcon from "@mui/icons-material/Hotel";
+import { Avatar, Tooltip } from "@mui/material";
+
+const pages = ["Products", "Pricing", "Blog"];
+const settings = ["Hồ sơ", "Tài khoản", "Đăng xuất"];
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -57,13 +61,24 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function Header() {
+export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+    null
+  );
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+
+  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElNav(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -85,12 +100,13 @@ export default function Header() {
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
+      sx={{ mt: "45px" }}
+      id="menu-appbar"
       anchorEl={anchorEl}
       anchorOrigin={{
         vertical: "top",
         horizontal: "right",
       }}
-      id={menuId}
       keepMounted
       transformOrigin={{
         vertical: "top",
@@ -99,8 +115,11 @@ export default function Header() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      {settings.map((setting) => (
+        <MenuItem key={setting} onClick={handleMenuClose}>
+          <Typography textAlign="center">{setting}</Typography>
+        </MenuItem>
+      ))}
     </Menu>
   );
 
@@ -127,7 +146,7 @@ export default function Header() {
             <MailIcon />
           </Badge>
         </IconButton>
-        <p>Messages</p>
+        <p>Tin nhắn</p>
       </MenuItem>
       <MenuItem>
         <IconButton
@@ -139,41 +158,80 @@ export default function Header() {
             <NotificationsIcon />
           </Badge>
         </IconButton>
-        <p>Notifications</p>
+        <p>Thông báo</p>
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
-          size="large"
+          size="small"
+          edge="end"
           aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
+          aria-controls={menuId}
           aria-haspopup="true"
+          onClick={handleProfileMenuOpen}
           color="inherit"
         >
-          <AccountCircle />
+          <Avatar alt="DHD" src="https://mui.com/static/images/avatar/2.jpg" />
         </IconButton>
-        <p>Profile</p>
+        <p>Hồ sơ</p>
       </MenuItem>
     </Menu>
   );
 
   return (
-    <Box sx={{ flexGrow: 1, maxHeight: "68px" }}>
+    <Box sx={{ flexGrow: 1, maxHeight: "64px" }}>
       <AppBar position="static">
-        <Toolbar sx={{ px: "60px !important" }}>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
+        <Toolbar>
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: "block", md: "none" },
+              }}
+            >
+              {pages.map((page) => (
+                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+          <HotelIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
           <Typography
             variant="h6"
             noWrap
-            component="div"
-            sx={{ display: { xs: "none", sm: "block" } }}
+            component="a"
+            href="#app-bar-with-responsive-menu"
+            sx={{
+              mr: 2,
+              display: { xs: "none", md: "flex" },
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              textDecoration: "none",
+            }}
           >
             DHD
           </Typography>
@@ -206,17 +264,22 @@ export default function Header() {
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              size="large"
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
+            <Tooltip title="Open settings">
+              <IconButton
+                size="large"
+                edge="end"
+                aria-label="account of current user"
+                aria-controls={menuId}
+                aria-haspopup="true"
+                onClick={handleProfileMenuOpen}
+                color="inherit"
+              >
+                <Avatar
+                  alt="DHD"
+                  src="https://mui.com/static/images/avatar/2.jpg"
+                />
+              </IconButton>
+            </Tooltip>
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton
