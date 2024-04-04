@@ -5,8 +5,9 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { theme } from "@/theme/theme";
 import Header from "@/components/app.header";
 import Footer from "@/components/app.footer";
-import { Container } from "@mui/material";
 import { Metadata } from "next";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,16 +24,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      {/* <LocalizationProvider dateAdapter={AdapterDateFns}> */}
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <body className={inter.className}>
           <Header />
-          <Container sx={{ px: "60px !important", py: "40px !important" }}>
-            {children}
-          </Container>
+          {/* <Container sx={{ px: "60px !important", py: "40px !important" }}> */}
+          {children}
+          {/* </Container> */}
           <Footer />
         </body>
       </ThemeProvider>
+      {/* </LocalizationProvider> */}
     </html>
   );
 }
