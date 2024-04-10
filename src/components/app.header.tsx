@@ -16,6 +16,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import HotelIcon from "@mui/icons-material/Hotel";
 import { Avatar, Tooltip } from "@mui/material";
+import Link from "next/link";
 
 const pages = ["Products", "Pricing", "Blog"];
 const settings = ["Hồ sơ", "Tài khoản", "Đăng xuất"];
@@ -176,28 +177,34 @@ export default function Header() {
               ))}
             </Menu>
           </Box>
-          <HotelIcon
-            sx={{ display: "flex", mr: 1, width: "40px", height: "40px" }}
-          />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
-            sx={{
-              mr: 2,
-              display: "flex",
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-              textShadow: "1px 1px 2px rgba(0, 0, 0, 0.2)",
-              textTransform: "uppercase",
-            }}
-          >
-            DHD
-          </Typography>
+          <Link href="/" passHref>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                textDecoration: "none",
+                color: "inherit",
+              }}
+            >
+              <HotelIcon
+                sx={{ display: "flex", mr: 1, width: "40px", height: "40px" }}
+              />
+              <Typography
+                variant="h5"
+                noWrap
+                component="span"
+                sx={{
+                  fontFamily: "monospace",
+                  fontWeight: 700,
+                  letterSpacing: ".3rem",
+                  textShadow: "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                  textTransform: "uppercase",
+                }}
+              >
+                DHD
+              </Typography>
+            </Box>
+          </Link>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             <IconButton

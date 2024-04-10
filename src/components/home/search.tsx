@@ -8,6 +8,7 @@ import {
   ClickAwayListener,
   Grid,
   IconButton,
+  InputAdornment,
   Stack,
   TextField,
   Typography,
@@ -23,6 +24,7 @@ import Popover from "@mui/material/Popover";
 import PersonIcon from "@mui/icons-material/Person";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
+import HotelIcon from "@mui/icons-material/Hotel";
 
 interface SearchBarProps {}
 
@@ -137,288 +139,257 @@ const SearchBar: FC<SearchBarProps> = () => {
   return (
     <Box
       sx={{
-        cursor: "default",
-        top: 0,
-        left: 0,
         width: "100%",
-        height: "100%",
-        p: "8px 24px",
-        mt: "calc(230px - 27px)",
-        borderBottom: "none",
-        bgcolor: "inherit",
-        display: "flex",
-        position: "absolute",
-        flexDirection: "column",
-        justifyContent: "space-between",
+        border: "4px solid #ffb700",
+        bgcolor: "rgba(255, 255, 255, 0.8)",
+        boxShadow: "0 2px 8px 0 rgba(26, 26, 26, 0.16)",
+        borderRadius: "8px",
+        padding: "4px",
       }}
     >
-      <Box
-        sx={{
-          m: "0 auto",
-          maxWidth: "1188px",
-          boxShadow: "0px 12px 12px 0px rgba(0, 0, 0, 0.10)",
-          // minHeight: "112px",
-          borderRadius: "8px",
-          bgcolor: "#f8f7f9",
-        }}
-        component="form"
-        onSubmit={formik.handleSubmit}
-      >
-        <div style={{ width: "100%" }}>
-          <div
-            style={{
-              border: "4px solid #ffb700",
-              boxShadow: "0 2px 8px 0 rgba(26, 26, 26, 0.16)",
-              borderRadius: "8px",
-              padding: "4px",
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12} md={2.5}>
+          <TextField
+            fullWidth
+            required
+            label="Địa điểm"
+            placeholder="Bạn muốn đến đâu?"
+            name="location"
+            type="text"
+            sx={{
+              "& .MuiInputBase-input": {
+                bgcolor: "background.paper",
+              },
             }}
-          >
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={2.5}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Địa điểm"
-                  placeholder="Bạn muốn đến đâu?"
-                  name="location"
-                  type="text"
-                  sx={{
-                    "& .MuiInputBase-input": {
-                      bgcolor: "background.paper",
-                    },
-                  }}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.location}
-                  onChange={formik.handleChange}
-                  error={!!(formik.touched.location && formik.errors.location)}
-                  helperText={formik.touched.location && formik.errors.location}
-                />
-              </Grid>
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <HotelIcon />
+                </InputAdornment>
+              ),
+            }}
+            onBlur={formik.handleBlur}
+            value={formik.values.location}
+            onChange={formik.handleChange}
+            error={!!(formik.touched.location && formik.errors.location)}
+            helperText={formik.touched.location && formik.errors.location}
+          />
+        </Grid>
 
-              <Grid item xs={12} sm={6} md={2.5}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Ngày đến"
-                    name="checkInDate"
-                    sx={{ bgcolor: "background.paper", width: "100%" }}
-                    minDate={dayjs()}
-                    value={formik.values.checkInDate}
-                    onChange={(newValue) => handleCheckInChange(newValue)}
-                    // error={
-                    //   !!(
-                    //     formik.touched.checkInDate && formik.errors.checkInDate
-                    //   )
-                    // }
-                    // helperText={
-                    //   formik.touched.checkInDate && formik.errors.checkInDate
-                    // }
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid item xs={12} sm={6} md={2.5}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Ngày về"
-                    name="checkOutDate"
-                    sx={{ bgcolor: "background.paper", width: "100%" }}
-                    minDate={formik.values.checkInDate}
-                    value={formik.values.checkOutDate}
-                    onChange={(newValue) => handleCheckOutChange(newValue)}
-                    // error={
-                    //   !!(
-                    //     formik.touched.checkOutDate &&
-                    //     formik.errors.checkOutDate
-                    //   )
-                    // }
-                    // helperText={
-                    //   formik.touched.checkOutDate && formik.errors.checkOutDate
-                    // }
-                  />
-                </LocalizationProvider>
-              </Grid>
+        <Grid item xs={12} sm={6} md={2.5}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Ngày đến"
+              name="checkInDate"
+              sx={{ bgcolor: "background.paper", width: "100%" }}
+              minDate={dayjs()}
+              value={formik.values.checkInDate}
+              onChange={(newValue) => handleCheckInChange(newValue)}
+              // error={
+              //   !!(
+              //     formik.touched.checkInDate && formik.errors.checkInDate
+              //   )
+              // }
+              // helperText={
+              //   formik.touched.checkInDate && formik.errors.checkInDate
+              // }
+            />
+          </LocalizationProvider>
+        </Grid>
+        <Grid item xs={12} sm={6} md={2.5}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Ngày về"
+              name="checkOutDate"
+              sx={{ bgcolor: "background.paper", width: "100%" }}
+              minDate={formik.values.checkInDate}
+              value={formik.values.checkOutDate}
+              onChange={(newValue) => handleCheckOutChange(newValue)}
+              // error={
+              //   !!(
+              //     formik.touched.checkOutDate &&
+              //     formik.errors.checkOutDate
+              //   )
+              // }
+              // helperText={
+              //   formik.touched.checkOutDate && formik.errors.checkOutDate
+              // }
+            />
+          </LocalizationProvider>
+        </Grid>
 
-              <Grid item xs={12} md={2.5}>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <div>
-                    <Button
-                      variant="contained"
-                      color="inherit"
-                      onClick={handleClick}
+        <Grid item xs={12} md={2.5}>
+          <ClickAwayListener onClickAway={handleClose}>
+            <div>
+              <Button
+                variant="contained"
+                color="inherit"
+                onClick={handleClick}
+                sx={{
+                  bgcolor: "background.paper",
+                  width: "100%",
+                  boxShadow: 1,
+                  p: 1,
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                }}
+              >
+                <PersonIcon sx={{ fontSize: 28, color: "primary.main" }} />
+                <Stack direction="column" pl={1} alignItems="flex-start">
+                  <Typography
+                    variant="h6"
+                    color="textPrimary"
+                    fontSize="16px"
+                    fontWeight="600"
+                  >
+                    {formik.values.numberOfPeople} người
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    {formik.values.numberOfRooms} phòng
+                  </Typography>
+                </Stack>
+              </Button>
+              <Popover
+                id={id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+              >
+                <Box sx={{ p: 2 }}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Typography variant="subtitle1" minWidth="100px">
+                      Số người
+                    </Typography>
+                    <IconButton
+                      size="small"
                       sx={{
-                        bgcolor: "background.paper",
-                        width: "100%",
-                        boxShadow: 1,
-                        p: 1,
-                        display: "flex",
-                        justifyContent: "flex-start",
-                        alignItems: "center",
+                        width: "28px",
+                        height: "28px",
+                        border: "1px solid",
+                        color:
+                          formik.values.numberOfPeople > 1
+                            ? "primary.main"
+                            : "inherit",
+                        borderColor: "rgb(168, 179, 203)",
+                        borderRadius: "50%",
+                        cursor: "pointer",
+                        "&:hover": {
+                          background: "rgb(237, 240, 249)",
+                        },
                       }}
+                      disabled={formik.values.numberOfPeople <= 1}
+                      onClick={handleSubPerson}
                     >
-                      <PersonIcon
-                        sx={{ fontSize: 28, color: "primary.main" }}
-                      />
-                      <Stack direction="column" pl={1} alignItems="flex-start">
-                        <Typography
-                          variant="h6"
-                          color="textPrimary"
-                          fontSize="16px"
-                          fontWeight="600"
-                        >
-                          {formik.values.numberOfPeople} người
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          {formik.values.numberOfRooms} phòng
-                        </Typography>
-                      </Stack>
-                    </Button>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
+                      <RemoveIcon />
+                    </IconButton>
+                    <Typography variant="h6">
+                      {formik.values.numberOfPeople}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      sx={{
+                        width: "28px",
+                        height: "28px",
+                        color: "primary.main",
+                        border: "1px solid",
+                        borderColor: "rgb(168, 179, 203)",
+                        borderRadius: "50%",
+                        cursor: "pointer",
+                        "&:hover": {
+                          background: "rgb(237, 240, 249)",
+                        },
                       }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                      }}
+                      onClick={handleAddPerson}
                     >
-                      <Box sx={{ p: 2 }}>
-                        <Stack direction="row" spacing={2} alignItems="center">
-                          <Typography variant="subtitle1" minWidth="100px">
-                            Số người
-                          </Typography>
-                          <IconButton
-                            size="small"
-                            sx={{
-                              width: "28px",
-                              height: "28px",
-                              border: "1px solid",
-                              color:
-                                formik.values.numberOfPeople > 1
-                                  ? "primary.main"
-                                  : "inherit",
-                              borderColor: "rgb(168, 179, 203)",
-                              borderRadius: "50%",
-                              cursor: "pointer",
-                              "&:hover": {
-                                background: "rgb(237, 240, 249)",
-                              },
-                            }}
-                            disabled={formik.values.numberOfPeople <= 1}
-                            onClick={handleSubPerson}
-                          >
-                            <RemoveIcon />
-                          </IconButton>
-                          <Typography variant="h6">
-                            {formik.values.numberOfPeople}
-                          </Typography>
-                          <IconButton
-                            size="small"
-                            sx={{
-                              width: "28px",
-                              height: "28px",
-                              color: "primary.main",
-                              border: "1px solid",
-                              borderColor: "rgb(168, 179, 203)",
-                              borderRadius: "50%",
-                              cursor: "pointer",
-                              "&:hover": {
-                                background: "rgb(237, 240, 249)",
-                              },
-                            }}
-                            onClick={handleAddPerson}
-                          >
-                            <AddIcon />
-                          </IconButton>
-                        </Stack>
-                        <Stack
-                          direction="row"
-                          spacing={2}
-                          alignItems="center"
-                          mt={1}
-                        >
-                          <Typography variant="subtitle1" minWidth="100px">
-                            Số phòng
-                          </Typography>
-                          <IconButton
-                            size="small"
-                            sx={{
-                              width: "28px",
-                              height: "28px",
-                              color:
-                                formik.values.numberOfRooms > 1
-                                  ? "primary.main"
-                                  : "inherit",
-                              border: "1px solid",
-                              borderColor: "rgb(168, 179, 203)",
-                              borderRadius: "50%",
-                              cursor: "pointer",
-                              "&:hover": {
-                                background: "rgb(237, 240, 249)",
-                              },
-                            }}
-                            disabled={formik.values.numberOfRooms <= 1}
-                            onClick={handleSubRoom}
-                          >
-                            <RemoveIcon />
-                          </IconButton>
-                          <Typography variant="h6">
-                            {formik.values.numberOfRooms}
-                          </Typography>
-                          <IconButton
-                            size="small"
-                            sx={{
-                              width: "28px",
-                              height: "28px",
-                              border: "1px solid",
-                              color: "primary.main",
-                              borderColor: "rgb(168, 179, 203)",
-                              borderRadius: "50%",
-                              cursor: "pointer",
-                              "&:hover": {
-                                background: "rgb(237, 240, 249)",
-                              },
-                            }}
-                            onClick={handleAddRoom}
-                          >
-                            <AddIcon />
-                          </IconButton>
-                        </Stack>
-                      </Box>
-                    </Popover>
-                  </div>
-                </ClickAwayListener>
-              </Grid>
+                      <AddIcon />
+                    </IconButton>
+                  </Stack>
+                  <Stack direction="row" spacing={2} alignItems="center" mt={1}>
+                    <Typography variant="subtitle1" minWidth="100px">
+                      Số phòng
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      sx={{
+                        width: "28px",
+                        height: "28px",
+                        color:
+                          formik.values.numberOfRooms > 1
+                            ? "primary.main"
+                            : "inherit",
+                        border: "1px solid",
+                        borderColor: "rgb(168, 179, 203)",
+                        borderRadius: "50%",
+                        cursor: "pointer",
+                        "&:hover": {
+                          background: "rgb(237, 240, 249)",
+                        },
+                      }}
+                      disabled={formik.values.numberOfRooms <= 1}
+                      onClick={handleSubRoom}
+                    >
+                      <RemoveIcon />
+                    </IconButton>
+                    <Typography variant="h6">
+                      {formik.values.numberOfRooms}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      sx={{
+                        width: "28px",
+                        height: "28px",
+                        border: "1px solid",
+                        color: "primary.main",
+                        borderColor: "rgb(168, 179, 203)",
+                        borderRadius: "50%",
+                        cursor: "pointer",
+                        "&:hover": {
+                          background: "rgb(237, 240, 249)",
+                        },
+                      }}
+                      onClick={handleAddRoom}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Stack>
+                </Box>
+              </Popover>
+            </div>
+          </ClickAwayListener>
+        </Grid>
 
-              <Grid item xs={12} md={2}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  sx={{
-                    width: "100%",
-                    minHeight: "32px",
-                    textTransform: "uppercase",
-                  }}
-                  startIcon={<SearchIcon />}
-                  aria-label="find hotel"
-                >
-                  Tìm
-                </Button>
-              </Grid>
+        <Grid item xs={12} md={2}>
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            sx={{
+              width: "100%",
+              minHeight: "32px",
+              textTransform: "uppercase",
+            }}
+            startIcon={<SearchIcon />}
+            aria-label="find hotel"
+          >
+            Tìm
+          </Button>
+        </Grid>
 
-              {formik.errors.submit && (
-                <Typography color="error" sx={{ mt: 3 }} variant="body2">
-                  {formik.errors.submit}
-                </Typography>
-              )}
-            </Grid>
-          </div>
-        </div>
-      </Box>
+        {formik.errors.submit && (
+          <Typography color="error" sx={{ mt: 3 }} variant="body2">
+            {formik.errors.submit}
+          </Typography>
+        )}
+      </Grid>
     </Box>
   );
 };

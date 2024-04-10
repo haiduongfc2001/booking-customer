@@ -1,14 +1,10 @@
 "use client";
 // import MapComponent from "@/components/map/map";
 import * as React from "react";
-import dayjs, { Dayjs } from "dayjs";
-import { Box, Button, CardMedia, Grid, TextField } from "@mui/material";
+import { Box, CardMedia } from "@mui/material";
 import { Metadata } from "next";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import SearchIcon from "@mui/icons-material/Search";
 import SearchBar from "@/components/home/search";
+import OutstandingHotel from "@/components/home/outstanding-hotel";
 
 const metadata: Metadata = {
   title: "DHD | Home",
@@ -27,6 +23,9 @@ export default function Home() {
           fontSize: "14px",
           fontWeight: "normal",
           lineHeight: "17px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <CardMedia
@@ -37,13 +36,26 @@ export default function Home() {
             width: "100%",
             height: 460,
             objectFit: "cover",
-            mb: 2,
-            mr: 2,
           }}
         />
 
-        <SearchBar />
+        <Box
+          sx={{
+            width: "100%",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            p: "8px 24px",
+            borderRadius: "8px",
+            boxShadow: "0px 12px 12px 0px rgba(0, 0, 0, 0.10)",
+            maxWidth: "1188px",
+          }}
+        >
+          <SearchBar />
+        </Box>
       </Box>
+      <OutstandingHotel />
       {/* <MapComponent /> */}
     </>
   );
