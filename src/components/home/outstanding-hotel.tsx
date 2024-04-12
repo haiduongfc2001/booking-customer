@@ -1,90 +1,40 @@
 "use client";
 import React from "react";
 import Carousel from "react-material-ui-carousel";
-import {
-  Button,
-  Typography,
-  Box,
-  CardMedia,
-  Stack,
-  useTheme,
-} from "@mui/material";
+import { Typography, Box, CardMedia, Stack, useTheme } from "@mui/material";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import formatCurrency from "@/utils/format-currency";
-
-interface Item {
-  name: string;
-  address: string;
-  price: number;
-  discounted_price: number;
-}
+import { useAPI } from "@/lib/api";
 
 const OutstandingHotel: React.FC = () => {
-  const items: Item[] = [
-    {
-      name: "Random Name #1",
-      address: "Thành phố Hội An",
-      price: 150000,
-      discounted_price: 100000,
-    },
-    {
-      name: "Random Name #2",
-      address: "Thành phố Hội An",
-      price: 150000,
-      discounted_price: 100000,
-    },
-    {
-      name: "Random Name #3",
-      address: "Thành phố Hội An",
-      price: 150000,
-      discounted_price: 100000,
-    },
-    {
-      name: "Random Name #4",
-      address: "Thành phố Hội An",
-      price: 150000,
-      discounted_price: 100000,
-    },
-    {
-      name: "Random Name #5",
-      address: "Thành phố Hội An",
-      price: 150000,
-      discounted_price: 100000,
-    },
-    {
-      name: "Random Name #6",
-      address: "Thành phố Hội An",
-      price: 150000,
-      discounted_price: 100000,
-    },
-    {
-      name: "Random Name #7",
-      address: "Thành phố Hội An",
-      price: 150000,
-      discounted_price: 100000,
-    },
-    {
-      name: "Random Name #8",
-      address: "Thành phố Hội An",
-      price: 150000,
-      discounted_price: 100000,
-    },
-  ];
-
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.only("xs"));
   const isSm = useMediaQuery(theme.breakpoints.only("sm"));
   const isMd = useMediaQuery(theme.breakpoints.only("md"));
   const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
+  const {
+    data: outstandingHotels,
+    error,
+    isLoading,
+  } = useAPI("/hotel/getOutstandingHotels");
+
+  if (error) {
+    return <p>Failed to fetch</p>;
+  }
+
+  if (isLoading) {
+    if (isLoading) return <div>Loading...</div>;
+  }
+
   const itemsPerPage = isLgUp ? 4 : isMd ? 3 : isSm ? 2 : isXs ? 1 : 4;
 
   const groupedItems = [];
-  for (let i = 0; i < items.length; i += itemsPerPage) {
-    groupedItems.push(items.slice(i, i + itemsPerPage));
+  for (let i = 0; i < outstandingHotels.data.length; i += itemsPerPage) {
+    groupedItems.push(outstandingHotels.data.slice(i, i + itemsPerPage));
   }
 
   return (
@@ -145,7 +95,7 @@ const OutstandingHotel: React.FC = () => {
               gap: "16px",
             }}
           >
-            {group.map((item, itemIndex) => (
+            {group.map((item: IOutstandingHotels, itemIndex: number) => (
               <Box
                 key={itemIndex}
                 sx={{
@@ -169,8 +119,11 @@ const OutstandingHotel: React.FC = () => {
               >
                 <CardMedia
                   component="img"
-                  src={`https://source.unsplash.com/random/${itemIndex}`}
-                  alt={item.name}
+                  src={
+                    item?.hotel_avatar ||
+                    "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg"
+                  }
+                  alt={item.hotel_name}
                   sx={{
                     height: "150px",
                     objectFit: "cover",
@@ -179,7 +132,7 @@ const OutstandingHotel: React.FC = () => {
                 />
                 <Box p={2} sx={{ flexGrow: 1 }}>
                   <Typography variant="subtitle1" gutterBottom>
-                    {item.name}
+                    {item.hotel_name}
                   </Typography>
                   <Stack direction="row">
                     <LocationOnIcon />
@@ -187,11 +140,13 @@ const OutstandingHotel: React.FC = () => {
                       variant="body2"
                       sx={{
                         overflow: "hidden",
+                        display: "-webkit-box",
+                        "-webkit-line-clamp": 2,
+                        "-webkit-box-orient": "vertical",
                         textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
                       }}
                     >
-                      {item.address}
+                      {item.hotel_address}
                     </Typography>
                   </Stack>
                 </Box>
@@ -229,7 +184,7 @@ const OutstandingHotel: React.FC = () => {
                         }}
                         component="span"
                       >
-                        {formatCurrency(item.price)}
+                        {formatCurrency(item.original_room_price)}
                       </Typography>
                       <Typography
                         variant="body1"
@@ -240,7 +195,7 @@ const OutstandingHotel: React.FC = () => {
                         }}
                         component="span"
                       >
-                        {formatCurrency(item.discounted_price)}
+                        {formatCurrency(item.min_room_price)}
                       </Typography>
                     </Box>
                   </Box>
