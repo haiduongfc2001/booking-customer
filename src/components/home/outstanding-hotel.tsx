@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Carousel from "react-material-ui-carousel";
 import { Typography, Box, CardMedia, Stack, useTheme } from "@mui/material";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
@@ -8,6 +8,8 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import formatCurrency from "@/utils/format-currency";
 import { useAPI } from "@/lib/api";
+import { API } from "@/constant/constants";
+import SkeletonLoading from "./skeleton-loading";
 
 const OutstandingHotel: React.FC = () => {
   const theme = useTheme();
@@ -16,21 +18,60 @@ const OutstandingHotel: React.FC = () => {
   const isMd = useMediaQuery(theme.breakpoints.only("md"));
   const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
+  // State to hold the current number of items per page
+  const [itemsPerPage, setItemsPerPage] = useState(() => {
+    // Determine initial itemsPerPage based on screen size
+    if (isXs) {
+      return 1;
+    } else if (isSm) {
+      return 2;
+    } else if (isMd) {
+      return 3;
+    } else {
+      return 4; // For lg and up
+    }
+  });
+
+  // Update itemsPerPage when screen size changes
+  useEffect(() => {
+    const updateItemsPerPage = () => {
+      if (isXs) {
+        setItemsPerPage(1);
+      } else if (isSm) {
+        setItemsPerPage(2);
+      } else if (isMd) {
+        setItemsPerPage(3);
+      } else {
+        setItemsPerPage(4);
+      }
+    };
+
+    updateItemsPerPage(); // Call initially to set correct itemsPerPage
+
+    const handleResize = () => {
+      updateItemsPerPage();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isMd, isSm, isXs, theme]);
+
   const {
     data: outstandingHotels,
     error,
     isLoading,
-  } = useAPI("/hotel/getOutstandingHotels");
+  } = useAPI(API.HOTEL.GET_OUTSTRANDING_HOTELS);
 
   if (error) {
     return <p>Failed to fetch</p>;
   }
 
   if (isLoading) {
-    if (isLoading) return <div>Loading...</div>;
+    return <SkeletonLoading itemsPerPage={itemsPerPage} />;
   }
-
-  const itemsPerPage = isLgUp ? 4 : isMd ? 3 : isSm ? 2 : isXs ? 1 : 4;
 
   const groupedItems = [];
   for (let i = 0; i < outstandingHotels.data.length; i += itemsPerPage) {
@@ -141,8 +182,8 @@ const OutstandingHotel: React.FC = () => {
                       sx={{
                         overflow: "hidden",
                         display: "-webkit-box",
-                        "-webkit-line-clamp": 2,
-                        "-webkit-box-orient": "vertical",
+                        webkitLineClamp: 2,
+                        webkitBoxOrient: "vertical",
                         textOverflow: "ellipsis",
                       }}
                     >

@@ -32,6 +32,9 @@ export const SCREEN_TITLE = {};
  */
 export const API = {
   SEARCH_HOTEL: "SearchHotel",
+  HOTEL: {
+    GET_OUTSTRANDING_HOTELS: "/hotel/getOutstandingHotels",
+  },
 };
 
 /**
