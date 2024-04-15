@@ -8,8 +8,21 @@ import HotelIcon from "@mui/icons-material/Hotel";
 
 const Footer: React.FC = () => {
   return (
-    <Box sx={{ bgcolor: "background.paper", mt: 8, p: 6 }}>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={4}>
+    <Box
+      sx={{
+        flexGrow: 1,
+        maxHeight: "240px",
+      }}
+    >
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={4}
+        sx={{
+          bgcolor: "background.paper",
+          mt: 8,
+          p: 6,
+        }}
+      >
         <Stack
           direction="column"
           spacing={2}

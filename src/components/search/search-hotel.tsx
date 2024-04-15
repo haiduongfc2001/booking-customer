@@ -17,24 +17,45 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import SearchIcon from "@mui/icons-material/Search";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-// import { API, STATUS_CODE, TOAST_KIND } from "../../constant/constants";
 import Popover from "@mui/material/Popover";
 import PersonIcon from "@mui/icons-material/Person";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import HotelIcon from "@mui/icons-material/Hotel";
 import { useRouter } from "next/navigation";
+import { FormikValues, useFormik } from "formik";
+import * as Yup from "yup";
 
-interface SearchBarProps {}
+interface SearchHotelProps {
+  location: string;
+  checkInDate: Dayjs;
+  checkOutDate: Dayjs;
+  numberOfPeople: number;
+  numberOfRooms: number;
+}
 
-const SearchBar: FC<SearchBarProps> = () => {
+const SearchHotel: FC<SearchHotelProps> = ({
+  location = "",
+  checkInDate = dayjs(),
+  checkOutDate = dayjs(),
+  numberOfPeople = 1,
+  numberOfRooms = 1,
+}) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
-
   const router = useRouter();
+
+  const initialValues: FormikValues = {
+    location,
+    checkInDate,
+    checkOutDate,
+    numberOfPeople,
+    numberOfRooms,
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "popover" : undefined;
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -64,18 +85,8 @@ const SearchBar: FC<SearchBarProps> = () => {
     formik.setFieldValue("numberOfRooms", formik.values.numberOfRooms + 1);
   };
 
-  const open = Boolean(anchorEl);
-  const id = open ? "popover" : undefined;
-
   const formik = useFormik({
-    initialValues: {
-      location: "Hà Nội",
-      checkInDate: dayjs(),
-      checkOutDate: dayjs(),
-      numberOfPeople: 1,
-      numberOfRooms: 1,
-      submit: null,
-    },
+    initialValues,
     validationSchema: Yup.object({
       location: Yup.string().required("Vui lòng chọn điểm đến!"),
       checkInDate: Yup.date().required("Vui lòng chọn ngày đến!"),
@@ -90,26 +101,26 @@ const SearchBar: FC<SearchBarProps> = () => {
 
     onSubmit: async (values, helpers) => {
       try {
-        const checkInDate = values.checkInDate.format("YYYY-MM-DD");
-        const checkOutDate = values.checkOutDate.format("YYYY-MM-DD");
+        const {
+          location,
+          checkInDate,
+          checkOutDate,
+          numberOfPeople,
+          numberOfRooms,
+        } = values;
 
-        router.push(
-          `/search?location=${values.location}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&numberOfPeople=${values.numberOfPeople}&numberOfRooms=${values.numberOfRooms}`,
-          { scroll: true }
-        );
+        const formattedCheckInDate = checkInDate.format("YYYY-MM-DD");
+        const formattedCheckOutDate = checkOutDate.format("YYYY-MM-DD");
 
-        // const response = await SearchService[API.SEARCH_HOTEL]({
-        //   location: values.location.trim(),
-        //   checkInDate: checkInDate,
-        //   checkOutDate: checkOutDate,
-        // });
+        const searchQueryParams = new URLSearchParams({
+          location,
+          checkInDate: formattedCheckInDate,
+          checkOutDate: formattedCheckOutDate,
+          numberOfPeople: String(numberOfPeople),
+          numberOfRooms: String(numberOfRooms),
+        }).toString();
 
-        // if (response?.status === STATUS_CODE.CREATED) {
-        //   onRefresh();
-        //   dispatch(showCommonAlert(TOAST_KIND.SUCCESS, response.message));
-        // } else {
-        //   dispatch(showCommonAlert(TOAST_KIND.ERROR, response.data.message));
-        // }
+        router.push(`/search?${searchQueryParams}`, { scroll: true });
       } catch (err: any) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
@@ -174,7 +185,7 @@ const SearchBar: FC<SearchBarProps> = () => {
             value={formik.values.location}
             onChange={formik.handleChange}
             error={!!(formik.touched.location && formik.errors.location)}
-            helperText={formik.touched.location && formik.errors.location}
+            // helperText={formik.touched.location && formik.errors.location}
           />
         </Grid>
 
@@ -386,14 +397,14 @@ const SearchBar: FC<SearchBarProps> = () => {
           </Button>
         </Grid>
 
-        {formik.errors.submit && (
+        {/* {formik.errors.submit && (
           <Typography color="error" sx={{ mt: 3 }} variant="body2">
             {formik.errors.submit}
           </Typography>
-        )}
+        )} */}
       </Grid>
     </Box>
   );
 };
 
-export default SearchBar;
+export default SearchHotel;
