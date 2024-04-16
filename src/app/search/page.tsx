@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { Box } from "@mui/material";
+import { Box, List, ListItem, Typography } from "@mui/material";
 import { useSearchParams } from "next/navigation";
 import SearchBar from "@/components/search/search-hotel";
 import dayjs from "dayjs";
