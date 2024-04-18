@@ -5,8 +5,14 @@ import { useSearchParams } from "next/navigation";
 import SearchBar from "@/components/search/search-hotel";
 import dayjs from "dayjs";
 import SearchResult from "@/components/search/search-result";
+import FilterComponent from "@/components/search/filter-hotel";
+import { FILTER } from "@/constant/constants";
 
 export default function Search() {
+  const [priceRange, setPriceRange] = React.useState<number[]>([
+    FILTER.PRICE.MIN,
+    FILTER.PRICE.MAX,
+  ]);
   const searchParams = useSearchParams();
 
   const location: string = searchParams.get("location") || "";
@@ -17,6 +23,11 @@ export default function Search() {
   const numberOfPeople: number =
     Number(searchParams.get("numberOfPeople")) || 1;
   const numberOfRooms: number = Number(searchParams.get("numberOfRooms")) || 1;
+
+  const handlePriceRangeChange = (newValue: number[]) => {
+    setPriceRange(newValue); // Cập nhật giá trị khoảng giá mới
+    // Thực hiện các hành động khác tại đây nếu cần thiết
+  };
 
   return (
     <>
@@ -52,11 +63,7 @@ export default function Search() {
               padding: "0 20px",
             }}
           >
-            <Typography variant="h6" gutterBottom>
-              Filters
-            </Typography>
-            {/* Add filter components here */}
-            {/* Example: <FilterComponent /> */}
+            <FilterComponent onChangePriceRange={handlePriceRangeChange} />
           </Box>
 
           {/* Main section for hotel display */}

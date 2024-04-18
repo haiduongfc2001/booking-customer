@@ -63,7 +63,7 @@ const OutstandingHotel: React.FC = () => {
     data: outstandingHotels,
     error,
     isLoading,
-  } = useAPI(API.HOTEL.GET_OUTSTRANDING_HOTELS);
+  } = useAPI(API.HOTEL.GET_OUTSTANDING_HOTELS);
 
   if (error) {
     return <p>Failed to fetch</p>;

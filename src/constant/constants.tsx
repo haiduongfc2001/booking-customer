@@ -1,7 +1,7 @@
 /**
  * Toast Popup
  */
-export const TOAST_KIND = {
+export const TOAST_KIND: IToastKind = {
   // Success
   SUCCESS: "success",
   SUCCESS_TITLE: "Success",
@@ -13,7 +13,7 @@ export const TOAST_KIND = {
   ERROR_SEVERITY: "error",
 };
 
-export const TOAST_MESSAGE = {
+export const TOAST_MESSAGE: IToastMessage = {
   LOGIN_SUCCESS: "Login Successfully!",
   LOGOUT_SUCCESS: "Logout Successfully!",
   SESSION_TIMEOUT: "Session Timeout!",
@@ -25,26 +25,37 @@ export const TOAST_MESSAGE = {
 /**
  * Screen Title
  */
-export const SCREEN_TITLE = {};
+export const SCREEN_TITLE: IScreenTitle = {};
 
 /**
  * Screen API
  */
-export const API = {
+export const API: IApi = {
   SEARCH_HOTEL: "SearchHotel",
   HOTEL: {
-    GET_OUTSTRANDING_HOTELS: "/hotel/getOutstandingHotels",
+    GET_OUTSTANDING_HOTELS: "/hotel/getOutstandingHotels",
   },
 };
 
 /**
  * Status code of API Response
  */
-export const STATUS_CODE = {
+export const STATUS_CODE: IStatusCode = {
   OK: 200,
   CREATED: 201,
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   INTERNAL_SERVER_ERROR: 500,
+};
+
+/**
+ * Search + Filter hotel
+ */
+export const FILTER: IFilter = {
+  PRICE: {
+    MIN: 0,
+    MAX: 5000000,
+    STEP: 500000,
+  },
 };

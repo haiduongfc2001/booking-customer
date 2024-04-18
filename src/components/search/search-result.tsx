@@ -200,9 +200,10 @@ const SearchResult: FC<SearchResultProps> = ({ location }) => {
                 boxShadow: "0px 5px 5px rgba(0, 0, 0, 0.1)",
                 bgcolor: "background.paper",
                 display: "flex",
-                "&:hover .MuiTypography-subtitle1": {
+                "&:hover .MuiTypography-h6": {
                   color: "primary.main",
                   transition: "all .2s",
+                  cursor: "pointer",
                 },
               }}
             >
@@ -224,7 +225,20 @@ const SearchResult: FC<SearchResultProps> = ({ location }) => {
                 </Grid>
                 <Grid item sm={12} md={5}>
                   <Box>
-                    <Typography variant="h5" gutterBottom>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{
+                        display: "-webkit-box",
+                        overflow: "hidden",
+                        fontSize: "18px",
+                        fontWeight: "600",
+                        lineHeight: "24px",
+                        pt: "4px",
+                        webkitBoxOrient: "vertical",
+                        webkitLineClamp: "3",
+                      }}
+                    >
                       {hotel.hotel_name}
                     </Typography>
                     <Stack direction="row">
