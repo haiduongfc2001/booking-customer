@@ -58,4 +58,9 @@ export const FILTER: IFilter = {
     MAX: 5000000,
     STEP: 500000,
   },
+  RATING: {
+    MIN: 0,
+    MAX: 5,
+    STEP: 1,
+  },
 };

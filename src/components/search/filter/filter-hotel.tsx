@@ -59,48 +59,21 @@ function valueLabelFormat(value: number) {
   return formatCurrency(value);
 }
 
-interface FilterComponentProps {
+interface PriceFilterProps {
+  priceRange: number[];
   onChangePriceRange: (value: number[]) => void;
 }
 
-const FilterComponent: React.FC<FilterComponentProps> = ({
+const PriceFilter: React.FC<PriceFilterProps> = ({
+  priceRange,
   onChangePriceRange,
 }) => {
-  const [priceRange, setPriceRange] = React.useState<number[]>([
-    FILTER.PRICE.MIN,
-    FILTER.PRICE.MAX,
-  ]);
-
   const theme = useTheme();
   const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
-  const handlePriceRangeChange = (
-    event: Event,
-    newPriceRange: number | number[],
-    activeThumb: number
-  ) => {
-    if (!Array.isArray(newPriceRange)) {
-      return;
-    }
-
-    if (activeThumb === 0) {
-      setPriceRange([
-        Math.min(newPriceRange[0], priceRange[1] - FILTER.PRICE.STEP),
-        priceRange[1],
-      ]);
-      onChangePriceRange(newPriceRange);
-    } else {
-      setPriceRange([
-        priceRange[0],
-        Math.max(newPriceRange[1], priceRange[0] + FILTER.PRICE.STEP),
-      ]);
-      onChangePriceRange(newPriceRange);
-    }
-  };
-
   return (
     <Box>
-      <Typography variant="h6" gutterBottom>
+      <Typography id="filter-hotel" variant="h6" gutterBottom>
         Giá mỗi đêm
       </Typography>
       <PriceRangeSlider
@@ -115,7 +88,9 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
         value={priceRange}
         getAriaValueText={valueLabelFormat}
         valueLabelFormat={valueLabelFormat}
-        onChange={handlePriceRangeChange}
+        onChange={(event, newPriceRange) =>
+          onChangePriceRange(newPriceRange as number[])
+        }
       />
       <Grid container mt={1}>
         <Grid
@@ -177,4 +152,4 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
   );
 };
 
-export default FilterComponent;
+export default PriceFilter;

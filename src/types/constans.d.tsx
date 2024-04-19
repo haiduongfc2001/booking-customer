@@ -37,10 +37,11 @@ interface IStatusCode {
 /**
  * Search + Filter hotel
  */
-interface IFilterPrice {
+interface IFilterHotel {
   [key: string]: number;
 }
 
 interface IFilter {
-  PRICE: IFilterPrice;
+  PRICE: IFilterHotel;
+  RATING: IFilterHotel;
 }
