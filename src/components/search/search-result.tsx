@@ -4,12 +4,24 @@ import * as React from "react";
 import { Box, CardMedia, Grid, Stack, Typography } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import formatCurrency from "@/utils/format-currency";
+import { useRouter } from "next/navigation";
+import dayjs, { Dayjs } from "dayjs";
 
 interface SearchResultProps {
   location: string;
+  checkInDate: Dayjs;
+  checkOutDate: Dayjs;
+  numberOfPeople: number;
+  numberOfRooms: number;
 }
 
-const SearchResult: FC<SearchResultProps> = ({ location }) => {
+const SearchResult: FC<SearchResultProps> = ({
+  location = "",
+  checkInDate = dayjs(),
+  checkOutDate = dayjs().add(1, "day"),
+  numberOfPeople = 1,
+  numberOfRooms = 1,
+}) => {
   const hotels = [
     {
       hotel_id: 38527,
@@ -167,6 +179,23 @@ const SearchResult: FC<SearchResultProps> = ({ location }) => {
     },
   ];
 
+  const router = useRouter();
+
+  const handleNavigate = (hotel_id: number) => {
+    const formattedCheckInDate = checkInDate.format("YYYY-MM-DD");
+    const formattedCheckOutDate = checkOutDate.format("YYYY-MM-DD");
+
+    const searchQueryParams = new URLSearchParams({
+      location,
+      checkInDate: formattedCheckInDate,
+      checkOutDate: formattedCheckOutDate,
+      numberOfPeople: String(numberOfPeople),
+      numberOfRooms: String(numberOfRooms),
+    }).toString();
+
+    router.push(`/hotel/${hotel_id}?${searchQueryParams}`, { scroll: true });
+  };
+
   return (
     <Box sx={{ flex: "1", p: "0 20px" }}>
       <Box
@@ -200,12 +229,18 @@ const SearchResult: FC<SearchResultProps> = ({ location }) => {
                 boxShadow: "0px 5px 5px rgba(0, 0, 0, 0.1)",
                 bgcolor: "background.paper",
                 display: "flex",
+                "&:hover": {
+                  bgcolor: "rgb(235,240,252)",
+                  boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+                  cursor: "pointer",
+                },
                 "&:hover .MuiTypography-h6": {
                   color: "primary.main",
                   transition: "all .2s",
                   cursor: "pointer",
                 },
               }}
+              onClick={() => handleNavigate(hotel.hotel_id)}
             >
               <Grid container spacing={2}>
                 <Grid item sm={12} md={4}>

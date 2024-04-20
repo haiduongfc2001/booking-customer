@@ -31,7 +31,9 @@ export const SCREEN_TITLE: IScreenTitle = {};
  * Screen API
  */
 export const API: IApi = {
-  SEARCH_HOTEL: "SearchHotel",
+  SEARCH: {
+    SEARCH_HOTEL: "SearchHotel",
+  },
   HOTEL: {
     GET_OUTSTANDING_HOTELS: "/hotel/getOutstandingHotels",
   },

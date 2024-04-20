@@ -23,12 +23,18 @@ export default function Search() {
   const [selectedMinRating, setSelectedMinRating] = React.useState<string>("");
 
   const searchParams = useSearchParams();
+  const checkInDateParam = searchParams.get("checkInDate");
+  const checkOutDateParam = searchParams.get("checkOutDate");
 
   const location: string = searchParams.get("location") || "";
-  const checkInDate: string =
-    searchParams.get("checkInDate") || dayjs().format("YYYY-MM-DD");
-  const checkOutDate: string =
-    searchParams.get("checkOutDate") || dayjs().format("YYYY-MM-DD");
+  // Parse checkInDate from query parameter or use today's date as fallback
+  const checkInDate = checkInDateParam || dayjs().format("YYYY-MM-DD");
+  // Calculate checkOutDate based on checkInDate
+  const checkOutDate = checkOutDateParam
+    ? dayjs(checkOutDateParam).isAfter(checkInDate)
+      ? checkOutDateParam
+      : dayjs(checkInDate).add(1, "day").format("YYYY-MM-DD")
+    : dayjs(checkInDate).add(1, "day").format("YYYY-MM-DD");
   const numberOfPeople: number =
     Number(searchParams.get("numberOfPeople")) || 1;
   const numberOfRooms: number = Number(searchParams.get("numberOfRooms")) || 1;
@@ -129,7 +135,13 @@ export default function Search() {
           </Box>
 
           {/* Main section for hotel display */}
-          <SearchResult location={location} />
+          <SearchResult
+            location={location}
+            checkInDate={dayjs(checkInDate)}
+            checkOutDate={dayjs(checkOutDate)}
+            numberOfPeople={numberOfPeople}
+            numberOfRooms={numberOfRooms}
+          />
         </Box>
       </React.Suspense>
     </>

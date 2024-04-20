@@ -44,26 +44,6 @@ const SearchBar: FC<SearchBarProps> = () => {
     setAnchorEl(null);
   };
 
-  const handleSubPerson = () => {
-    if (formik.values.numberOfPeople <= 1) return;
-    formik.setFieldValue("numberOfPeople", formik.values.numberOfPeople - 1);
-  };
-
-  const handleAddPerson = () => {
-    if (formik.values.numberOfPeople < 1) return;
-    formik.setFieldValue("numberOfPeople", formik.values.numberOfPeople + 1);
-  };
-
-  const handleSubRoom = () => {
-    if (formik.values.numberOfRooms <= 1) return;
-    formik.setFieldValue("numberOfRooms", formik.values.numberOfRooms - 1);
-  };
-
-  const handleAddRoom = () => {
-    if (formik.values.numberOfRooms < 1) return;
-    formik.setFieldValue("numberOfRooms", formik.values.numberOfRooms + 1);
-  };
-
   const open = Boolean(anchorEl);
   const id = open ? "popover" : undefined;
 
@@ -71,7 +51,7 @@ const SearchBar: FC<SearchBarProps> = () => {
     initialValues: {
       location: "Hà Nội",
       checkInDate: dayjs(),
-      checkOutDate: dayjs(),
+      checkOutDate: dayjs().add(1, "day"),
       numberOfPeople: 1,
       numberOfRooms: 1,
       submit: null,
@@ -79,9 +59,19 @@ const SearchBar: FC<SearchBarProps> = () => {
     validationSchema: Yup.object({
       location: Yup.string().required("Vui lòng chọn điểm đến!"),
       checkInDate: Yup.date().required("Vui lòng chọn ngày đến!"),
-      checkOutDate: Yup.date().required("Vui lòng chọn ngày về!"),
+      checkOutDate: Yup.date()
+        .required("Vui lòng chọn ngày về!")
+        .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
       numberOfPeople: Yup.number()
         .min(1, "Số lượng người tối thiểu phải là 1!")
+        .test({
+          name: "roomCheck",
+          message: "Số người ở ít nhất phải bằng số phòng!",
+          test: function (value) {
+            const numberOfRooms = this.parent.numberOfRooms as number;
+            return typeof value === "number" && value >= numberOfRooms;
+          },
+        })
         .required("Vui lòng chọn số lượng người!"),
       numberOfRooms: Yup.number()
         .min(1, "Số lượng phòng tối thiểu phải là 1!")
@@ -90,15 +80,28 @@ const SearchBar: FC<SearchBarProps> = () => {
 
     onSubmit: async (values, helpers) => {
       try {
-        const checkInDate = values.checkInDate.format("YYYY-MM-DD");
-        const checkOutDate = values.checkOutDate.format("YYYY-MM-DD");
+        const {
+          location,
+          checkInDate,
+          checkOutDate,
+          numberOfPeople,
+          numberOfRooms,
+        } = values;
 
-        router.push(
-          `/search?location=${values.location}&checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&numberOfPeople=${values.numberOfPeople}&numberOfRooms=${values.numberOfRooms}`,
-          { scroll: true }
-        );
+        const formattedCheckInDate = checkInDate.format("YYYY-MM-DD");
+        const formattedCheckOutDate = checkOutDate.format("YYYY-MM-DD");
 
-        // const response = await SearchService[API.SEARCH_HOTEL]({
+        const searchQueryParams = new URLSearchParams({
+          location,
+          checkInDate: formattedCheckInDate,
+          checkOutDate: formattedCheckOutDate,
+          numberOfPeople: String(numberOfPeople),
+          numberOfRooms: String(numberOfRooms),
+        }).toString();
+
+        router.push(`/search?${searchQueryParams}`, { scroll: true });
+
+        // const response = await SearchService[API.SEARCH.HOTEL]({
         //   location: values.location.trim(),
         //   checkInDate: checkInDate,
         //   checkOutDate: checkOutDate,
@@ -118,21 +121,59 @@ const SearchBar: FC<SearchBarProps> = () => {
     },
   });
 
+  const updateFieldValue = (field: string, newValue: any) => {
+    formik.setFieldValue(field, newValue);
+  };
+
+  const handleSubPerson = () => {
+    if (
+      formik.values.numberOfPeople > 1 &&
+      formik.values.numberOfPeople >= formik.values.numberOfRooms
+    ) {
+      updateFieldValue("numberOfPeople", formik.values.numberOfPeople - 1);
+    } else return;
+  };
+
+  const handleAddPerson = () => {
+    if (formik.values.numberOfPeople < 1) return;
+    updateFieldValue("numberOfPeople", formik.values.numberOfPeople + 1);
+  };
+
+  const handleSubRoom = () => {
+    if (formik.values.numberOfRooms <= 1) {
+      return;
+    } else {
+      updateFieldValue("numberOfRooms", formik.values.numberOfRooms - 1);
+      if (formik.values.numberOfPeople < formik.values.numberOfRooms) {
+        updateFieldValue("numberOfPeople", formik.values.numberOfRooms);
+      }
+    }
+  };
+
+  const handleAddRoom = () => {
+    if (formik.values.numberOfRooms < 1) {
+      return;
+    } else {
+      updateFieldValue("numberOfRooms", formik.values.numberOfRooms + 1);
+      if (formik.values.numberOfPeople <= formik.values.numberOfRooms) {
+        updateFieldValue("numberOfPeople", formik.values.numberOfPeople + 1);
+      }
+    }
+  };
+
   const handleCheckInChange = (newValue: Dayjs | null) => {
     if (newValue) {
-      formik.setFieldValue("checkInDate", newValue);
-      if (
-        !formik.values.checkOutDate ||
-        newValue.isAfter(formik.values.checkOutDate)
-      ) {
-        formik.setFieldValue("checkOutDate", newValue);
+      updateFieldValue("checkInDate", newValue);
+      const minCheckOutDate = newValue.add(1, "day");
+      if (formik.values.checkOutDate.isBefore(minCheckOutDate)) {
+        updateFieldValue("checkOutDate", minCheckOutDate);
       }
     }
   };
 
   const handleCheckOutChange = (newValue: Dayjs | null) => {
-    if (newValue && newValue.isAfter(formik.values.checkInDate)) {
-      formik.setFieldValue("checkOutDate", newValue);
+    if (newValue) {
+      updateFieldValue("checkOutDate", newValue);
     }
   };
 
@@ -187,14 +228,18 @@ const SearchBar: FC<SearchBarProps> = () => {
               minDate={dayjs()}
               value={formik.values.checkInDate}
               onChange={(newValue) => handleCheckInChange(newValue)}
-              // error={
-              //   !!(
-              //     formik.touched.checkInDate && formik.errors.checkInDate
-              //   )
-              // }
-              // helperText={
-              //   formik.touched.checkInDate && formik.errors.checkInDate
-              // }
+              slotProps={{
+                textField: {
+                  error:
+                    formik.touched.checkInDate &&
+                    Boolean(formik.errors.checkInDate),
+                  helperText:
+                    formik.touched.checkInDate &&
+                    typeof formik.errors.checkInDate === "string"
+                      ? formik.errors.checkInDate
+                      : "",
+                },
+              }}
             />
           </LocalizationProvider>
         </Grid>
@@ -204,18 +249,21 @@ const SearchBar: FC<SearchBarProps> = () => {
               label="Ngày về"
               name="checkOutDate"
               sx={{ bgcolor: "background.paper", width: "100%" }}
-              minDate={formik.values.checkInDate}
+              minDate={formik.values.checkInDate.add(1, "day")}
               value={formik.values.checkOutDate}
               onChange={(newValue) => handleCheckOutChange(newValue)}
-              // error={
-              //   !!(
-              //     formik.touched.checkOutDate &&
-              //     formik.errors.checkOutDate
-              //   )
-              // }
-              // helperText={
-              //   formik.touched.checkOutDate && formik.errors.checkOutDate
-              // }
+              slotProps={{
+                textField: {
+                  error:
+                    formik.touched.checkOutDate &&
+                    Boolean(formik.errors.checkOutDate),
+                  helperText:
+                    formik.touched.checkOutDate &&
+                    typeof formik.errors.checkOutDate === "string"
+                      ? formik.errors.checkOutDate
+                      : "",
+                },
+              }}
             />
           </LocalizationProvider>
         </Grid>
@@ -288,7 +336,11 @@ const SearchBar: FC<SearchBarProps> = () => {
                           background: "rgb(237, 240, 249)",
                         },
                       }}
-                      disabled={formik.values.numberOfPeople <= 1}
+                      disabled={
+                        formik.values.numberOfPeople <= 1 ||
+                        formik.values.numberOfPeople ===
+                          formik.values.numberOfRooms
+                      }
                       onClick={handleSubPerson}
                     >
                       <RemoveIcon />

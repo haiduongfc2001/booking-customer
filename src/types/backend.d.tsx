@@ -1,4 +1,4 @@
-interface IOutstandingHotels {
+interface IOutstandingHotel {
   hotel_id: number;
   hotel_name: string;
   hotel_address: string;

@@ -10,13 +10,15 @@ import formatCurrency from "@/utils/format-currency";
 import { useAPI } from "@/lib/api";
 import { API } from "@/constant/constants";
 import SkeletonLoading from "./skeleton-loading";
+import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
 
 const OutstandingHotel: React.FC = () => {
+  const router = useRouter();
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.only("xs"));
   const isSm = useMediaQuery(theme.breakpoints.only("sm"));
   const isMd = useMediaQuery(theme.breakpoints.only("md"));
-  const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
 
   // State to hold the current number of items per page
   const [itemsPerPage, setItemsPerPage] = useState(() => {
@@ -78,6 +80,33 @@ const OutstandingHotel: React.FC = () => {
     groupedItems.push(outstandingHotels.data.slice(i, i + itemsPerPage));
   }
 
+  const extractCityFromAddress = (address: string): string => {
+    const parts = address.split(",");
+    return parts[parts.length - 1].trim();
+  };
+
+  const handleNavigate = (hotel_id: number) => {
+    const hotel = outstandingHotels?.data.find(
+      (hotel: IOutstandingHotel) => hotel.hotel_id === hotel_id
+    );
+    if (!hotel) {
+      console.error(`Hotel with ID ${hotel_id} not found`);
+      return;
+    }
+
+    const city = extractCityFromAddress(hotel.hotel_address);
+
+    const searchQueryParams = new URLSearchParams({
+      location: city,
+      checkInDate: dayjs().format("YYYY-MM-DD"),
+      checkOutDate: dayjs().add(1, "day").format("YYYY-MM-DD"),
+      numberOfPeople: "1",
+      numberOfRooms: "1",
+    }).toString();
+
+    router.push(`/hotel/${hotel_id}?${searchQueryParams}`, { scroll: true });
+  };
+
   return (
     <Box
       sx={{
@@ -136,7 +165,7 @@ const OutstandingHotel: React.FC = () => {
               gap: "16px",
             }}
           >
-            {group.map((item: IOutstandingHotels, itemIndex: number) => (
+            {group.map((item: IOutstandingHotel, itemIndex: number) => (
               <Box
                 key={itemIndex}
                 sx={{
@@ -154,9 +183,15 @@ const OutstandingHotel: React.FC = () => {
                     transition:
                       "box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out",
                     cursor: "pointer",
-                    bgcolor: "rgba(255, 255, 255, 0.95)",
+                    bgcolor: "rgb(235,240,252)",
+                  },
+                  "&:hover .MuiTypography-h6": {
+                    color: "primary.main",
+                    transition: "all .2s",
+                    cursor: "pointer",
                   },
                 }}
+                onClick={() => handleNavigate(item.hotel_id)}
               >
                 <CardMedia
                   component="img"
@@ -172,7 +207,20 @@ const OutstandingHotel: React.FC = () => {
                   }}
                 />
                 <Box p={2} sx={{ flexGrow: 1 }}>
-                  <Typography variant="subtitle1" gutterBottom>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    sx={{
+                      display: "-webkit-box",
+                      overflow: "hidden",
+                      fontSize: "18px",
+                      fontWeight: "600",
+                      lineHeight: "24px",
+                      pt: "4px",
+                      webkitBoxOrient: "vertical",
+                      webkitLineClamp: "3",
+                    }}
+                  >
                     {item.hotel_name}
                   </Typography>
                   <Stack direction="row">

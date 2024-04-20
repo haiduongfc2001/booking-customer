@@ -17,14 +17,11 @@ interface IScreenTitle {
 }
 
 /**
- * Screen API
+ * API
  */
-interface IHotelApi {
-  [key: string]: string;
-}
-
 interface IApi {
-  [key: string]: string | { [key: string]: string };
+  SEARCH: { [key: string]: string };
+  HOTEL: { [key: string]: string };
 }
 
 /**

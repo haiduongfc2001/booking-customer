@@ -37,7 +37,7 @@ interface SearchHotelProps {
 const SearchHotel: FC<SearchHotelProps> = ({
   location = "",
   checkInDate = dayjs(),
-  checkOutDate = dayjs(),
+  checkOutDate = dayjs().add(1, "day"),
   numberOfPeople = 1,
   numberOfRooms = 1,
 }) => {
@@ -65,32 +65,14 @@ const SearchHotel: FC<SearchHotelProps> = ({
     setAnchorEl(null);
   };
 
-  const handleSubPerson = () => {
-    if (formik.values.numberOfPeople <= 1) return;
-    formik.setFieldValue("numberOfPeople", formik.values.numberOfPeople - 1);
-  };
-
-  const handleAddPerson = () => {
-    if (formik.values.numberOfPeople < 1) return;
-    formik.setFieldValue("numberOfPeople", formik.values.numberOfPeople + 1);
-  };
-
-  const handleSubRoom = () => {
-    if (formik.values.numberOfRooms <= 1) return;
-    formik.setFieldValue("numberOfRooms", formik.values.numberOfRooms - 1);
-  };
-
-  const handleAddRoom = () => {
-    if (formik.values.numberOfRooms < 1) return;
-    formik.setFieldValue("numberOfRooms", formik.values.numberOfRooms + 1);
-  };
-
   const formik = useFormik({
     initialValues,
     validationSchema: Yup.object({
       location: Yup.string().required("Vui lòng chọn điểm đến!"),
       checkInDate: Yup.date().required("Vui lòng chọn ngày đến!"),
-      checkOutDate: Yup.date().required("Vui lòng chọn ngày về!"),
+      checkOutDate: Yup.date()
+        .required("Vui lòng chọn ngày về!")
+        .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
       numberOfPeople: Yup.number()
         .min(1, "Số lượng người tối thiểu phải là 1!")
         .required("Vui lòng chọn số lượng người!"),
@@ -129,21 +111,43 @@ const SearchHotel: FC<SearchHotelProps> = ({
     },
   });
 
+  const updateFieldValue = (field: string, newValue: any) => {
+    formik.setFieldValue(field, newValue);
+  };
+
+  const handleSubPerson = () => {
+    if (formik.values.numberOfPeople <= 1) return;
+    updateFieldValue("numberOfPeople", formik.values.numberOfPeople - 1);
+  };
+
+  const handleAddPerson = () => {
+    if (formik.values.numberOfPeople < 1) return;
+    updateFieldValue("numberOfPeople", formik.values.numberOfPeople + 1);
+  };
+
+  const handleSubRoom = () => {
+    if (formik.values.numberOfRooms <= 1) return;
+    updateFieldValue("numberOfRooms", formik.values.numberOfRooms - 1);
+  };
+
+  const handleAddRoom = () => {
+    if (formik.values.numberOfRooms < 1) return;
+    updateFieldValue("numberOfRooms", formik.values.numberOfRooms + 1);
+  };
+
   const handleCheckInChange = (newValue: Dayjs | null) => {
     if (newValue) {
-      formik.setFieldValue("checkInDate", newValue);
-      if (
-        !formik.values.checkOutDate ||
-        newValue.isAfter(formik.values.checkOutDate)
-      ) {
-        formik.setFieldValue("checkOutDate", newValue);
+      updateFieldValue("checkInDate", newValue);
+      const minCheckOutDate = newValue.add(1, "day");
+      if (formik.values.checkOutDate.isBefore(minCheckOutDate)) {
+        updateFieldValue("checkOutDate", minCheckOutDate);
       }
     }
   };
 
   const handleCheckOutChange = (newValue: Dayjs | null) => {
-    if (newValue && newValue.isAfter(formik.values.checkInDate)) {
-      formik.setFieldValue("checkOutDate", newValue);
+    if (newValue) {
+      updateFieldValue("checkOutDate", newValue);
     }
   };
 
@@ -198,14 +202,18 @@ const SearchHotel: FC<SearchHotelProps> = ({
               minDate={dayjs()}
               value={formik.values.checkInDate}
               onChange={(newValue) => handleCheckInChange(newValue)}
-              // error={
-              //   !!(
-              //     formik.touched.checkInDate && formik.errors.checkInDate
-              //   )
-              // }
-              // helperText={
-              //   formik.touched.checkInDate && formik.errors.checkInDate
-              // }
+              slotProps={{
+                textField: {
+                  error:
+                    formik.touched.checkInDate &&
+                    Boolean(formik.errors.checkInDate),
+                  helperText:
+                    formik.touched.checkInDate &&
+                    typeof formik.errors.checkInDate === "string"
+                      ? formik.errors.checkInDate
+                      : "",
+                },
+              }}
             />
           </LocalizationProvider>
         </Grid>
@@ -215,18 +223,21 @@ const SearchHotel: FC<SearchHotelProps> = ({
               label="Ngày về"
               name="checkOutDate"
               sx={{ bgcolor: "background.paper", width: "100%" }}
-              minDate={formik.values.checkInDate}
+              minDate={formik.values.checkInDate.add(1, "day")}
               value={formik.values.checkOutDate}
               onChange={(newValue) => handleCheckOutChange(newValue)}
-              // error={
-              //   !!(
-              //     formik.touched.checkOutDate &&
-              //     formik.errors.checkOutDate
-              //   )
-              // }
-              // helperText={
-              //   formik.touched.checkOutDate && formik.errors.checkOutDate
-              // }
+              slotProps={{
+                textField: {
+                  error:
+                    formik.touched.checkOutDate &&
+                    Boolean(formik.errors.checkOutDate),
+                  helperText:
+                    formik.touched.checkOutDate &&
+                    typeof formik.errors.checkOutDate === "string"
+                      ? formik.errors.checkOutDate
+                      : "",
+                },
+              }}
             />
           </LocalizationProvider>
         </Grid>
