@@ -41,11 +41,11 @@ const AmenitiesFilter: React.FC<IAmenitiesFilterProps> = ({
           justifyContent: "space-between",
         }}
       >
-        <Typography id="amenities-filter" variant="h6" gutterBottom>
+        <Typography id="amenities-filter" variant="h6" gutterBottom mb={0}>
           Tiện nghi
         </Typography>
         {selectedAmenities?.length > 0 && (
-          <Button color="secondary" onClick={() => onAmenitiesChange([])}>
+          <Button color="error" onClick={() => onAmenitiesChange([])}>
             Xóa
           </Button>
         )}

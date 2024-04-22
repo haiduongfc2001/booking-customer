@@ -42,3 +42,7 @@ interface IFilter {
   PRICE: IFilterHotel;
   RATING: IFilterHotel;
 }
+
+interface IRatingCategories {
+  [key: string]: string;
+}

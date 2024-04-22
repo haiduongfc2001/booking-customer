@@ -33,11 +33,11 @@ const RoomTypeFilter: React.FC<RoomTypeFilterProps> = ({
           justifyContent: "space-between",
         }}
       >
-        <Typography id="room-type-filter" variant="h6" gutterBottom>
+        <Typography id="room-type-filter" variant="h6" gutterBottom mb={0}>
           Loại phòng
         </Typography>
         {selectedRoomType?.length > 0 && (
-          <Button color="secondary" onClick={() => onRoomTypeChange([])}>
+          <Button color="error" onClick={() => onRoomTypeChange([])}>
             Xóa
           </Button>
         )}

@@ -8,22 +8,22 @@ import {
 } from "@mui/material";
 import React from "react";
 
-const ratingList = [
+const ratingCategories = [
   {
-    value: "4.5",
-    label: "Tuyệt vời (4.5+)",
+    value: "9.0",
+    label: "Tuyệt vời (9.0+)",
   },
   {
-    value: "4.0",
-    label: "Xuất sắc (4.0+)",
+    value: "8.0",
+    label: "Rất tốt (8.0+)",
   },
   {
-    value: "3.5",
-    label: "Rất tốt (3.5+)",
+    value: "7.0",
+    label: "Tốt (7.0+)",
   },
   {
-    value: "3.0",
-    label: "Hài lòng (3.0+)",
+    value: "6.0",
+    label: "Hài lòng (6.0+)",
   },
 ];
 
@@ -51,12 +51,12 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
           justifyContent: "space-between",
         }}
       >
-        <Typography id="rating-radio-group" variant="h6" gutterBottom>
+        <Typography id="rating-radio-group" variant="h6" gutterBottom mb={0}>
           Đánh giá của khách
         </Typography>
         {selectedMinRating && (
           <Button
-            color="secondary"
+            color="error"
             sx={{ p: 0 }}
             onClick={() => onChangeRating("")}
           >
@@ -71,7 +71,7 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
         value={selectedMinRating}
         onChange={handleMinRatingChange}
       >
-        {ratingList.map((rating) => (
+        {ratingCategories.map((rating) => (
           <FormControlLabel
             key={rating.value}
             value={rating.value}

@@ -36,6 +36,7 @@ export const API: IApi = {
   },
   HOTEL: {
     GET_OUTSTANDING_HOTELS: "/hotel/getOutstandingHotels",
+    GET_HOTEL_BY_ID: "/hotel/getHotelById",
   },
 };
 
@@ -65,4 +66,12 @@ export const FILTER: IFilter = {
     MAX: 5,
     STEP: 1,
   },
+};
+
+export const RATING_CATEGORIES: IRatingCategories = {
+  AMAZING: "Tuyệt vời",
+  VERY_GOOD: "Rất tốt",
+  GOOD: "Tốt",
+  SATISFIED: "Hài lòng",
+  UNSATISFIED: "Không hài lòng",
 };

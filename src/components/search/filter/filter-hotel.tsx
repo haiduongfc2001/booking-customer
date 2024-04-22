@@ -31,6 +31,7 @@ const PriceRangeSlider = styled(Slider)({
     },
   },
   "& .MuiSlider-valueLabel": {
+    borderRadius: "8px",
     lineHeight: 1.2,
     fontSize: 12,
     background: "unset",
