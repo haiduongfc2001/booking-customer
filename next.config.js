@@ -4,6 +4,11 @@ module.exports = {
     GOONG_MAP_KEY: process.env.GOONG_MAP_KEY,
   },
   images: {
-    domains: ["gcs.tripi.vn", "localhost", "localhost:9000"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
   },
 };
