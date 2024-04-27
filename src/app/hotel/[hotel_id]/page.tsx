@@ -29,6 +29,7 @@ import {
 } from "@/components/hotel-detail/data";
 import RoomList from "@/components/hotel-detail/room-list";
 import { AnyAaaaRecord } from "dns";
+import HotelsAround from "@/components/hotel-detail/hotels-around";
 
 export default function HotelDetail(props: any) {
   const { location, checkInDate, checkOutDate, numberOfPeople, numberOfRooms } =
@@ -495,6 +496,18 @@ export default function HotelDetail(props: any) {
           <RoomList
             numberOfNights={numberOfNights}
             numberOfRooms={numberOfRooms}
+          />
+
+          <HotelsAround hotelsAround={hotelData?.hotelsAround} />
+
+          <Box
+            sx={{
+              width: "100%",
+              height: "4px",
+              margin: "24px 0",
+              background: "#6366F1",
+              borderRadius: 1,
+            }}
           />
         </Box>
 
