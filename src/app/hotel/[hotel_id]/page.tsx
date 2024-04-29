@@ -260,7 +260,8 @@ export default function HotelDetail(props: any) {
                   >
                     <Image
                       fill
-                      loading="lazy"
+                      priority
+                      // loading="lazy"
                       // loader={() => image.url}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       src={image.url}

@@ -19,6 +19,7 @@ import {
   tableCellClasses,
 } from "@mui/material";
 import { createTypography } from "./create-typography";
+import { fontStyle } from "@mui/system";
 
 // Custom theme: Colors
 const themeColors = {
@@ -199,6 +200,8 @@ const themeOptions: ThemeOptionsOld = {
         input: {
           "&::placeholder": {
             opacity: 1,
+            color: "#9DA4AE",
+            fontStyle: "italic",
           },
         },
       },
@@ -215,6 +218,7 @@ const themeOptions: ThemeOptionsOld = {
         },
       },
     },
+
     MuiFilledInput: {
       styleOverrides: {
         root: {
