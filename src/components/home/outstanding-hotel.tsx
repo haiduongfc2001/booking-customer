@@ -217,8 +217,8 @@ const OutstandingHotel: React.FC = () => {
                       fontWeight: "600",
                       lineHeight: "24px",
                       pt: "4px",
-                      webkitBoxOrient: "vertical",
-                      webkitLineClamp: "3",
+                      WebkitBoxOrient: "vertical",
+                      WebkitLineClamp: "3",
                     }}
                   >
                     {item.hotel_name}
@@ -230,8 +230,8 @@ const OutstandingHotel: React.FC = () => {
                       sx={{
                         overflow: "hidden",
                         display: "-webkit-box",
-                        webkitLineClamp: 2,
-                        webkitBoxOrient: "vertical",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
                         textOverflow: "ellipsis",
                       }}
                     >

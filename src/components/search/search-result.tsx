@@ -270,8 +270,8 @@ const SearchResult: FC<SearchResultProps> = ({
                         fontWeight: "600",
                         lineHeight: "24px",
                         pt: "4px",
-                        webkitBoxOrient: "vertical",
-                        webkitLineClamp: "3",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: "3",
                       }}
                     >
                       {hotel.hotel_name}
@@ -283,8 +283,8 @@ const SearchResult: FC<SearchResultProps> = ({
                         sx={{
                           overflow: "hidden",
                           display: "-webkit-box",
-                          webkitLineClamp: 2,
-                          webkitBoxOrient: "vertical",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
                           textOverflow: "ellipsis",
                         }}
                       >

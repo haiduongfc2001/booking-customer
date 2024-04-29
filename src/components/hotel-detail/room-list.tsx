@@ -261,8 +261,8 @@ const RoomList: FC<RoomListProps> = ({ numberOfNights, numberOfRooms }) => {
                             fontWeight: "600",
                             lineHeight: "24px",
                             pt: "4px",
-                            webkitBoxOrient: "vertical",
-                            webkitLineClamp: "3",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: "3",
                           }}
                         >
                           {room.number}

@@ -28,8 +28,8 @@ import {
   ratingData,
 } from "@/components/hotel-detail/data";
 import RoomList from "@/components/hotel-detail/room-list";
-import { AnyAaaaRecord } from "dns";
 import HotelsAround from "@/components/hotel-detail/hotels-around";
+import HotelReviews from "@/components/hotel-detail/hotel-reviews";
 
 export default function HotelDetail(props: any) {
   const { location, checkInDate, checkOutDate, numberOfPeople, numberOfRooms } =
@@ -478,8 +478,8 @@ export default function HotelDetail(props: any) {
                             overflow: "hidden",
                             minWidth: "85px",
                             textAlign: "center",
-                            webkitBoxOrient: "vertical",
-                            webkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: 2,
                             ml: 0.5,
                           }}
                         >
@@ -510,6 +510,13 @@ export default function HotelDetail(props: any) {
             }}
           />
         </Box>
+
+        <HotelReviews
+          hotelReviews={hotelData?.reviews}
+          numericRating={numericRating}
+          percentRating={percentRating}
+          countByRatingLevel={hotelData?.countByRatingLevel}
+        />
 
         {/* <List>
         <ListItem>location : {location}</ListItem>
