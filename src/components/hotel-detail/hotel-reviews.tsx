@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { Line, Circle } from "rc-progress";
 import ratingCategory from "@/utils/rating-category";
-import { hotelData, ratingData, sortOptions } from "./data";
+import { hotelData, ratingData, sortOptions } from "../../utils/data";
 import { getInitials } from "@/utils/get-initials";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import { formatDate } from "@/utils/format-date";
@@ -22,21 +22,21 @@ import { RATING_CATEGORIES } from "@/constant/constants";
 
 interface IReplyReview {
   content: string;
-  createdAt: Date;
-  images: string;
+  createdAt: number;
+  images: string | null;
 }
 
 interface IHotelReview {
   id: number;
   username: string | null;
-  avatar: string;
+  avatar: string | null;
   title: string;
   content: string;
   rating: number;
   roomName: string;
   travelDate: string;
   publishedDate: string;
-  reply: IReplyReview;
+  reply: IReplyReview | null;
 }
 
 interface ICountByRatingLevel {

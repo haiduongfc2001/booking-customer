@@ -22,11 +22,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Image from "next/image";
 import { Line, Circle } from "rc-progress";
 import ratingCategory from "@/utils/rating-category";
-import {
-  amenitiesData,
-  hotelData,
-  ratingData,
-} from "@/components/hotel-detail/data";
+import { amenitiesData, hotelData, ratingData } from "@/utils/data";
 import RoomList from "@/components/hotel-detail/room-list";
 import HotelsAround from "@/components/hotel-detail/hotels-around";
 import HotelReviews from "@/components/hotel-detail/hotel-reviews";

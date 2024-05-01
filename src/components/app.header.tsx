@@ -15,9 +15,9 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import HotelIcon from "@mui/icons-material/Hotel";
 import { Avatar, Tooltip } from "@mui/material";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const pages = ["Products", "Pricing", "Blog"];
-const settings = ["Hồ sơ", "Tài khoản", "Đăng xuất"];
 
 export default function Header() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -27,8 +27,15 @@ export default function Header() {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
 
+  const router = useRouter();
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+
+  const settings = [
+    { label: "Hồ sơ", action: () => handleProfileAction("Hồ sơ") },
+    { label: "Tài khoản", action: () => handleProfileAction("Tài khoản") },
+    { label: "Đăng xuất", action: () => handleLogoutAction() },
+  ];
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -49,6 +56,14 @@ export default function Header() {
   const handleMenuClose = () => {
     setAnchorEl(null);
     handleMobileMenuClose();
+  };
+
+  const handleProfileAction = (action: string) => {
+    router.push("/account");
+  };
+
+  const handleLogoutAction = () => {
+    router.push("/login");
   };
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -74,8 +89,8 @@ export default function Header() {
       onClose={handleMenuClose}
     >
       {settings.map((setting) => (
-        <MenuItem key={setting} onClick={handleMenuClose}>
-          <Typography textAlign="center">{setting}</Typography>
+        <MenuItem key={setting.label} onClick={setting.action}>
+          <Typography textAlign="center">{setting.label}</Typography>
         </MenuItem>
       ))}
     </Menu>
@@ -223,7 +238,7 @@ export default function Header() {
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            <Tooltip title="Open settings">
+            <Tooltip title="Cài đặt tài khoản">
               <IconButton
                 size="large"
                 edge="end"

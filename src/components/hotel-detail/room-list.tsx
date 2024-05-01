@@ -13,7 +13,12 @@ import {
   Typography,
 } from "@mui/material";
 import formatCurrency from "@/utils/format-currency";
-import { filterRoom, hotelData, roomAmenities, roomBenefits } from "./data";
+import {
+  filterRoom,
+  hotelData,
+  roomAmenities,
+  roomBenefits,
+} from "../../utils/data";
 import TuneIcon from "@mui/icons-material/Tune";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import RoomAmenitiesList from "@/components/hotel-detail/room-amenities-list";
