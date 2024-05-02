@@ -805,6 +805,7 @@ export const hotelData = {
         "http://localhost:9000/europetrip/hotels/3/1712920829212_Y3vmWc9Kt0_download.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240412T112029Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=5bf40b5605676113bdec88e0e4c708bd67f50b21168e4e11a154a738624fb9fa",
       min_room_price: 900000,
       original_room_price: 1000000,
+      is_favorite_hotel: true,
     },
     {
       hotel_id: 4,
@@ -815,6 +816,7 @@ export const hotelData = {
         "http://localhost:9000/europetrip/hotels/4/1712891146090_TpaQVvzglH_download3.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240412T030546Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=dba8bdd8e4a657c9074dd02e4dff507321e08ca723ea04aa04331dac158b05c6",
       min_room_price: 1250000,
       original_room_price: 1500000,
+      is_favorite_hotel: false,
     },
     {
       hotel_id: 5,
@@ -824,6 +826,7 @@ export const hotelData = {
         "http://localhost:9000/europetrip/hotels/5/1712920844797_4Wjd8sQ9rK_download1.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240412T112044Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=4806ee7978db11862f639bca6bc36ce50454e5325807b9c57fc7f10b8e1d7ff0",
       min_room_price: 2250000,
       original_room_price: 2500000,
+      is_favorite_hotel: false,
     },
     {
       hotel_id: 6,
@@ -833,6 +836,7 @@ export const hotelData = {
         "http://localhost:9000/europetrip/hotels/6/1712920855337_Kg6WxBaDeS_download2.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240412T112055Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a5e494d464d8f2e282743cdfed5e6200398119cf9cc6fc64575e98d888ad5f76",
       min_room_price: 1115000,
       original_room_price: 1200000,
+      is_favorite_hotel: false,
     },
     {
       hotel_id: 7,
@@ -842,6 +846,7 @@ export const hotelData = {
         "http://localhost:9000/europetrip/hotels/7/1712920869279_eSJctZ2ylB_download5.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240412T112109Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=f88696c89513da6753af27cbec0807eeb287f7ca820eae1c8e65aef2fd382027",
       min_room_price: 1600000,
       original_room_price: 1800000,
+      is_favorite_hotel: false,
     },
     {
       hotel_id: 8,
@@ -851,6 +856,7 @@ export const hotelData = {
         "http://localhost:9000/europetrip/hotels/8/1712920909941_mcu7vpohrZ_download5.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240412T112149Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=4d7a98001fc7d250f8f0b26bfd6cfa06ca5033e07a65c45bb6d35aa172e5a74f",
       min_room_price: 2200000,
       original_room_price: 3000000,
+      is_favorite_hotel: false,
     },
     {
       hotel_id: 9,
@@ -860,6 +866,7 @@ export const hotelData = {
         "http://localhost:9000/europetrip/hotels/9/1712891127616_Q9woy3sCMD_download5.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240412%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240412T030527Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=2cc11a6b1122f289daec9ace621f0eab7e1721b95ecc1cbbf5a994f699ae3b4d",
       min_room_price: 1480000,
       original_room_price: 1600000,
+      is_favorite_hotel: false,
     },
     {
       hotel_id: 10,
@@ -869,6 +876,7 @@ export const hotelData = {
         "http://localhost:9000/europetrip/hotels/10/1713772294727_9K84YkFRZM_room2.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240422%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240422T075134Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=8c0536fa4c5f6cb965ed5455559e8f7ab40efa84fbff790547e8169e2c64f269",
       min_room_price: 470000,
       original_room_price: 550000,
+      is_favorite_hotel: false,
     },
   ],
 };
@@ -1199,3 +1207,303 @@ export const userInfo = {
   availableCredit: 0,
   totalHoldingCredit: 0,
 };
+
+export const searchResult = [
+  {
+    hotel_id: 38527,
+    hotel_name: "Khách sạn La Vague",
+    hotel_address: "Số 8, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616771153173ME/outside.png",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 48801,
+    hotel_name: "Khách sạn Grand Gosia Nha Trang",
+    hotel_address:
+      "10-12 Trần Phú, Vĩnh Nguyên, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://storage.googleapis.com/hms_prod/photo/thumb/1617092342927GY/144944532.png",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 38483,
+    hotel_name: "Khách sạn Sea Pearl Nha Trang",
+    hotel_address: "98a, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1617174369612dF/172059893.jpg",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 48130,
+    hotel_name: "The Empyrean Nha Trang",
+    hotel_address: "2 , Nguyễn Thị Minh Khai, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616819671281ZO/40510723.png",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 38437,
+    hotel_name: "Khách sạn Ibis Styles Nha Trang",
+    hotel_address: "86, Hùng Vương, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/img/467043orJ/z4260616666973_ae897d5bc64a75a0a960e005004c5497.jpg",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 38380,
+    hotel_name: "Khách sạn Boton Blue & Spa Nha Trang",
+    hotel_address:
+      "Phạm Văn Đồng, Phường Vĩnh Hòa, Phạm Văn Đồng, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/2685xI/ecea6c41b2d197bd06460bee7ab542b0.jpg",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 38406,
+    hotel_name: "TUI BLUE - Khách sạn TUI BLUE Nha Trang",
+    hotel_address: "18, Trần Hưng Đạo, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/img/470238wvF/dji_0056.jpg",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 38664,
+    hotel_name: "Khách Sạn Mường Thanh Luxury Nha Trang",
+    hotel_address: "60, Trần Phú, Lộc Thọ, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1620472922630mr/293542180_result.jpg",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 9723,
+    hotel_name: "Khách Sạn Mường Thanh Grand Nha Trang",
+    hotel_address: "6 , Dương Hiến Quyền, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616860211117eh/283800904.png",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 45768,
+    hotel_name: "Khách sạn Merperle Beach Nha Trang",
+    hotel_address: "88a, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://googleapis.tripi.vn/download/storage/v1/b/tourcdn/o/photos%2FDETKKSYJY7_%2Ftmp%2Fplaytemp7486223076244920531%2FmultipartBody4363323379706674084asTemporaryFile?generation=1592549175846288&alt=media",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 38470,
+    hotel_name: "Khách Sạn Majestic Premium Nha Trang",
+    hotel_address: "96b5/4 , Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1617199586684xK/152261603.jpg",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 512,
+    hotel_name: "Khách sạn Sheraton Nha Trang",
+    hotel_address: "26-28, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://www.googleapis.com/download/storage/v1/b/hotel_image/o/logo%2F4%2F210187.jpg?generation=1563771731644355&alt=media",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 553,
+    hotel_name: "Khách Sạn Novotel Nha Trang",
+    hotel_address: "50, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://googleapis.tripi.vn/download/storage/v1/b/tourcdn/o/photos%2FXMS2N0BE6X_%2Ftmp%2Fplaytemp4401775770632333474%2FmultipartBody6774088289307231415asTemporaryFile?generation=1586178743406910&alt=media",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 8496,
+    hotel_name: "Khách sạn StarCity Nha Trang",
+    hotel_address: "72-74 , Trần Phú, Lộc Thọ, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616818433346JL/out.png",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 38396,
+    hotel_name: "Vinpearl  Beachfront Nha Trang",
+    hotel_address:
+      "78-80 Trần Phú, Phường Lộc Thọ, Trần Phú, Lộc Thọ, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616841710477jp/dai-dien.png",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+  {
+    hotel_id: 2048,
+    hotel_name: "Champa Island Nha Trang - Resort Hotel & Spa   ",
+    hotel_address: "304 , 2/4, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/img/469422dbJ/z4420199007786_a80da51a029391ded0f8199ec2230a6a.jpg",
+    min_room_price: 900000,
+    original_room_price: 1000000,
+  },
+];
+
+export const favoriteHotels = [
+  {
+    hotel_id: 38527,
+    hotel_name: "Khách sạn La Vague",
+    hotel_address: "Số 8, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616771153173ME/outside.png",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 48801,
+    hotel_name: "Khách sạn Grand Gosia Nha Trang",
+    hotel_address:
+      "10-12 Trần Phú, Vĩnh Nguyên, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://storage.googleapis.com/hms_prod/photo/thumb/1617092342927GY/144944532.png",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 38483,
+    hotel_name: "Khách sạn Sea Pearl Nha Trang",
+    hotel_address: "98a, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1617174369612dF/172059893.jpg",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 48130,
+    hotel_name: "The Empyrean Nha Trang",
+    hotel_address: "2 , Nguyễn Thị Minh Khai, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616819671281ZO/40510723.png",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 38437,
+    hotel_name: "Khách sạn Ibis Styles Nha Trang",
+    hotel_address: "86, Hùng Vương, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/img/467043orJ/z4260616666973_ae897d5bc64a75a0a960e005004c5497.jpg",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 38380,
+    hotel_name: "Khách sạn Boton Blue & Spa Nha Trang",
+    hotel_address:
+      "Phạm Văn Đồng, Phường Vĩnh Hòa, Phạm Văn Đồng, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/2685xI/ecea6c41b2d197bd06460bee7ab542b0.jpg",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 38406,
+    hotel_name: "TUI BLUE - Khách sạn TUI BLUE Nha Trang",
+    hotel_address: "18, Trần Hưng Đạo, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/img/470238wvF/dji_0056.jpg",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 38664,
+    hotel_name: "Khách Sạn Mường Thanh Luxury Nha Trang",
+    hotel_address: "60, Trần Phú, Lộc Thọ, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1620472922630mr/293542180_result.jpg",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 9723,
+    hotel_name: "Khách Sạn Mường Thanh Grand Nha Trang",
+    hotel_address: "6 , Dương Hiến Quyền, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616860211117eh/283800904.png",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 45768,
+    hotel_name: "Khách sạn Merperle Beach Nha Trang",
+    hotel_address: "88a, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://googleapis.tripi.vn/download/storage/v1/b/tourcdn/o/photos%2FDETKKSYJY7_%2Ftmp%2Fplaytemp7486223076244920531%2FmultipartBody4363323379706674084asTemporaryFile?generation=1592549175846288&alt=media",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 38470,
+    hotel_name: "Khách Sạn Majestic Premium Nha Trang",
+    hotel_address: "96b5/4 , Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1617199586684xK/152261603.jpg",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 512,
+    hotel_name: "Khách sạn Sheraton Nha Trang",
+    hotel_address: "26-28, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://www.googleapis.com/download/storage/v1/b/hotel_image/o/logo%2F4%2F210187.jpg?generation=1563771731644355&alt=media",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 553,
+    hotel_name: "Khách Sạn Novotel Nha Trang",
+    hotel_address: "50, Trần Phú, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://googleapis.tripi.vn/download/storage/v1/b/tourcdn/o/photos%2FXMS2N0BE6X_%2Ftmp%2Fplaytemp4401775770632333474%2FmultipartBody6774088289307231415asTemporaryFile?generation=1586178743406910&alt=media",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 8496,
+    hotel_name: "Khách sạn StarCity Nha Trang",
+    hotel_address: "72-74 , Trần Phú, Lộc Thọ, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616818433346JL/out.png",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 38396,
+    hotel_name: "Vinpearl  Beachfront Nha Trang",
+    hotel_address:
+      "78-80 Trần Phú, Phường Lộc Thọ, Trần Phú, Lộc Thọ, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/thumb/1616841710477jp/dai-dien.png",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+  {
+    hotel_id: 2048,
+    hotel_name: "Champa Island Nha Trang - Resort Hotel & Spa   ",
+    hotel_address: "304 , 2/4, Thành Phố Nha Trang, Khánh Hòa",
+    hotel_avatar:
+      "https://gcs.tripi.vn/hms_prod/photo/img/469422dbJ/z4420199007786_a80da51a029391ded0f8199ec2230a6a.jpg",
+    hotel_rating: 8.8,
+    is_favorite_hotel: true,
+  },
+];

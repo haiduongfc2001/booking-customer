@@ -1,7 +1,14 @@
 "use client";
 import React, { FC, useEffect, useState } from "react";
 import Carousel from "react-material-ui-carousel";
-import { Typography, Box, CardMedia, Stack, useTheme } from "@mui/material";
+import {
+  Typography,
+  Box,
+  CardMedia,
+  Stack,
+  useTheme,
+  IconButton,
+} from "@mui/material";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -10,6 +17,11 @@ import formatCurrency from "@/utils/format-currency";
 import SkeletonLoading from "./skeleton-loading";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+
+interface IHotel {
+  [key: string]: string | number;
+}
 
 interface IHotelAround {
   hotel_id: number;
@@ -44,6 +56,7 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
       return 4; // For lg and up
     }
   });
+  const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
 
   // Update itemsPerPage when screen size changes
   useEffect(() => {
@@ -71,6 +84,17 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
       window.removeEventListener("resize", handleResize);
     };
   }, [isMd, isSm, isXs, theme]);
+
+  // Xử lý hiệu chỉnh danh sách hotel đã thích khi hotelsAround thay đổi
+  React.useEffect(() => {
+    // Lọc ra danh sách các hotel đã được yêu thích ban đầu
+    if (Array.isArray(hotelsAround)) {
+      const initialLikedHotels = hotelsAround
+        .map((hotel: IHotelAround) => hotel.hotel_id) // Lấy danh sách hotel_id
+        .filter((hotelId: number) => likedHotels.includes(hotelId)); // Lọc ra các hotel_id mà đã được thích
+      setLikedHotels(initialLikedHotels);
+    }
+  }, [hotelsAround]);
 
   if (!hotelsAround) {
     return <SkeletonLoading itemsPerPage={itemsPerPage} />;
@@ -107,6 +131,23 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
 
     router.push(`/hotel/${hotel_id}?${searchQueryParams}`, { scroll: true });
   };
+
+  const toggleLike = (hotel_id: number) => {
+    if (likedHotels.includes(hotel_id)) {
+      // Unlike hotel
+      console.log("Remove hotel favorite: ", hotel_id);
+      setLikedHotels((prevLikedHotels) =>
+        prevLikedHotels.filter((id) => id !== hotel_id)
+      );
+    } else {
+      // Like hotel
+      console.log("Add hotel favorite: ", hotel_id);
+      setLikedHotels((prevLikedHotels) => [...prevLikedHotels, hotel_id]);
+    }
+  };
+
+  const isHotelLiked = (hotel_id: number) =>
+    likedHotels?.includes(hotel_id) || false;
 
   return (
     <Box
@@ -195,19 +236,61 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
                 }}
                 onClick={() => handleNavigate(item.hotel_id)}
               >
-                <CardMedia
-                  component="img"
-                  src={
-                    item?.hotel_avatar ||
-                    "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg"
-                  }
-                  alt={item.hotel_name}
-                  sx={{
-                    height: "150px",
-                    objectFit: "cover",
-                    borderRadius: "8px 8px 0 0",
-                  }}
-                />
+                <Box position="relative">
+                  <CardMedia
+                    component="img"
+                    src={
+                      item?.hotel_avatar ||
+                      "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg"
+                    }
+                    alt={item.hotel_name}
+                    sx={{
+                      height: "150px",
+                      objectFit: "cover",
+                      borderRadius: "8px 8px 0 0",
+                    }}
+                  />
+                  <IconButton
+                    sx={{
+                      top: "16px",
+                      right: "4px",
+                      zIndex: 2,
+                      position: "absolute",
+                      flex: "0 0 auto",
+                      color: "rgba(0, 0, 0, 0.54)",
+                      padding: "12px",
+                      overflow: "visible",
+                      fontSize: "1.7142857142857142rem",
+                      textAlign: "center",
+                      transition:
+                        "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+                      borderRadius: "50%",
+                      "& .MuiIconButton-label": {
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "inherit",
+                        justifyContent: "inherit",
+                      },
+                      "& svg:hover": {
+                        color: "neutral.800",
+                        transition: "color 0.2s ease",
+                      },
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleLike(item.hotel_id);
+                    }}
+                  >
+                    <FavoriteIcon
+                      sx={{
+                        fill: isHotelLiked(item.hotel_id)
+                          ? "red"
+                          : "neutral.900",
+                        stroke: "#ffffff",
+                      }}
+                    />
+                  </IconButton>
+                </Box>
                 <Box p={2} sx={{ flexGrow: 1 }}>
                   <Typography
                     variant="h6"

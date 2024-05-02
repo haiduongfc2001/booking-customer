@@ -5,9 +5,10 @@ import { Box } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CustomizedTabs from "@/lib/tabs";
 import AccountManagement from "@/components/account/account-management";
+import HotelIcon from "@mui/icons-material/Hotel";
 import FavoriteHotels from "@/components/account/favorite-hotels";
 
-export default function UserAccount(props: any) {
+export default function FavoriteHotel(props: any) {
   return (
     <Box
       sx={{
@@ -20,6 +21,10 @@ export default function UserAccount(props: any) {
           {
             label: "Tài khoản",
             icon: <AccountCircleIcon />,
+          },
+          {
+            label: "Khách sạn yêu thích",
+            icon: <HotelIcon />,
           },
         ]}
       />

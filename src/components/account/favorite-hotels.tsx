@@ -10,53 +10,22 @@ import {
   Typography,
 } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import formatCurrency from "@/utils/format-currency";
-import { useRouter } from "next/navigation";
-import dayjs, { Dayjs } from "dayjs";
-import { searchResult } from "@/utils/data";
+import { favoriteHotels } from "@/utils/data";
+import RateReviewIcon from "@mui/icons-material/RateReview";
+import ratingCategory from "@/utils/rating-category";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import Link from "next/link";
+import dayjs from "dayjs";
 
-interface SearchResultProps {
-  location: string;
-  checkInDate: Dayjs;
-  checkOutDate: Dayjs;
-  numberOfPeople: number;
-  numberOfRooms: number;
-}
+interface FavoriteHotelsProps {}
 
-interface IHotel {
-  [key: string]: string | number;
-}
-
-const SearchResult: FC<SearchResultProps> = ({
-  location = "",
-  checkInDate = dayjs(),
-  checkOutDate = dayjs().add(1, "day"),
-  numberOfPeople = 1,
-  numberOfRooms = 1,
-}) => {
-  const router = useRouter();
+const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
   const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
-
-  const handleNavigate = (hotel_id: number) => {
-    const formattedCheckInDate = checkInDate.format("YYYY-MM-DD");
-    const formattedCheckOutDate = checkOutDate.format("YYYY-MM-DD");
-
-    const searchQueryParams = new URLSearchParams({
-      location,
-      checkInDate: formattedCheckInDate,
-      checkOutDate: formattedCheckOutDate,
-      numberOfPeople: String(numberOfPeople),
-      numberOfRooms: String(numberOfRooms),
-    }).toString();
-
-    router.push(`/hotel/${hotel_id}?${searchQueryParams}`, { scroll: true });
-  };
 
   React.useEffect(() => {
     // Lọc ra danh sách các hotel đã được yêu thích ban đầu
-    const initialLikedHotels = searchResult
-      .filter((hotel: IHotel) => hotel.is_favorite_hotel)
+    const initialLikedHotels = favoriteHotels
+      .filter((hotel) => hotel.is_favorite_hotel)
       .map((hotel) => hotel.hotel_id);
     setLikedHotels(initialLikedHotels);
   }, []);
@@ -77,41 +46,38 @@ const SearchResult: FC<SearchResultProps> = ({
 
   const isHotelLiked = (hotel_id: number) => likedHotels.includes(hotel_id);
 
-  return (
-    <Box sx={{ flex: "1", p: "0 20px" }}>
-      <Box
-        width="100%"
-        height="100px"
-        m={2}
-        p={2}
-        bgcolor="background.paper"
-        borderRadius="8px"
-        display="flex"
-        justifyContent="center"
-        flexDirection="column"
-      >
-        <Typography variant="h5">{location}</Typography>
-        <Typography component="span">
-          {`Có ${searchResult?.length ?? 0} khách sạn ở ${location}`}
-        </Typography>
-      </Box>
+  const formattedCheckInDate = dayjs().format("YYYY-MM-DD");
+  const formattedCheckOutDate = dayjs().add(1).format("YYYY-MM-DD");
 
+  const getCityFromAddress = (address: string): string => {
+    const addressArray = address?.split(",");
+    // Tách thành phố/tỉnh từ địa chỉ
+    const city = addressArray[addressArray?.length - 1]?.trim();
+
+    return city || "Hà Nội"; // Nếu không tìm thấy tỉnh/thành phố thì trả về "Hà Nội" mặc định
+  };
+
+  return (
+    <Box sx={{ flex: "1" }}>
       <Grid container spacing={3}>
-        {/* Display hotels as cards */}
-        {searchResult?.map((hotel) => (
+        {favoriteHotels?.map((hotel) => (
           <Grid item xs={12} key={hotel.hotel_id}>
             <Box
               sx={{
+                color: "neutral.900",
                 width: "100%",
-                mx: 2,
-                p: 2,
-                borderRadius: 1,
-                overflow: "hidden",
-                boxShadow: "0px 5px 5px rgba(0, 0, 0, 0.1)",
-                bgcolor: "background.paper",
+                border: "2px solid #EDF2F7",
                 display: "flex",
+                p: 2,
+                fontSize: "14px",
+                bgcolor: "neutral.100",
+                boxShadow: "0px 1px 1px rgba(0, 0, 0, 0.05)",
+                transition: "all 0.2s",
+                fontWeight: "normal",
+                lineHeight: "17px",
+                borderRadius: 1,
                 "&:hover": {
-                  bgcolor: "rgb(235,240,252)",
+                  bgcolor: "primary.light",
                   boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
                   cursor: "pointer",
                 },
@@ -121,12 +87,11 @@ const SearchResult: FC<SearchResultProps> = ({
                   cursor: "pointer",
                 },
               }}
-              onClick={() => handleNavigate(hotel.hotel_id)}
             >
               <Grid container spacing={2}>
                 <Grid
                   item
-                  sm={12}
+                  xs={12}
                   md={4}
                   sx={{
                     position: "relative",
@@ -168,10 +133,7 @@ const SearchResult: FC<SearchResultProps> = ({
                         justifyContent: "inherit",
                       },
                     }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleLike(hotel.hotel_id);
-                    }}
+                    onClick={() => toggleLike(hotel.hotel_id)}
                   >
                     <FavoriteIcon
                       sx={{
@@ -183,7 +145,7 @@ const SearchResult: FC<SearchResultProps> = ({
                     />
                   </IconButton>
                 </Grid>
-                <Grid item sm={12} md={5}>
+                <Grid item xs={12} md={8}>
                   <Box>
                     <Typography
                       variant="h6"
@@ -199,8 +161,59 @@ const SearchResult: FC<SearchResultProps> = ({
                         WebkitLineClamp: "3",
                       }}
                     >
-                      {hotel.hotel_name}
+                      {(() => {
+                        const searchQueryParams = new URLSearchParams({
+                          location: getCityFromAddress(hotel.hotel_address),
+                          checkInDate: formattedCheckInDate,
+                          checkOutDate: formattedCheckOutDate,
+                          numberOfPeople: "1",
+                          numberOfRooms: "1",
+                        }).toString();
+
+                        return (
+                          <Link
+                            href={`/hotel/${hotel.hotel_id}?${searchQueryParams}`}
+                          >
+                            {hotel.hotel_name}
+                          </Link>
+                        );
+                      })()}
                     </Typography>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        my: 1,
+                      }}
+                    >
+                      <IconButton
+                        size="small"
+                        sx={{
+                          color: "primary.main",
+                          display: "flex",
+                          p: "1px 2px 0 0",
+                          fontWeight: "600",
+                          mr: "5px",
+                          borderRadius: "4px",
+                          bgcolor: "primary.light",
+                          fontSize: "16px",
+                        }}
+                      >
+                        <RateReviewIcon />
+                        &nbsp;{hotel.hotel_rating}
+                      </IconButton>
+                      {ratingCategory(hotel.hotel_rating)}
+                      <Box
+                        component="span"
+                        sx={{
+                          color: "#4A5568",
+                          ml: "5px",
+                        }}
+                      >
+                        (100 đánh giá)
+                      </Box>
+                    </Box>
                     <Stack direction="row">
                       <LocationOnIcon />
                       <Typography
@@ -213,45 +226,9 @@ const SearchResult: FC<SearchResultProps> = ({
                           textOverflow: "ellipsis",
                         }}
                       >
-                        {hotel.hotel_address}
+                        {getCityFromAddress(hotel.hotel_address)}
                       </Typography>
                     </Stack>
-                  </Box>
-                </Grid>
-                <Grid item sm={12} md={3}>
-                  <Box
-                    p={2}
-                    sx={{
-                      width: "100%",
-                      height: "100%",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      flexDirection: "column",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "#718096",
-                        textDecoration: "line-through",
-                        cursor: "pointer",
-                      }}
-                      component="span"
-                    >
-                      {formatCurrency(hotel.original_room_price)}
-                    </Typography>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        color: "rgb(229, 62, 62)",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                      }}
-                      component="span"
-                    >
-                      {formatCurrency(hotel.min_room_price)}
-                    </Typography>
                   </Box>
                 </Grid>
               </Grid>
@@ -263,4 +240,4 @@ const SearchResult: FC<SearchResultProps> = ({
   );
 };
 
-export default SearchResult;
+export default FavoriteHotels;

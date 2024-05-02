@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
-import { Typography } from "@mui/material";
+import { usePathname, useRouter } from "next/navigation";
 
 interface StyledTabsProps {
   children?: React.ReactNode;
@@ -90,6 +90,7 @@ function a11yProps(index: number) {
 }
 
 interface TabInfo {
+  href: string;
   label: string;
   content: React.ReactNode;
 }
@@ -99,15 +100,39 @@ interface CustomizedTabsProps {
 }
 
 export default function CustomizedTabs({ tabs }: CustomizedTabsProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [value, setValue] = React.useState(0);
+
+  React.useEffect(() => {
+    const segments = pathname.split("/");
+    const lastSegment = segments[segments.length - 1];
+    const index = getIndexFromUrl(lastSegment);
+    setValue(index);
+  }, [pathname]);
+
+  const getIndexFromUrl = (urlSegment: string): number => {
+    switch (urlSegment) {
+      case "account":
+        return 0;
+      case "my-booking":
+        return 1;
+      case "favorite-hotel":
+        return 2;
+      default:
+        return 0; // Default to the first tab if no match found
+    }
+  };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+    router.push(tabs[newValue].href);
   };
 
   return (
     <Box sx={{ width: "100%", my: 3 }}>
-      <Box sx={{ bgcolor: "#fff", borderRadius: 1 }}>
+      <Box sx={{ bgcolor: "background.paper", borderRadius: 1 }}>
         <StyledTabs
           value={value}
           onChange={handleChange}
