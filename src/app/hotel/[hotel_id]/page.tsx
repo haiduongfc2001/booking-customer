@@ -26,6 +26,7 @@ import { amenitiesData, hotelData, ratingData } from "@/utils/data";
 import RoomList from "@/components/hotel-detail/room-list";
 import HotelsAround from "@/components/hotel-detail/hotels-around";
 import HotelReviews from "@/components/hotel-detail/hotel-reviews";
+import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
 
 export default function HotelDetail(props: any) {
   const { location, checkInDate, checkOutDate, numberOfPeople, numberOfRooms } =
@@ -525,23 +526,4 @@ export default function HotelDetail(props: any) {
       </Box>
     </div>
   );
-}
-
-// Function to calculate the number of nights from check-in date to check-out date
-function calculateNumberOfNights(
-  checkInDate: string,
-  checkOutDate: string
-): number {
-  // Convert the dates into Date objects
-  var startDate = new Date(checkInDate);
-  var endDate = new Date(checkOutDate);
-
-  // Calculate the number of milliseconds in a day
-  var oneDay = 24 * 60 * 60 * 1000;
-
-  // Calculate the number of nights by taking the difference of two days and dividing by the number of milliseconds in a day
-  var differenceMs = endDate.getTime() - startDate.getTime();
-  var calculateNumberOfNights = Math.round(differenceMs / oneDay);
-
-  return calculateNumberOfNights;
 }

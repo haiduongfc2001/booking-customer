@@ -333,7 +333,18 @@ const HotelReviews: FC<IHotelReviews> = ({
                   },
                 }}
               >
-                <Grid item xs={12} sm={3}>
+                <Grid
+                  item
+                  xs={12}
+                  md={3}
+                  sx={{
+                    display: {
+                      xs: "flex",
+                      md: "block",
+                    },
+                    mb: 2,
+                  }}
+                >
                   <Box
                     display="flex"
                     justifyContent="center"
@@ -346,6 +357,8 @@ const HotelReviews: FC<IHotelReviews> = ({
                         color: "primary.main",
                         width: 64,
                         height: 64,
+                        border: "2px solid",
+                        borderColor: "primary.main",
                       }}
                     >
                       {getInitials(review?.username)}
@@ -403,7 +416,7 @@ const HotelReviews: FC<IHotelReviews> = ({
                     </Box>
                   </Box>
                 </Grid>
-                <Grid item xs={12} sm={9}>
+                <Grid item xs={12} md={9}>
                   <Box
                     sx={{
                       display: "flex",

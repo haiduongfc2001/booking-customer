@@ -198,6 +198,7 @@ const SearchHotel: FC<SearchHotelProps> = ({
             <DatePicker
               label="Ngày đến"
               name="checkInDate"
+              format="DD/MM/YYYY"
               sx={{ bgcolor: "background.paper", width: "100%" }}
               minDate={dayjs()}
               value={formik.values.checkInDate}
@@ -222,6 +223,7 @@ const SearchHotel: FC<SearchHotelProps> = ({
             <DatePicker
               label="Ngày về"
               name="checkOutDate"
+              format="DD/MM/YYYY"
               sx={{ bgcolor: "background.paper", width: "100%" }}
               minDate={formik.values.checkInDate.add(1, "day")}
               value={formik.values.checkOutDate}
