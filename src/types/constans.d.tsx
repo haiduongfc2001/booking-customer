@@ -22,6 +22,7 @@ interface IScreenTitle {
 interface IApi {
   SEARCH: { [key: string]: string };
   HOTEL: { [key: string]: string };
+  CUSTOMER: { [key: string]: string };
 }
 
 /**

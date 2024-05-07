@@ -65,6 +65,11 @@ export default function Search() {
 
   const handleFilterHotel = () => {
     console.log({
+      location,
+      checkInDate,
+      checkOutDate,
+      numberOfRooms,
+      numberOfPeople,
       priceRange,
       selectedAmenities,
       selectedRoomType,
@@ -97,7 +102,7 @@ export default function Search() {
             numberOfRooms={numberOfRooms}
           />
         </Box>
-        <Box sx={{ display: "flex", px: 2 }}>
+        <Box sx={{ display: "flex", px: 2, mb: 4 }}>
           {/* Sidebar for filters */}
           <Box
             sx={{

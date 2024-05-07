@@ -39,6 +39,7 @@ const AmenitiesFilter: React.FC<IAmenitiesFilterProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          height: 50,
         }}
       >
         <Typography id="amenities-filter" variant="h6" gutterBottom mb={0}>

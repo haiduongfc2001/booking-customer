@@ -49,6 +49,7 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          height: 50,
         }}
       >
         <Typography id="rating-radio-group" variant="h6" gutterBottom mb={0}>

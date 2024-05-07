@@ -31,6 +31,7 @@ const RoomTypeFilter: React.FC<RoomTypeFilterProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          height: 50,
         }}
       >
         <Typography id="room-type-filter" variant="h6" gutterBottom mb={0}>

@@ -38,6 +38,9 @@ export const API: IApi = {
     GET_OUTSTANDING_HOTELS: "/hotel/getOutstandingHotels",
     GET_HOTEL_BY_ID: "/hotel/getHotelById",
   },
+  CUSTOMER: {
+    VERIFY_EMAIL: "/verify",
+  },
 };
 
 /**
