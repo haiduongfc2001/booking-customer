@@ -39,7 +39,8 @@ export const API: IApi = {
     GET_HOTEL_BY_ID: "/hotel/getHotelById",
   },
   CUSTOMER: {
-    VERIFY_EMAIL: "/verify",
+    VERIFY_EMAIL: "/customer/verify",
+    REGISTER: "/register",
   },
 };
 

@@ -1,9 +1,21 @@
 import useSWR from "swr";
 
-export const fetcher = async (url: string) => {
-  const response = await fetch(url);
+export const fetcher = async (url: string, fetcherOptions: object = {}) => {
+  const defaultOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  };
 
-  // Check for errors
+  const options = {
+    ...defaultOptions,
+    ...fetcherOptions,
+  };
+
+  const response = await fetch(url, options);
+
   if (!response.ok) {
     throw new Error("API request failed");
   }
@@ -11,9 +23,17 @@ export const fetcher = async (url: string) => {
   return await response.json();
 };
 
-export function useAPI(endpoint: string, options?: any) {
+export function useAPI(
+  endpoint: string,
+  fetcherOptions: object = {},
+  options: object = {}
+) {
   const url = `${process.env.NEXT_PUBLIC_API_URL}${endpoint}`;
-  const { data, error, isValidating } = useSWR(url, fetcher, options);
+  const { data, error, isValidating } = useSWR(
+    url,
+    () => fetcher(url, fetcherOptions),
+    options
+  );
 
   return {
     data,
