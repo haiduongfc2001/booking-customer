@@ -14,7 +14,7 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import formatCurrency from "@/utils/format-currency";
-import { useAPI } from "@/lib/api";
+import useCustomAPI from "@/lib/api";
 import { API } from "@/constant/constants";
 import SkeletonLoading from "./skeleton-loading";
 import dayjs from "dayjs";
@@ -78,7 +78,7 @@ const OutstandingHotel: React.FC = () => {
     data: outstandingHotels,
     error,
     isLoading,
-  } = useAPI(API.HOTEL.GET_OUTSTANDING_HOTELS);
+  } = useCustomAPI(API.HOTEL.GET_OUTSTANDING_HOTELS);
 
   React.useEffect(() => {
     // Lọc ra danh sách các hotel đã được yêu thích ban đầu

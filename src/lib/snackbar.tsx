@@ -13,10 +13,11 @@ function SlideTransition(props: SlideProps) {
 interface CustomizedSnackbarsProps {
   message: string;
   severity?: "success" | "error" | "info" | "warning";
+  autoHideDuration?: number;
 }
 
 export default function CustomizedSnackbars(props: CustomizedSnackbarsProps) {
-  const { message, severity = "success" } = props;
+  const { message = "", severity = "success", autoHideDuration = 2000 } = props;
 
   const [state, setState] = React.useState<{
     open: boolean;
@@ -70,7 +71,7 @@ export default function CustomizedSnackbars(props: CustomizedSnackbarsProps) {
         TransitionComponent={state.Transition}
         message={message}
         key={state.Transition.name}
-        autoHideDuration={2000}
+        autoHideDuration={autoHideDuration}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert

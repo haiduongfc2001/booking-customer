@@ -1,6 +1,6 @@
 import useSWR from "swr";
 
-export const fetcher = async (url: string, fetcherOptions: object = {}) => {
+const fetcher = async (url: string, fetcherOptions: object = {}) => {
   const defaultOptions = {
     method: "GET",
     headers: {
@@ -23,7 +23,7 @@ export const fetcher = async (url: string, fetcherOptions: object = {}) => {
   return await response.json();
 };
 
-export function useAPI(
+export default function useCustomAPI(
   endpoint: string,
   fetcherOptions: object = {},
   options: object = {}

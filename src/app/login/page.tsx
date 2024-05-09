@@ -47,12 +47,7 @@ const RegisterPage = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        console.log("Submitted values:", values);
-
         alert("Đăng nhập thành công!");
-
-        // await auth.login(values.email, values.password);
-        // router.push("/");
       } catch (err: any) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });

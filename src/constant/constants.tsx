@@ -40,7 +40,7 @@ export const API: IApi = {
   },
   CUSTOMER: {
     VERIFY_EMAIL: "/customer/verify",
-    REGISTER: "/register",
+    REGISTER: "http://localhost:5000/api/v1/customer/register",
   },
 };
 

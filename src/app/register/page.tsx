@@ -1,6 +1,5 @@
 "use client";
 import NextLink from "next/link";
-import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -22,13 +21,30 @@ import {
 } from "@mui/material";
 import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { API } from "@/constant/constants";
+import CircularProgress from "@mui/material/CircularProgress";
+import axios from "axios";
+import CustomizedSnackbars from "@/lib/snackbar";
+import { useRouter } from "next/navigation";
 
-const RegisterPage = () => {
-  const router = useRouter();
+interface SnackbarState {
+  open: boolean;
+  message: string;
+  severity: "success" | "error" | "info" | "warning" | undefined;
+}
 
+export default function RegisterPage() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [showRepeatPassword, setShowRepeatPassword] =
     React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [snackbar, setSnackbar] = React.useState<SnackbarState>({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const router = useRouter();
 
   const handleMouseDownPassword = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -81,15 +97,40 @@ const RegisterPage = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        // Destructure the values object, excluding 'repeatPassword'
-        const { repeatPassword, ...filteredValues } = values;
+        const { email, full_name, gender, password } = values;
+        setIsLoading(true);
 
-        console.log("Submitted values:", filteredValues);
+        axios
+          .post(API.CUSTOMER.REGISTER, {
+            email,
+            full_name,
+            gender,
+            password,
+          })
+          .then(function (response) {
+            formik.resetForm();
+            setSnackbar({
+              open: true,
+              message: response.data.message,
+              severity: "success",
+            });
 
-        alert("Đăng ký tài khoản thành công!");
+            const timeout = setTimeout(() => {
+              router.push("/account/verify");
+            }, 2000);
 
-        // await auth.login(values.email, values.password);
-        // router.push("/");
+            return () => clearTimeout(timeout);
+          })
+          .catch(function (error) {
+            setSnackbar({
+              open: true,
+              message: error.response.data.message,
+              severity: "error",
+            });
+          })
+          .finally(function () {
+            setIsLoading(false);
+          });
       } catch (err: any) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
@@ -97,6 +138,49 @@ const RegisterPage = () => {
       }
     },
   });
+
+  React.useEffect(() => {
+    if (snackbar.open) {
+      const timeout = setTimeout(() => {
+        setSnackbar({
+          open: false,
+          message: "",
+          severity: "success",
+        });
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [snackbar.open]);
+
+  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const { data, error } = useCustomAPI(API.CUSTOMER.REGISTER, {
+  //       method: "POST",
+  //       body: JSON.stringify({
+  //         email: formik.values.email,
+  //         full_name: formik.values.full_name,
+  //         gender: formik.values.gender,
+  //         password: formik.values.password,
+  //       }),
+  //     });
+
+  //     if (error) {
+  //       // Handle API errors here, e.g., display an error message to the user
+  //       console.error("API error:", error);
+  //       return; // or set formik status to error
+  //     }
+
+  //     if (data) {
+  //       alert(data.message);
+  //     }
+  //   } catch (err) {
+  //     console.error("Error submitting form:", err);
+  //     // Handle other errors here, e.g., display an error message to the user
+  //   }
+  // };
 
   return (
     <Box
@@ -332,13 +416,27 @@ const RegisterPage = () => {
               type="submit"
               variant="contained"
             >
-              Đăng ký
+              {isLoading ? (
+                <Box display="flex" alignItems="center">
+                  &nbsp;&nbsp;
+                  <CircularProgress size={25} color="inherit" />
+                </Box>
+              ) : (
+                <span>Đăng ký</span>
+              )}
             </Button>
           </form>
         </Box>
       </Box>
+
+      {snackbar?.open && (
+        <CustomizedSnackbars
+          message={snackbar.message}
+          severity={
+            snackbar.severity as "success" | "error" | "info" | "warning"
+          }
+        />
+      )}
     </Box>
   );
-};
-
-export default RegisterPage;
+}
