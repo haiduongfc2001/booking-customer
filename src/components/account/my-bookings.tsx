@@ -282,7 +282,7 @@ const MyBookings: FC<MyBookingsProps> = () => {
                             <Box
                               sx={{
                                 width: 54,
-                                height: 36,
+                                height: 46,
                                 margin: "0 24px",
                                 display: "flex",
                                 alignItems: "center",
@@ -298,6 +298,7 @@ const MyBookings: FC<MyBookingsProps> = () => {
                                   fontSize: "11px",
                                   lineHeight: "13px",
                                   pr: "2px",
+                                  pl: 0.5,
                                 }}
                               >
                                 {calculateNumberOfNights(
@@ -315,6 +316,7 @@ const MyBookings: FC<MyBookingsProps> = () => {
                                 sx={{
                                   fill: "#ffffff",
                                   stroke: "#000000",
+                                  pr: 0.5,
                                 }}
                               />
                             </Box>

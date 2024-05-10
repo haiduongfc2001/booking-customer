@@ -6,6 +6,21 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import CustomizedTabs from "@/lib/tabs";
 import AccountManagement from "@/components/account/account-management";
 import FavoriteHotels from "@/components/account/favorite-hotels";
+import MyBookings from "@/components/account/my-bookings";
+
+export const tabs = [
+  {
+    href: "/account",
+    label: "Quản lý tài khoản",
+    content: <AccountManagement />,
+  },
+  { href: "/account/my-booking", label: "Đơn phòng", content: <MyBookings /> },
+  {
+    href: "/account/favorite-hotel",
+    label: "Khách sạn yêu thích",
+    content: <FavoriteHotels />,
+  },
+];
 
 export default function UserAccount(props: any) {
   return (
@@ -24,25 +39,7 @@ export default function UserAccount(props: any) {
         ]}
       />
 
-      <CustomizedTabs
-        tabs={[
-          {
-            href: "/account",
-            label: "Quản lý tài khoản",
-            content: <AccountManagement />,
-          },
-          {
-            href: "/account/my-booking",
-            label: "Đơn phòng",
-            content: "Item Two",
-          },
-          {
-            href: "/account/favorite-hotel",
-            label: "Khách sạn yêu thích",
-            content: <FavoriteHotels />,
-          },
-        ]}
-      />
+      <CustomizedTabs tabs={tabs} />
     </Box>
   );
 }

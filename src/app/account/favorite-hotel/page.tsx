@@ -7,6 +7,8 @@ import CustomizedTabs from "@/lib/tabs";
 import AccountManagement from "@/components/account/account-management";
 import HotelIcon from "@mui/icons-material/Hotel";
 import FavoriteHotels from "@/components/account/favorite-hotels";
+import MyBookings from "@/components/account/my-bookings";
+import { tabs } from "../page";
 
 export default function FavoriteHotel(props: any) {
   return (
@@ -29,25 +31,7 @@ export default function FavoriteHotel(props: any) {
         ]}
       />
 
-      <CustomizedTabs
-        tabs={[
-          {
-            href: "/account",
-            label: "Quản lý tài khoản",
-            content: <AccountManagement />,
-          },
-          {
-            href: "/account/my-booking",
-            label: "Đơn phòng",
-            content: "Item Two",
-          },
-          {
-            href: "/account/favorite-hotel",
-            label: "Khách sạn yêu thích",
-            content: <FavoriteHotels />,
-          },
-        ]}
-      />
+      <CustomizedTabs tabs={tabs} />
     </Box>
   );
 }

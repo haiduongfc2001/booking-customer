@@ -8,6 +8,7 @@ import AccountManagement from "@/components/account/account-management";
 import HotelIcon from "@mui/icons-material/Hotel";
 import MyBookings from "@/components/account/my-bookings";
 import FavoriteHotels from "@/components/account/favorite-hotels";
+import { tabs } from "../page";
 
 export default function MyBooking(props: any) {
   return (
@@ -30,25 +31,7 @@ export default function MyBooking(props: any) {
         ]}
       />
 
-      <CustomizedTabs
-        tabs={[
-          {
-            href: "/account",
-            label: "Quản lý tài khoản",
-            content: <AccountManagement />,
-          },
-          {
-            href: "/account/my-booking",
-            label: "Đơn phòng",
-            content: <MyBookings />,
-          },
-          {
-            href: "/account/favorite-hotel",
-            label: "Khách sạn yêu thích",
-            content: <FavoriteHotels />,
-          },
-        ]}
-      />
+      <CustomizedTabs tabs={tabs} />
     </Box>
   );
 }

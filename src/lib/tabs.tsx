@@ -103,27 +103,10 @@ export default function CustomizedTabs({ tabs }: CustomizedTabsProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [value, setValue] = React.useState(0);
-
-  React.useEffect(() => {
-    const segments = pathname.split("/");
-    const lastSegment = segments[segments.length - 1];
-    const index = getIndexFromUrl(lastSegment);
-    setValue(index);
-  }, [pathname]);
-
-  const getIndexFromUrl = (urlSegment: string): number => {
-    switch (urlSegment) {
-      case "account":
-        return 0;
-      case "my-booking":
-        return 1;
-      case "favorite-hotel":
-        return 2;
-      default:
-        return 0; // Default to the first tab if no match found
-    }
-  };
+  const [value, setValue] = React.useState(() => {
+    const index = tabs.findIndex((tab) => tab.href === pathname);
+    return index === -1 ? 0 : index;
+  });
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
