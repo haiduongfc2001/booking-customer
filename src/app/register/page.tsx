@@ -27,18 +27,12 @@ import axios from "axios";
 import CustomizedSnackbars from "@/lib/snackbar";
 import { useRouter } from "next/navigation";
 
-interface SnackbarState {
-  open: boolean;
-  message: string;
-  severity: "success" | "error" | "info" | "warning" | undefined;
-}
-
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [showRepeatPassword, setShowRepeatPassword] =
     React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [snackbar, setSnackbar] = React.useState<SnackbarState>({
+  const [snackbar, setSnackbar] = React.useState<ISnackbarState>({
     open: false,
     message: "",
     severity: "success",
@@ -117,7 +111,7 @@ export default function RegisterPage() {
 
             const timeout = setTimeout(() => {
               router.push("/account/verify");
-            }, 2000);
+            }, 3000);
 
             return () => clearTimeout(timeout);
           })
@@ -147,7 +141,7 @@ export default function RegisterPage() {
           message: "",
           severity: "success",
         });
-      }, 2000);
+      }, 3000);
 
       return () => clearTimeout(timeout);
     }

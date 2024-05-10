@@ -13,14 +13,24 @@ import {
   InputAdornment,
   IconButton,
   Tooltip,
+  CircularProgress,
 } from "@mui/material";
 import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import axios from "axios";
+import { API } from "@/constant/constants";
+import CustomizedSnackbars from "@/lib/snackbar";
 
 const RegisterPage = () => {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [snackbar, setSnackbar] = React.useState<ISnackbarState>({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const handleMouseDownPassword = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -47,7 +57,37 @@ const RegisterPage = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        alert("Đăng nhập thành công!");
+        const { email, password } = values;
+
+        axios
+          .post(API.CUSTOMER.LOGIN, {
+            email,
+            password,
+          })
+          .then(function (response) {
+            setSnackbar({
+              open: true,
+              message: response.data.message,
+              severity: "success",
+            });
+
+            const timeout = setTimeout(() => {
+              router.push("/");
+              formik.resetForm();
+            }, 3000);
+
+            return () => clearTimeout(timeout);
+          })
+          .catch(function (error) {
+            setSnackbar({
+              open: true,
+              message: error.response.data.message,
+              severity: "error",
+            });
+          })
+          .finally(function () {
+            setIsLoading(false);
+          });
       } catch (err: any) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
@@ -55,6 +95,20 @@ const RegisterPage = () => {
       }
     },
   });
+
+  React.useEffect(() => {
+    if (snackbar.open) {
+      const timeout = setTimeout(() => {
+        setSnackbar({
+          open: false,
+          message: "",
+          severity: "success",
+        });
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [snackbar.open]);
 
   return (
     <Box
@@ -196,11 +250,27 @@ const RegisterPage = () => {
               type="submit"
               variant="contained"
             >
-              Đăng nhập
+              {isLoading ? (
+                <Box display="flex" alignItems="center">
+                  &nbsp;&nbsp;
+                  <CircularProgress size={25} color="inherit" />
+                </Box>
+              ) : (
+                <span>Đăng nhập</span>
+              )}
             </Button>
           </form>
         </Box>
       </Box>
+
+      {snackbar?.open && (
+        <CustomizedSnackbars
+          message={snackbar.message}
+          severity={
+            snackbar.severity as "success" | "error" | "info" | "warning"
+          }
+        />
+      )}
     </Box>
   );
 };

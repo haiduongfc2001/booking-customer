@@ -17,7 +17,7 @@ interface CustomizedSnackbarsProps {
 }
 
 export default function CustomizedSnackbars(props: CustomizedSnackbarsProps) {
-  const { message = "", severity = "success", autoHideDuration = 2000 } = props;
+  const { message = "", severity = "success", autoHideDuration = 3000 } = props;
 
   const [state, setState] = React.useState<{
     open: boolean;

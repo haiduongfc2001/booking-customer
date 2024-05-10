@@ -47,3 +47,9 @@ interface IFilter {
 interface IRatingCategories {
   [key: string]: string;
 }
+
+interface ISnackbarState {
+  open: boolean;
+  message: string;
+  severity: "success" | "error" | "info" | "warning" | undefined;
+}
