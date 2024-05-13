@@ -8,7 +8,7 @@
 
 # testing
 /coverage
-/src/app/test/page.tsx
+/src/app/test
 /src/utils/data.tsx
 
 # next.js

@@ -168,7 +168,6 @@ const OutstandingHotel: React.FC = () => {
       <Carousel
         NextIcon={<KeyboardArrowRightIcon />}
         PrevIcon={<KeyboardArrowLeftIcon />}
-        fullHeightHover={false}
         navButtonsProps={{
           style: {
             background: "white",
@@ -178,7 +177,8 @@ const OutstandingHotel: React.FC = () => {
             opacity: 1,
           },
         }}
-        autoPlay={false}
+        autoPlay={true}
+        fullHeightHover={false}
         stopAutoPlayOnHover={true}
         animation="slide"
         duration={500}
