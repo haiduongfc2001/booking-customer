@@ -172,7 +172,6 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
       <Carousel
         NextIcon={<KeyboardArrowRightIcon />}
         PrevIcon={<KeyboardArrowLeftIcon />}
-        fullHeightHover={false}
         navButtonsProps={{
           style: {
             background: "white",
@@ -182,7 +181,8 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
             opacity: 1,
           },
         }}
-        autoPlay={false}
+        fullHeightHover={false}
+        autoPlay={true}
         stopAutoPlayOnHover={true}
         animation="slide"
         duration={500}
