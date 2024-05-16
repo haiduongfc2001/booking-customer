@@ -4,7 +4,7 @@ import { Box, Link, Typography } from "@mui/material";
 import React from "react";
 import { API } from "@/constant/constants";
 import CustomizedSnackbars from "@/lib/snackbar";
-import useCustomAPI from "@/lib/api";
+import useCustomAPI from "@/services/common-swr";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import NextLink from "next/link";
 

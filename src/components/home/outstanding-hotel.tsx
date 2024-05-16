@@ -14,7 +14,7 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import formatCurrency from "@/utils/format-currency";
-import useCustomAPI from "@/lib/api";
+import useCustomAPI from "@/services/common-swr";
 import { API } from "@/constant/constants";
 import SkeletonLoading from "./skeleton-loading";
 import dayjs from "dayjs";

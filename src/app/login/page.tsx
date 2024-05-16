@@ -20,6 +20,9 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { API } from "@/constant/constants";
 import CustomizedSnackbars from "@/lib/snackbar";
+import { postRequest } from "@/services/api-instance";
+import { EncryptToken } from "@/utils/token-handler";
+import { updateAccessToken } from "@/services/storage";
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -57,41 +60,46 @@ const RegisterPage = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
+        setIsLoading(false);
+
         const { email, password } = values;
 
-        axios
-          .post(API.CUSTOMER.LOGIN, {
-            email,
-            password,
-          })
-          .then(function (response) {
-            setSnackbar({
-              open: true,
-              message: response.data.message,
-              severity: "success",
-            });
+        const res = await postRequest(API.CUSTOMER.LOGIN, { email, password });
 
-            const timeout = setTimeout(() => {
-              router.push("/");
-              formik.resetForm();
-            }, 3000);
-
-            return () => clearTimeout(timeout);
-          })
-          .catch(function (error) {
-            setSnackbar({
-              open: true,
-              message: error.response.data.message,
-              severity: "error",
-            });
-          })
-          .finally(function () {
-            setIsLoading(false);
+        if (res && res?.token) {
+          const encryptedToken = EncryptToken(res.token);
+          updateAccessToken(encryptedToken);
+          setSnackbar({
+            open: true,
+            message: res?.message || "Login successful!",
+            severity: "success",
           });
+
+          const timeout = setTimeout(() => {
+            router.push("/");
+            formik.resetForm();
+          }, 3000);
+
+          return () => clearTimeout(timeout);
+        } else {
+          setSnackbar({
+            open: true,
+            message: res?.data?.error || "Login Failed!",
+            severity: "error",
+          });
+        }
       } catch (err: any) {
+        setSnackbar({
+          open: true,
+          message:
+            err.response?.data?.message || "An unexpected error occurred.",
+          severity: "error",
+        });
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
         helpers.setSubmitting(false);
+      } finally {
+        setIsLoading(false);
       }
     },
   });
