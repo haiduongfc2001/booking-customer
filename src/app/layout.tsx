@@ -8,6 +8,7 @@ import Footer from "@/components/app.footer";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import { NavigationEvents } from "@/components/navigation-events";
+import Providers from "@/redux/Provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,12 +28,14 @@ export default function RootLayout({
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <body className={inter.className}>
-          <Header />
-          {children}
-          <Suspense fallback={null}>
-            <NavigationEvents />
-          </Suspense>
-          <Footer />
+          <Providers>
+            <Header />
+            {children}
+            <Suspense fallback={null}>
+              <NavigationEvents />
+            </Suspense>
+            <Footer />
+          </Providers>
         </body>
       </ThemeProvider>
     </html>
