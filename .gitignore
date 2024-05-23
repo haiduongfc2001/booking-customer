@@ -9,7 +9,6 @@
 # testing
 /coverage
 /src/app/test
-/src/utils/data.tsx
 
 # next.js
 /.next/

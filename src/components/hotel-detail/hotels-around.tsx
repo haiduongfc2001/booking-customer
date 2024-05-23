@@ -94,7 +94,7 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
         .filter((hotelId: number) => likedHotels.includes(hotelId)); // Lọc ra các hotel_id mà đã được thích
       setLikedHotels(initialLikedHotels);
     }
-  }, [hotelsAround]);
+  }, [hotelsAround, likedHotels]);
 
   if (!hotelsAround) {
     return <SkeletonLoading itemsPerPage={itemsPerPage} />;

@@ -10,27 +10,19 @@ import {
   Grid,
   Icon,
   IconButton,
-  List,
-  ListItem,
   MenuItem,
   Radio,
   RadioGroup,
   Select,
   SelectChangeEvent,
-  SvgIcon,
   TextField,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import HotelIcon from "@mui/icons-material/Hotel";
 import * as React from "react";
-import Image from "next/image";
 import { booking, roomInfo } from "@/utils/data";
 import {
   BankTransferIcon,
-  BreakfastIcon,
-  ConfirmIcon,
   MomoIcon,
   SingleBedIcon,
   ZaloPayIcon,

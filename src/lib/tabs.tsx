@@ -1,4 +1,3 @@
-"use client";
 import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Tabs from "@mui/material/Tabs";
@@ -89,7 +88,7 @@ function a11yProps(index: number) {
   };
 }
 
-interface TabInfo {
+export interface TabInfo {
   href: string;
   label: string;
   content: React.ReactNode;
@@ -104,7 +103,7 @@ export default function CustomizedTabs({ tabs }: CustomizedTabsProps) {
   const pathname = usePathname();
 
   const [value, setValue] = React.useState(() => {
-    const index = tabs.findIndex((tab) => tab.href === pathname);
+    const index = tabs?.findIndex((tab) => tab.href === pathname);
     return index === -1 ? 0 : index;
   });
 
@@ -121,16 +120,18 @@ export default function CustomizedTabs({ tabs }: CustomizedTabsProps) {
           onChange={handleChange}
           aria-label="tabs account management"
         >
-          {tabs.map((tab, index) => (
-            <StyledTab key={index} label={tab.label} {...a11yProps(index)} />
-          ))}
+          {tabs?.length > 0 &&
+            tabs.map((tab, index) => (
+              <StyledTab key={index} label={tab.label} {...a11yProps(index)} />
+            ))}
         </StyledTabs>
       </Box>
-      {tabs.map((tab, index) => (
-        <CustomTabPanel key={index} value={value} index={index}>
-          {tab.content}
-        </CustomTabPanel>
-      ))}
+      {tabs?.length > 0 &&
+        tabs.map((tab, index) => (
+          <CustomTabPanel key={index} value={value} index={index}>
+            {tab.content}
+          </CustomTabPanel>
+        ))}
     </Box>
   );
 }
