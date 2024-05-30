@@ -29,7 +29,7 @@ import HotelReviews from "@/components/hotel-detail/hotel-reviews";
 import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
 
 export default function HotelDetail(props: any) {
-  const { location, checkInDate, checkOutDate, numberOfPeople, numberOfRooms } =
+  const { location, checkInDate, checkOutDate, numAdults, numRooms } =
     props.searchParams;
   const { hotel_id } = props.params;
 
@@ -40,8 +40,8 @@ export default function HotelDetail(props: any) {
     location,
     checkInDate,
     checkOutDate,
-    numberOfPeople,
-    numberOfRooms,
+    numAdults,
+    numRooms,
   }).toString();
 
   // Chuyển đổi các giá trị rating từ chuỗi sang số và tính toán rating trung bình
@@ -491,10 +491,7 @@ export default function HotelDetail(props: any) {
             </Grid>
           </Box>
 
-          <RoomList
-            numberOfNights={numberOfNights}
-            numberOfRooms={numberOfRooms}
-          />
+          <RoomList numberOfNights={numberOfNights} numRooms={numRooms} />
 
           <HotelsAround hotelsAround={hotelData?.hotelsAround} />
 
@@ -520,8 +517,8 @@ export default function HotelDetail(props: any) {
         <ListItem>location : {location}</ListItem>
         <ListItem>checkInDate : {checkInDate}</ListItem>
         <ListItem>checkOutDate : {checkOutDate}</ListItem>
-        <ListItem>numberOfPeople : {numberOfPeople}</ListItem>
-        <ListItem>numberOfRooms : {numberOfRooms}</ListItem>
+        <ListItem>numAdults : {numAdults}</ListItem>
+        <ListItem>numRooms : {numRooms}</ListItem>
       </List> */}
       </Box>
     </div>

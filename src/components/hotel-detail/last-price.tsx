@@ -5,19 +5,19 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import formatCurrency from "@/utils/format-currency";
 
 interface ILastPriceProps {
-  numberOfRooms: number;
+  numRooms: number;
   numberOfNights: number;
   roomPrice: number;
   serviceCharge: number;
 }
 
 const LastPrice: FC<ILastPriceProps> = ({
-  numberOfRooms,
+  numRooms,
   numberOfNights,
   roomPrice,
   serviceCharge,
 }) => {
-  const totalRoomPriceOneNight = roomPrice * numberOfRooms;
+  const totalRoomPriceOneNight = roomPrice * numRooms;
   const totalRooomPrice = totalRoomPriceOneNight * numberOfNights;
   const tax = totalRooomPrice * 0.1;
   const lastPrice = totalRooomPrice + tax + serviceCharge;
@@ -49,7 +49,7 @@ const LastPrice: FC<ILastPriceProps> = ({
               }}
             >
               <Typography>
-                Giá cho {numberOfNights} đêm x {numberOfRooms} phòng
+                Giá cho {numberOfNights} đêm x {numRooms} phòng
               </Typography>
               <Typography>{formatCurrency(totalRooomPrice)}</Typography>
             </Box>
@@ -82,7 +82,7 @@ const LastPrice: FC<ILastPriceProps> = ({
                     }}
                   >
                     <Typography>
-                      Đêm {index + 1} ({day}/{month}) x {numberOfRooms} phòng
+                      Đêm {index + 1} ({day}/{month}) x {numRooms} phòng
                     </Typography>
                     <Typography>
                       {formatCurrency(totalRoomPriceOneNight)}
@@ -130,7 +130,7 @@ const LastPrice: FC<ILastPriceProps> = ({
                   Đã bao gồm thuế, phí, VAT
                 </Typography>
                 <Typography variant="subtitle2">
-                  Giá cho {numberOfNights} đêm, {numberOfRooms} phòng
+                  Giá cho {numberOfNights} đêm, {numRooms} phòng
                 </Typography>
               </Box>
               <Typography>{formatCurrency(lastPrice)}</Typography>
@@ -173,7 +173,7 @@ const LastPrice: FC<ILastPriceProps> = ({
                 justifyContent: "flex-end",
               }}
             >
-              cho {numberOfRooms} phòng {numberOfNights} đêm
+              cho {numRooms} phòng {numberOfNights} đêm
             </Box>
           </Box>
         }

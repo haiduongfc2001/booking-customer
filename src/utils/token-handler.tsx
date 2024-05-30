@@ -2,14 +2,14 @@ import CryptoJS from "crypto-js";
 
 interface Token {}
 
-declare const REACT_APP_SECRET_PASS: string;
-
 // Decrypt a token with type safety
 export const DecryptToken = (encryptedToken: string): Token | null => {
   if (!encryptedToken) return null;
 
+  const secretPass = process.env.REACT_APP_SECRET_PASS as string;
+
   try {
-    const bytes = CryptoJS.AES.decrypt(encryptedToken, REACT_APP_SECRET_PASS);
+    const bytes = CryptoJS.AES.decrypt(encryptedToken, secretPass);
     const decryptedToken = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
     return decryptedToken as Token;
   } catch (error) {
@@ -22,10 +22,12 @@ export const DecryptToken = (encryptedToken: string): Token | null => {
 export const EncryptToken = (token: Token): string | null => {
   if (!token) return null;
 
+  const secretPass = process.env.REACT_APP_SECRET_PASS as string;
+
   try {
     const encryptedToken = CryptoJS.AES.encrypt(
       JSON.stringify(token),
-      REACT_APP_SECRET_PASS
+      secretPass
     ).toString();
     return encryptedToken;
   } catch (error) {

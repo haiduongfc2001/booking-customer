@@ -17,11 +17,9 @@ import {
 } from "@mui/material";
 import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import axios from "axios";
 import { API } from "@/constant/constants";
 import CustomizedSnackbars from "@/lib/snackbar";
 import { postRequest } from "@/services/api-instance";
-import { EncryptToken } from "@/utils/token-handler";
 import { updateAccessToken } from "@/services/storage";
 
 const RegisterPage = () => {
@@ -47,8 +45,8 @@ const RegisterPage = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      password: "",
+      email: "haiduongtb2001@gmail.com",
+      password: "123456Aa",
       submit: null,
     },
     validationSchema: Yup.object({
@@ -66,9 +64,8 @@ const RegisterPage = () => {
 
         const res = await postRequest(API.CUSTOMER.LOGIN, { email, password });
 
-        if (res && res?.token) {
-          const encryptedToken = EncryptToken(res.token);
-          updateAccessToken(encryptedToken);
+        if (res?.token) {
+          updateAccessToken(res?.token);
           setSnackbar({
             open: true,
             message: res?.message || "Login successful!",

@@ -1,19 +1,27 @@
-// api-instance.tsx
-
 import axios from "axios";
 import { extractErrorInfo } from "../utils/extract-error-info"; // Assuming this handles error extraction
-import { getAccessToken } from "./storage";
-import { DecryptToken } from "../utils/token-handler"; // Assuming this handles token decryption
 
-// Environment variable for base URL (replace with your actual value)
-declare const REACT_APP_BASE_URL: string;
+const baseURL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!baseURL) {
+  throw new Error("NEXT_PUBLIC_API_URL environment variable is not defined");
+}
 
 const commonService = axios.create({
-  baseURL: REACT_APP_BASE_URL,
+  baseURL,
 });
 
-// Enforce type safety for request parameters and responses
-interface CommonServiceResponse {}
+interface CommonServiceResponse {
+  token?: string; // Include possible response properties
+  message?: string;
+  data?: any;
+  [key: string]: any;
+}
+
+interface ErrorInfo {
+  message: string;
+  [key: string]: any;
+}
 
 interface RequestOptions {
   params?: Record<string, any>; // Optional query parameters
@@ -23,16 +31,15 @@ interface RequestOptions {
 
 // Utility function to get authorization headers
 const getAuthHeaders = (): { Authorization: string } => {
-  const accessToken = getAccessToken();
-  if (!accessToken) {
-    throw new Error("Access token is null");
-  }
+  // const accessToken = getAccessToken();
+  // if (!accessToken) {
+  //   throw new Error("Access token is null");
+  // }
   return {
-    Authorization: `Bearer ${DecryptToken(accessToken)}`,
+    Authorization: `Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjEsImVtYWlsIjoiaGFpZHVvbmd0YjIwMDFAZ21haWwuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzE3MDg1NTM3LCJleHAiOjE3MTcxNzE5Mzd9.QfBhbwVs-Ewc0vn2v31oFf-oTzwuoXJpHrkhcKIInrU`,
   };
 };
 
-// Base GET method with type safety
 export const get = async (
   path: string,
   options?: RequestOptions
@@ -41,7 +48,6 @@ export const get = async (
   return response.data;
 };
 
-// Base POST method with type safety
 export const post = async (
   path: string,
   data: any,
@@ -51,7 +57,6 @@ export const post = async (
   return response.data;
 };
 
-// Base PATCH method with type safety
 export const patch = async (
   path: string,
   data: any,
@@ -61,7 +66,6 @@ export const patch = async (
   return response.data;
 };
 
-// Base PUT method with type safety
 export const put = async (
   path: string,
   data: any,
@@ -71,7 +75,6 @@ export const put = async (
   return response.data;
 };
 
-// Base DELETE method with type safety
 export const _delete = async (
   path: string,
   options?: RequestOptions
@@ -80,7 +83,6 @@ export const _delete = async (
   return response.data;
 };
 
-// Common request handler with error handling and type safety
 const handleRequest = async (
   method: "get" | "post" | "patch" | "put" | "delete",
   endpoint: string,
@@ -91,8 +93,8 @@ const handleRequest = async (
       headers: getAuthHeaders(),
     };
 
-    if (data) {
-      options.data = data;
+    if (method === "get" || method === "delete") {
+      delete options.data;
     }
 
     let res;
@@ -112,6 +114,8 @@ const handleRequest = async (
       case "delete":
         res = await _delete(endpoint, options);
         break;
+      default:
+        throw new Error(`Unsupported method: ${method}`);
     }
     return res;
   } catch (error) {
@@ -119,7 +123,6 @@ const handleRequest = async (
   }
 };
 
-// Common request methods
 export const getRequest = (
   endpoint: string
 ): Promise<CommonServiceResponse | ErrorInfo> => {
@@ -153,9 +156,3 @@ export const deleteRequest = (
 ): Promise<CommonServiceResponse | ErrorInfo> => {
   return handleRequest("delete", endpoint, data);
 };
-
-// Optional: Define an ErrorInfo type if not already defined elsewhere
-interface ErrorInfo {
-  message: string; // Error message
-  // Add additional error properties as needed
-}

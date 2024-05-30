@@ -52,8 +52,8 @@ const SearchBar: FC<SearchBarProps> = () => {
       location: "Hà Nội",
       checkInDate: dayjs(),
       checkOutDate: dayjs().add(1, "day"),
-      numberOfPeople: 1,
-      numberOfRooms: 1,
+      numAdults: 1,
+      numRooms: 1,
       submit: null,
     },
     validationSchema: Yup.object({
@@ -62,31 +62,26 @@ const SearchBar: FC<SearchBarProps> = () => {
       checkOutDate: Yup.date()
         .required("Vui lòng chọn ngày về!")
         .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
-      numberOfPeople: Yup.number()
+      numAdults: Yup.number()
         .min(1, "Số lượng người tối thiểu phải là 1!")
         .test({
           name: "roomCheck",
           message: "Số người ở ít nhất phải bằng số phòng!",
           test: function (value) {
-            const numberOfRooms = this.parent.numberOfRooms as number;
-            return typeof value === "number" && value >= numberOfRooms;
+            const numRooms = this.parent.numRooms as number;
+            return typeof value === "number" && value >= numRooms;
           },
         })
         .required("Vui lòng chọn số lượng người!"),
-      numberOfRooms: Yup.number()
+      numRooms: Yup.number()
         .min(1, "Số lượng phòng tối thiểu phải là 1!")
         .required("Vui lòng chọn số lượng phòng!"),
     }),
 
     onSubmit: async (values, helpers) => {
       try {
-        const {
-          location,
-          checkInDate,
-          checkOutDate,
-          numberOfPeople,
-          numberOfRooms,
-        } = values;
+        const { location, checkInDate, checkOutDate, numAdults, numRooms } =
+          values;
 
         const formattedCheckInDate = checkInDate.format("YYYY-MM-DD");
         const formattedCheckOutDate = checkOutDate.format("YYYY-MM-DD");
@@ -95,8 +90,8 @@ const SearchBar: FC<SearchBarProps> = () => {
           location,
           checkInDate: formattedCheckInDate,
           checkOutDate: formattedCheckOutDate,
-          numberOfPeople: String(numberOfPeople),
-          numberOfRooms: String(numberOfRooms),
+          numAdults: String(numAdults),
+          numRooms: String(numRooms),
         }).toString();
 
         router.push(`/search?${searchQueryParams}`, { scroll: true });
@@ -127,36 +122,36 @@ const SearchBar: FC<SearchBarProps> = () => {
 
   const handleSubPerson = () => {
     if (
-      formik.values.numberOfPeople > 1 &&
-      formik.values.numberOfPeople >= formik.values.numberOfRooms
+      formik.values.numAdults > 1 &&
+      formik.values.numAdults >= formik.values.numRooms
     ) {
-      updateFieldValue("numberOfPeople", formik.values.numberOfPeople - 1);
+      updateFieldValue("numAdults", formik.values.numAdults - 1);
     } else return;
   };
 
   const handleAddPerson = () => {
-    if (formik.values.numberOfPeople < 1) return;
-    updateFieldValue("numberOfPeople", formik.values.numberOfPeople + 1);
+    if (formik.values.numAdults < 1) return;
+    updateFieldValue("numAdults", formik.values.numAdults + 1);
   };
 
   const handleSubRoom = () => {
-    if (formik.values.numberOfRooms <= 1) {
+    if (formik.values.numRooms <= 1) {
       return;
     } else {
-      updateFieldValue("numberOfRooms", formik.values.numberOfRooms - 1);
-      if (formik.values.numberOfPeople < formik.values.numberOfRooms) {
-        updateFieldValue("numberOfPeople", formik.values.numberOfRooms);
+      updateFieldValue("numRooms", formik.values.numRooms - 1);
+      if (formik.values.numAdults < formik.values.numRooms) {
+        updateFieldValue("numAdults", formik.values.numRooms);
       }
     }
   };
 
   const handleAddRoom = () => {
-    if (formik.values.numberOfRooms < 1) {
+    if (formik.values.numRooms < 1) {
       return;
     } else {
-      updateFieldValue("numberOfRooms", formik.values.numberOfRooms + 1);
-      if (formik.values.numberOfPeople <= formik.values.numberOfRooms) {
-        updateFieldValue("numberOfPeople", formik.values.numberOfPeople + 1);
+      updateFieldValue("numRooms", formik.values.numRooms + 1);
+      if (formik.values.numAdults <= formik.values.numRooms) {
+        updateFieldValue("numAdults", formik.values.numAdults + 1);
       }
     }
   };
@@ -295,10 +290,10 @@ const SearchBar: FC<SearchBarProps> = () => {
                     fontSize="16px"
                     fontWeight="600"
                   >
-                    {formik.values.numberOfPeople} người
+                    {formik.values.numAdults} người
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
-                    {formik.values.numberOfRooms} phòng
+                    {formik.values.numRooms} phòng
                   </Typography>
                 </Stack>
               </Button>
@@ -328,7 +323,7 @@ const SearchBar: FC<SearchBarProps> = () => {
                         height: "28px",
                         border: "1px solid",
                         color:
-                          formik.values.numberOfPeople > 1
+                          formik.values.numAdults > 1
                             ? "primary.main"
                             : "inherit",
                         borderColor: "rgb(168, 179, 203)",
@@ -339,16 +334,15 @@ const SearchBar: FC<SearchBarProps> = () => {
                         },
                       }}
                       disabled={
-                        formik.values.numberOfPeople <= 1 ||
-                        formik.values.numberOfPeople ===
-                          formik.values.numberOfRooms
+                        formik.values.numAdults <= 1 ||
+                        formik.values.numAdults === formik.values.numRooms
                       }
                       onClick={handleSubPerson}
                     >
                       <RemoveIcon />
                     </IconButton>
                     <Typography variant="h6">
-                      {formik.values.numberOfPeople}
+                      {formik.values.numAdults}
                     </Typography>
                     <IconButton
                       size="small"
@@ -379,7 +373,7 @@ const SearchBar: FC<SearchBarProps> = () => {
                         width: "28px",
                         height: "28px",
                         color:
-                          formik.values.numberOfRooms > 1
+                          formik.values.numRooms > 1
                             ? "primary.main"
                             : "inherit",
                         border: "1px solid",
@@ -390,13 +384,13 @@ const SearchBar: FC<SearchBarProps> = () => {
                           background: "rgb(237, 240, 249)",
                         },
                       }}
-                      disabled={formik.values.numberOfRooms <= 1}
+                      disabled={formik.values.numRooms <= 1}
                       onClick={handleSubRoom}
                     >
                       <RemoveIcon />
                     </IconButton>
                     <Typography variant="h6">
-                      {formik.values.numberOfRooms}
+                      {formik.values.numRooms}
                     </Typography>
                     <IconButton
                       size="small"

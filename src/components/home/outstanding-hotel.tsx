@@ -123,8 +123,8 @@ const OutstandingHotel: React.FC = () => {
       location: city,
       checkInDate: dayjs().format("YYYY-MM-DD"),
       checkOutDate: dayjs().add(1, "day").format("YYYY-MM-DD"),
-      numberOfPeople: "1",
-      numberOfRooms: "1",
+      numAdults: "1",
+      numRooms: "1",
     }).toString();
 
     router.push(`/hotel/${hotel_id}?${searchQueryParams}`, { scroll: true });

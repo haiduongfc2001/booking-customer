@@ -199,8 +199,8 @@ const MyBookings: FC<MyBookingsProps> = () => {
                                   ),
                                   checkInDate: formattedCheckInDate,
                                   checkOutDate: formattedCheckOutDate,
-                                  numberOfPeople: "1",
-                                  numberOfRooms: "1",
+                                  numAdults: "1",
+                                  numRooms: "1",
                                 }).toString();
 
                                 return (

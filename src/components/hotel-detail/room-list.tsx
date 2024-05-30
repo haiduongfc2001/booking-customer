@@ -32,10 +32,10 @@ import LastPrice from "./last-price";
 
 interface RoomListProps {
   numberOfNights: number;
-  numberOfRooms: number;
+  numRooms: number;
 }
 
-const RoomList: FC<RoomListProps> = ({ numberOfNights, numberOfRooms }) => {
+const RoomList: FC<RoomListProps> = ({ numberOfNights, numRooms }) => {
   const [selectedFilters, setSelectedFilters] = React.useState<string[]>([]);
 
   const handleFilterToggle = (filter: string) => {
@@ -475,7 +475,7 @@ const RoomList: FC<RoomListProps> = ({ numberOfNights, numberOfRooms }) => {
                               }}
                             >
                               <LastPrice
-                                numberOfRooms={numberOfRooms}
+                                numRooms={numRooms}
                                 numberOfNights={numberOfNights}
                                 roomPrice={room.price - room.discount}
                                 serviceCharge={hotelData?.serviceCharge}

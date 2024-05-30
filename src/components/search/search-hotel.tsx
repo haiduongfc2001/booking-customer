@@ -30,16 +30,16 @@ interface SearchHotelProps {
   location: string;
   checkInDate: Dayjs;
   checkOutDate: Dayjs;
-  numberOfPeople: number;
-  numberOfRooms: number;
+  numAdults: number;
+  numRooms: number;
 }
 
 const SearchHotel: FC<SearchHotelProps> = ({
   location = "",
   checkInDate = dayjs(),
   checkOutDate = dayjs().add(1, "day"),
-  numberOfPeople = 1,
-  numberOfRooms = 1,
+  numAdults = 1,
+  numRooms = 1,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
@@ -50,8 +50,8 @@ const SearchHotel: FC<SearchHotelProps> = ({
     location,
     checkInDate,
     checkOutDate,
-    numberOfPeople,
-    numberOfRooms,
+    numAdults,
+    numRooms,
   };
 
   const open = Boolean(anchorEl);
@@ -73,23 +73,18 @@ const SearchHotel: FC<SearchHotelProps> = ({
       checkOutDate: Yup.date()
         .required("Vui lòng chọn ngày về!")
         .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
-      numberOfPeople: Yup.number()
+      numAdults: Yup.number()
         .min(1, "Số lượng người tối thiểu phải là 1!")
         .required("Vui lòng chọn số lượng người!"),
-      numberOfRooms: Yup.number()
+      numRooms: Yup.number()
         .min(1, "Số lượng phòng tối thiểu phải là 1!")
         .required("Vui lòng chọn số lượng phòng!"),
     }),
 
     onSubmit: async (values, helpers) => {
       try {
-        const {
-          location,
-          checkInDate,
-          checkOutDate,
-          numberOfPeople,
-          numberOfRooms,
-        } = values;
+        const { location, checkInDate, checkOutDate, numAdults, numRooms } =
+          values;
 
         const formattedCheckInDate = checkInDate.format("YYYY-MM-DD");
         const formattedCheckOutDate = checkOutDate.format("YYYY-MM-DD");
@@ -98,8 +93,8 @@ const SearchHotel: FC<SearchHotelProps> = ({
           location,
           checkInDate: formattedCheckInDate,
           checkOutDate: formattedCheckOutDate,
-          numberOfPeople: String(numberOfPeople),
-          numberOfRooms: String(numberOfRooms),
+          numAdults: String(numAdults),
+          numRooms: String(numRooms),
         }).toString();
 
         router.push(`/search?${searchQueryParams}`, { scroll: true });
@@ -116,23 +111,23 @@ const SearchHotel: FC<SearchHotelProps> = ({
   };
 
   const handleSubPerson = () => {
-    if (formik.values.numberOfPeople <= 1) return;
-    updateFieldValue("numberOfPeople", formik.values.numberOfPeople - 1);
+    if (formik.values.numAdults <= 1) return;
+    updateFieldValue("numAdults", formik.values.numAdults - 1);
   };
 
   const handleAddPerson = () => {
-    if (formik.values.numberOfPeople < 1) return;
-    updateFieldValue("numberOfPeople", formik.values.numberOfPeople + 1);
+    if (formik.values.numAdults < 1) return;
+    updateFieldValue("numAdults", formik.values.numAdults + 1);
   };
 
   const handleSubRoom = () => {
-    if (formik.values.numberOfRooms <= 1) return;
-    updateFieldValue("numberOfRooms", formik.values.numberOfRooms - 1);
+    if (formik.values.numRooms <= 1) return;
+    updateFieldValue("numRooms", formik.values.numRooms - 1);
   };
 
   const handleAddRoom = () => {
-    if (formik.values.numberOfRooms < 1) return;
-    updateFieldValue("numberOfRooms", formik.values.numberOfRooms + 1);
+    if (formik.values.numRooms < 1) return;
+    updateFieldValue("numRooms", formik.values.numRooms + 1);
   };
 
   const handleCheckInChange = (newValue: Dayjs | null) => {
@@ -269,10 +264,10 @@ const SearchHotel: FC<SearchHotelProps> = ({
                     fontSize="16px"
                     fontWeight="600"
                   >
-                    {formik.values.numberOfPeople} người
+                    {formik.values.numAdults} người
                   </Typography>
                   <Typography variant="body2" color="textSecondary">
-                    {formik.values.numberOfRooms} phòng
+                    {formik.values.numRooms} phòng
                   </Typography>
                 </Stack>
               </Button>
@@ -302,7 +297,7 @@ const SearchHotel: FC<SearchHotelProps> = ({
                         height: "28px",
                         border: "1px solid",
                         color:
-                          formik.values.numberOfPeople > 1
+                          formik.values.numAdults > 1
                             ? "primary.main"
                             : "inherit",
                         borderColor: "rgb(168, 179, 203)",
@@ -312,13 +307,13 @@ const SearchHotel: FC<SearchHotelProps> = ({
                           background: "rgb(237, 240, 249)",
                         },
                       }}
-                      disabled={formik.values.numberOfPeople <= 1}
+                      disabled={formik.values.numAdults <= 1}
                       onClick={handleSubPerson}
                     >
                       <RemoveIcon />
                     </IconButton>
                     <Typography variant="h6">
-                      {formik.values.numberOfPeople}
+                      {formik.values.numAdults}
                     </Typography>
                     <IconButton
                       size="small"
@@ -349,7 +344,7 @@ const SearchHotel: FC<SearchHotelProps> = ({
                         width: "28px",
                         height: "28px",
                         color:
-                          formik.values.numberOfRooms > 1
+                          formik.values.numRooms > 1
                             ? "primary.main"
                             : "inherit",
                         border: "1px solid",
@@ -360,13 +355,13 @@ const SearchHotel: FC<SearchHotelProps> = ({
                           background: "rgb(237, 240, 249)",
                         },
                       }}
-                      disabled={formik.values.numberOfRooms <= 1}
+                      disabled={formik.values.numRooms <= 1}
                       onClick={handleSubRoom}
                     >
                       <RemoveIcon />
                     </IconButton>
                     <Typography variant="h6">
-                      {formik.values.numberOfRooms}
+                      {formik.values.numRooms}
                     </Typography>
                     <IconButton
                       size="small"

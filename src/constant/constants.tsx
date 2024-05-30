@@ -32,7 +32,7 @@ export const SCREEN_TITLE: IScreenTitle = {};
  */
 export const API: IApi = {
   SEARCH: {
-    SEARCH_HOTEL: "SearchHotel",
+    SEARCH_HOTEL: "/hotel/getHotelSearchResults",
   },
   HOTEL: {
     GET_OUTSTANDING_HOTELS: "/hotel/getOutstandingHotels",
