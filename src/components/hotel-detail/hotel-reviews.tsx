@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { Line, Circle } from "rc-progress";
 import ratingCategory from "@/utils/rating-category";
-import { hotelData, ratingData, sortOptions } from "../../utils/data";
+import { ratingData, sortOptions } from "../../utils/data";
 import { getInitials } from "@/utils/get-initials";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import { formatDate } from "@/utils/format-date";
@@ -46,14 +46,14 @@ interface ICountByRatingLevel {
 }
 
 interface IHotelReviews {
-  hotelReviews: IHotelReview[];
+  hotelData: { [key: string]: any };
   numericRating: number;
   percentRating: number;
   countByRatingLevel: ICountByRatingLevel[];
 }
 
 const HotelReviews: FC<IHotelReviews> = ({
-  hotelReviews,
+  hotelData,
   numericRating,
   percentRating,
   countByRatingLevel,
@@ -317,7 +317,7 @@ const HotelReviews: FC<IHotelReviews> = ({
           </Grid>
 
           <Grid item xs={12} sx={{ pt: "0px !important" }}>
-            {hotelReviews?.map((review) => (
+            {hotelData?.reviews?.map((review: IHotelReview) => (
               <Grid
                 container
                 key={review.id}
@@ -559,7 +559,7 @@ const HotelReviews: FC<IHotelReviews> = ({
               </Grid>
             ))}
 
-            {hotelReviews?.length > 10 && (
+            {hotelData?.reviews?.length > 10 && (
               <Box
                 sx={{
                   width: "100%",

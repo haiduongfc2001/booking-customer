@@ -1,4 +1,4 @@
-export const hotelData = {
+export const hotelDataFake = {
   id: 10,
   name: "The Empyrean Nha Trang",
   address: "2, Nguyễn Thị Minh Khai, Thành Phố Nha Trang, Khánh Hòa",

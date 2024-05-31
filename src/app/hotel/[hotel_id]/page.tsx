@@ -22,16 +22,27 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Image from "next/image";
 import { Line, Circle } from "rc-progress";
 import ratingCategory from "@/utils/rating-category";
-import { amenitiesData, hotelData, ratingData } from "@/utils/data";
+import { amenitiesData, hotelDataFake, ratingData } from "@/utils/data";
 import RoomList from "@/components/hotel-detail/room-list";
 import HotelsAround from "@/components/hotel-detail/hotels-around";
 import HotelReviews from "@/components/hotel-detail/hotel-reviews";
 import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
+import { API, STATUS_CODE } from "@/constant/constants";
+import { postRequest } from "@/services/api-instance";
+import {
+  calculateAndConvertToPercentage,
+  calculateAverageRating,
+  roundAverageRating,
+} from "@/utils/rating-utils";
 
 export default function HotelDetail(props: any) {
-  const { location, checkInDate, checkOutDate, numAdults, numRooms } =
+  const { location, checkInDate, checkOutDate, numAdults, numRooms, filters } =
     props.searchParams;
   const { hotel_id } = props.params;
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [hotelData, setHotelData] = React.useState<any>();
+  const [hotelsAround, setHotelsAround] = React.useState<any[]>([]);
 
   const theme = useTheme();
   const isMd = useMediaQuery(theme.breakpoints.only("md"));
@@ -44,21 +55,88 @@ export default function HotelDetail(props: any) {
     numRooms,
   }).toString();
 
-  // Chuyển đổi các giá trị rating từ chuỗi sang số và tính toán rating trung bình
-  const ratings = ratingData.map((item) => parseFloat(item.rating));
-  const sum = ratings.reduce((total, rating) => total + rating, 0);
-  const averageRating = sum / ratings.length;
+  // Trích xuất giá trị rating từ mảng ratingData
+  const ratings: string[] = ratingData.map((item) => item.rating);
 
-  // Làm tròn rating trung bình đến 1 chữ số thập phân và chỉ lấy 1 số sau dấu thập phân
-  const formattedRating = averageRating.toFixed(1);
+  const numericRating = roundAverageRating(calculateAverageRating(ratings));
 
-  // Chuyển đổi lại thành số để sử dụng trong tính toán
-  const numericRating = parseFloat(formattedRating);
-
-  // Sử dụng numericRating (kiểm tra nếu nó là một số hợp lệ) để tính phần trăm
-  const percentRating = isNaN(numericRating) ? 0 : numericRating * 10;
+  // Sử dụng giá trị ratings để tính toán phần trăm
+  const percentRating = calculateAndConvertToPercentage(ratings);
 
   const numberOfNights = calculateNumberOfNights(checkInDate, checkOutDate);
+
+  React.useEffect(() => {
+    const fetchHotels = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      const detailBody = {
+        check_in_date: checkInDate,
+        check_out_date: checkOutDate,
+        num_adults: numAdults,
+        num_children: 0,
+        num_rooms: numRooms,
+        children_ages: [],
+        hotel_id,
+        filters: {
+          price_range: filters?.priceRange,
+          amenities: filters?.selectedAmenities,
+          room_type: filters?.selectedRoomType,
+          min_rating: filters?.selectedMinRating,
+        },
+      };
+
+      const searchBody = {
+        location,
+        check_in_date: checkInDate,
+        check_out_date: checkOutDate,
+        num_adults: numAdults,
+        num_children: 0,
+        num_rooms: numRooms,
+      };
+
+      try {
+        const detailResponse = await postRequest(
+          `/hotel/${hotel_id}/getHotelDetail`,
+          detailBody
+        );
+        const searchResponse = await postRequest(
+          API.SEARCH.SEARCH_HOTEL,
+          searchBody
+        );
+
+        console.log(detailResponse);
+        console.log(searchResponse);
+
+        if (detailResponse && detailResponse.status === STATUS_CODE.OK) {
+          setHotelData(detailResponse.data);
+        }
+
+        if (searchResponse && searchResponse.status === STATUS_CODE.OK) {
+          setHotelsAround(
+            searchResponse.data?.items.filter(
+              (hotel: { [key: string]: any }) => hotel.id !== Number(hotel_id)
+            ) || []
+          );
+        }
+      } catch (error: any) {
+        console.error(error.response?.data?.message || error.message);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHotels();
+  }, [
+    location,
+    checkInDate,
+    checkOutDate,
+    numAdults,
+    numRooms,
+    filters,
+    hotel_id,
+  ]);
 
   return (
     <div>
@@ -71,7 +149,7 @@ export default function HotelDetail(props: any) {
               icon: <LocationOnIcon />,
             },
             {
-              label: `${hotelData.name}`,
+              label: `${hotelData?.name}`,
               icon: <HotelIcon />,
             },
           ]}
@@ -112,51 +190,54 @@ export default function HotelDetail(props: any) {
                   lineHeight: "29px",
                 }}
               >
-                {hotelData.name}
+                {hotelData?.name}
               </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mt: 1,
-                }}
-              >
-                <IconButton
-                  size="small"
-                  sx={{
-                    color: "#FF3366",
-                    display: "flex",
-                    p: "1px 2px 0 0",
-                    fontWeight: "600",
-                    mr: "5px",
-                    borderRadius: "4px",
-                    bgcolor: "rgba(255, 51, 102, 0.1)",
-                  }}
-                >
-                  <RateReviewIcon />
-                  {numericRating}
-                </IconButton>
-                {ratingCategory(numericRating)}
+
+              {hotelData?.reviews && (
                 <Box
-                  component="span"
                   sx={{
-                    color: "#4A5568",
-                    ml: "5px",
+                    display: "flex",
+                    alignItems: "center",
+                    mt: 1,
                   }}
                 >
-                  (100 đánh giá)
+                  <IconButton
+                    size="small"
+                    sx={{
+                      color: "#FF3366",
+                      display: "flex",
+                      p: "1px 2px 0 0",
+                      fontWeight: "600",
+                      mr: "5px",
+                      borderRadius: "4px",
+                      bgcolor: "rgba(255, 51, 102, 0.1)",
+                    }}
+                  >
+                    <RateReviewIcon />
+                    {hotelData?.reviews.average_rate}
+                  </IconButton>
+                  {ratingCategory(numericRating)}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: "#4A5568",
+                      ml: "5px",
+                    }}
+                  >
+                    ({hotelData?.reviews.total_reviews} đánh giá)
+                  </Box>
+                  <Button
+                    color="primary"
+                    aria-label="Xem dánh giá"
+                    sx={{
+                      p: "5px",
+                      minHeight: "auto",
+                    }}
+                  >
+                    Xem đánh giá
+                  </Button>
                 </Box>
-                <Button
-                  color="primary"
-                  aria-label="Xem dánh giá"
-                  sx={{
-                    p: "5px",
-                    minHeight: "auto",
-                  }}
-                >
-                  Xem đánh giá
-                </Button>
-              </Box>
+              )}
 
               <Box
                 sx={{
@@ -173,7 +254,7 @@ export default function HotelDetail(props: any) {
                 >
                   <LocationOnIcon />
                 </IconButton>
-                <Box component="span">{hotelData.address}</Box>
+                <Box component="span">{hotelData?.address}</Box>
                 <Button
                   color="primary"
                   aria-label="Xem bản đồ"
@@ -218,7 +299,7 @@ export default function HotelDetail(props: any) {
                     lineHeight: "24px",
                   }}
                 >
-                  {formatCurrency(hotelData.roomList[0].price)}
+                  {formatCurrency(hotelData?.min_room_price)}
                 </Box>
               </Box>
               <Button
@@ -242,50 +323,52 @@ export default function HotelDetail(props: any) {
             }}
           >
             <ImageList variant="quilted" cols={4} gap={8} rowHeight={160}>
-              {hotelData.images.map((image, index) => (
-                <ImageListItem
-                  key={image.id}
-                  cols={index === 0 ? 2 : 1}
-                  rows={index === 0 ? 2 : 1}
-                >
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      position: "relative",
-                    }}
+              {hotelData?.images.map(
+                (image: { [key: string]: any }, index: number) => (
+                  <ImageListItem
+                    key={image.id}
+                    cols={index === 0 ? 2 : 1}
+                    rows={index === 0 ? 2 : 1}
                   >
-                    <Image
-                      fill
-                      priority
-                      // loading="lazy"
-                      // loader={() => image.url}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      src={image.url}
-                      alt={image.caption}
-                      style={{ borderRadius: "8px", objectFit: "cover" }}
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        position: "relative",
+                      }}
+                    >
+                      <Image
+                        fill
+                        priority
+                        // loading="lazy"
+                        // loader={() => image.url}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        src={image.url}
+                        alt={image.caption}
+                        style={{ borderRadius: "8px", objectFit: "cover" }}
+                      />
+                    </div>
+                    <ImageListItemBar
+                      sx={{
+                        background:
+                          "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, " +
+                          "rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)",
+                      }}
+                      title={image.caption}
+                      position="bottom"
+                      actionIcon={
+                        <IconButton
+                          sx={{ color: "white" }}
+                          aria-label={`star ${image.caption}`}
+                        >
+                          <StarBorderIcon />
+                        </IconButton>
+                      }
+                      actionPosition="left"
                     />
-                  </div>
-                  <ImageListItemBar
-                    sx={{
-                      background:
-                        "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, " +
-                        "rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)",
-                    }}
-                    title={image.caption}
-                    position="bottom"
-                    actionIcon={
-                      <IconButton
-                        sx={{ color: "white" }}
-                        aria-label={`star ${image.caption}`}
-                      >
-                        <StarBorderIcon />
-                      </IconButton>
-                    }
-                    actionPosition="left"
-                  />
-                </ImageListItem>
-              ))}
+                  </ImageListItem>
+                )
+              )}
             </ImageList>
           </Box>
 
@@ -308,7 +391,7 @@ export default function HotelDetail(props: any) {
                     Mô tả khách sạn
                   </Typography>
                   <Typography variant="body2">
-                    {hotelData.description}
+                    {hotelData?.description}
                   </Typography>
                 </Box>
                 <Box
@@ -493,7 +576,7 @@ export default function HotelDetail(props: any) {
 
           <RoomList numberOfNights={numberOfNights} numRooms={numRooms} />
 
-          <HotelsAround hotelsAround={hotelData?.hotelsAround} />
+          <HotelsAround hotelsAround={hotelsAround} />
 
           <Box
             sx={{
@@ -506,12 +589,14 @@ export default function HotelDetail(props: any) {
           />
         </Box>
 
-        <HotelReviews
-          hotelReviews={hotelData?.reviews}
-          numericRating={numericRating}
-          percentRating={percentRating}
-          countByRatingLevel={hotelData?.countByRatingLevel}
-        />
+        {hotelData?.reviews?.length > 0 && (
+          <HotelReviews
+            hotelData={hotelData}
+            numericRating={numericRating}
+            percentRating={percentRating}
+            countByRatingLevel={hotelDataFake?.countByRatingLevel}
+          />
+        )}
 
         {/* <List>
         <ListItem>location : {location}</ListItem>

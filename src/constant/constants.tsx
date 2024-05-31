@@ -37,6 +37,7 @@ export const API: IApi = {
   HOTEL: {
     GET_OUTSTANDING_HOTELS: "/hotel/getOutstandingHotels",
     GET_HOTEL_BY_ID: "/hotel/getHotelById",
+    GET_HOTEL_DETAIL: (hotelId: number) => `/hotel/${hotelId}/getHotelDetail`,
   },
   CUSTOMER: {
     VERIFY_EMAIL: "/customer/verify",

@@ -25,9 +25,9 @@ interface IHotel {
 
 interface IHotelAround {
   hotel_id: number;
-  hotel_name: string;
-  hotel_address: string;
-  hotel_avatar: string | null;
+  name: string;
+  address: string;
+  images: { [key: string]: any };
   min_room_price: number;
   original_room_price: number;
 }
@@ -119,7 +119,7 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
       return;
     }
 
-    const city = extractCityFromAddress(hotel.hotel_address);
+    const city = extractCityFromAddress(hotel.address);
 
     const searchQueryParams = new URLSearchParams({
       location: city,
@@ -208,174 +208,182 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
               gap: "16px",
             }}
           >
-            {group.map((item: IHotelAround, itemIndex: number) => (
-              <Box
-                key={itemIndex}
-                sx={{
-                  width: `calc(100% / ${itemsPerPage})`,
-                  mx: "16px",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                  boxShadow: "0px 5px 5px rgba(0, 0, 0, 0.1)",
-                  bgcolor: "background.paper",
-                  display: "flex",
-                  flexDirection: "column",
-                  "&:hover": {
-                    boxShadow: "0px 15px 25px rgba(0, 0, 0, 0.3)",
-                    transform: "scale(1.02)",
-                    transition:
-                      "box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out",
-                    cursor: "pointer",
-                    bgcolor: "rgb(235,240,252)",
-                  },
-                  "&:hover .MuiTypography-h6": {
-                    color: "primary.main",
-                    transition: "all .2s",
-                    cursor: "pointer",
-                  },
-                }}
-                onClick={() => handleNavigate(item.hotel_id)}
-              >
-                <Box position="relative">
-                  <CardMedia
-                    component="img"
-                    src={
-                      item?.hotel_avatar ||
-                      "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg"
-                    }
-                    alt={item.hotel_name}
-                    sx={{
-                      height: "150px",
-                      objectFit: "cover",
-                      borderRadius: "8px 8px 0 0",
-                    }}
-                  />
-                  <IconButton
-                    sx={{
-                      top: "16px",
-                      right: "4px",
-                      zIndex: 2,
-                      position: "absolute",
-                      flex: "0 0 auto",
-                      color: "rgba(0, 0, 0, 0.54)",
-                      padding: "12px",
-                      overflow: "visible",
-                      fontSize: "1.7142857142857142rem",
-                      textAlign: "center",
+            {group.map((item: IHotelAround, itemIndex: number) => {
+              const hotel_avatar = item?.images?.filter(
+                (image: { [key: string]: any }) => {
+                  return image.is_primary === true;
+                }
+              )[0]?.url;
+
+              return (
+                <Box
+                  key={itemIndex}
+                  sx={{
+                    width: `calc(100% / ${itemsPerPage})`,
+                    mx: "16px",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    boxShadow: "0px 5px 5px rgba(0, 0, 0, 0.1)",
+                    bgcolor: "background.paper",
+                    display: "flex",
+                    flexDirection: "column",
+                    "&:hover": {
+                      boxShadow: "0px 15px 25px rgba(0, 0, 0, 0.3)",
+                      transform: "scale(1.02)",
                       transition:
-                        "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
-                      borderRadius: "50%",
-                      "& .MuiIconButton-label": {
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "inherit",
-                        justifyContent: "inherit",
-                      },
-                      "& svg:hover": {
-                        color: "neutral.800",
-                        transition: "color 0.2s ease",
-                      },
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleLike(item.hotel_id);
-                    }}
-                  >
-                    <FavoriteIcon
+                        "box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out",
+                      cursor: "pointer",
+                      bgcolor: "rgb(235,240,252)",
+                    },
+                    "&:hover .MuiTypography-h6": {
+                      color: "primary.main",
+                      transition: "all .2s",
+                      cursor: "pointer",
+                    },
+                  }}
+                  onClick={() => handleNavigate(item.hotel_id)}
+                >
+                  <Box position="relative">
+                    <CardMedia
+                      component="img"
+                      src={
+                        hotel_avatar ||
+                        "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg"
+                      }
+                      alt={item.name}
                       sx={{
-                        fill: isHotelLiked(item.hotel_id)
-                          ? "red"
-                          : "neutral.900",
-                        stroke: "#ffffff",
+                        height: "150px",
+                        objectFit: "cover",
+                        borderRadius: "8px 8px 0 0",
                       }}
                     />
-                  </IconButton>
-                </Box>
-                <Box p={2} sx={{ flexGrow: 1 }}>
-                  <Typography
-                    variant="h6"
-                    gutterBottom
-                    sx={{
-                      display: "-webkit-box",
-                      overflow: "hidden",
-                      fontSize: "18px",
-                      fontWeight: "600",
-                      lineHeight: "24px",
-                      pt: "4px",
-                      WebkitBoxOrient: "vertical",
-                      WebkitLineClamp: "3",
-                    }}
-                  >
-                    {item.hotel_name}
-                  </Typography>
-                  <Stack direction="row">
-                    <LocationOnIcon />
-                    <Typography
-                      variant="body2"
+                    <IconButton
                       sx={{
-                        overflow: "hidden",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        textOverflow: "ellipsis",
+                        top: "16px",
+                        right: "4px",
+                        zIndex: 2,
+                        position: "absolute",
+                        flex: "0 0 auto",
+                        color: "rgba(0, 0, 0, 0.54)",
+                        padding: "12px",
+                        overflow: "visible",
+                        fontSize: "1.7142857142857142rem",
+                        textAlign: "center",
+                        transition:
+                          "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+                        borderRadius: "50%",
+                        "& .MuiIconButton-label": {
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "inherit",
+                          justifyContent: "inherit",
+                        },
+                        "& svg:hover": {
+                          color: "neutral.800",
+                          transition: "color 0.2s ease",
+                        },
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleLike(item.hotel_id);
                       }}
                     >
-                      {item.hotel_address}
+                      <FavoriteIcon
+                        sx={{
+                          fill: isHotelLiked(item.hotel_id)
+                            ? "red"
+                            : "neutral.900",
+                          stroke: "#ffffff",
+                        }}
+                      />
+                    </IconButton>
+                  </Box>
+                  <Box p={2} sx={{ flexGrow: 1 }}>
+                    <Typography
+                      variant="h6"
+                      gutterBottom
+                      sx={{
+                        display: "-webkit-box",
+                        overflow: "hidden",
+                        fontSize: "18px",
+                        fontWeight: "600",
+                        lineHeight: "24px",
+                        pt: "4px",
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: "3",
+                      }}
+                    >
+                      {item.name}
                     </Typography>
-                  </Stack>
-                </Box>
-                <Box
-                  p={2}
-                  sx={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "flex-end",
-                    flexDirection: "column",
-                  }}
-                >
+                    <Stack direction="row">
+                      <LocationOnIcon />
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          overflow: "hidden",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {item.address}
+                      </Typography>
+                    </Stack>
+                  </Box>
                   <Box
+                    p={2}
                     sx={{
                       width: "100%",
                       display: "flex",
                       alignItems: "flex-end",
-                      justifyContent: "space-between",
+                      flexDirection: "column",
                     }}
                   >
-                    <Box></Box>{" "}
                     <Box
                       sx={{
+                        width: "100%",
                         display: "flex",
-                        flexDirection: "column",
                         alignItems: "flex-end",
+                        justifyContent: "space-between",
                       }}
                     >
-                      <Typography
-                        variant="body2"
+                      <Box></Box>{" "}
+                      <Box
                         sx={{
-                          color: "#718096",
-                          textDecoration: "line-through",
-                          cursor: "pointer",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-end",
                         }}
-                        component="span"
                       >
-                        {formatCurrency(item.original_room_price)}
-                      </Typography>
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          color: "rgb(229, 62, 62)",
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                        component="span"
-                      >
-                        {formatCurrency(item.min_room_price)}
-                      </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: "#718096",
+                            textDecoration: "line-through",
+                            cursor: "pointer",
+                          }}
+                          component="span"
+                        >
+                          {formatCurrency(item.original_room_price)}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            color: "rgb(229, 62, 62)",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                          component="span"
+                        >
+                          {formatCurrency(item.min_room_price)}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
-              </Box>
-            ))}
+              );
+            })}
           </Box>
         ))}
       </Carousel>
