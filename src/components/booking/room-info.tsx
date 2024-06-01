@@ -14,13 +14,7 @@ interface RoomRate {
 }
 
 interface RoomInfo {
-  thumbnail: string;
-  name: string;
-  maxGuests: number;
-  maxOccupant: number;
-  maxChildren: number;
-  views: string[];
-  rates: RoomRate[];
+  [key: string]: any;
 }
 
 interface RoomBooking {
@@ -37,6 +31,12 @@ interface RoomInfoProps {
 }
 
 const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
+  const room_type_avatar =
+    roomInfo?.images?.filter(
+      (image: { [key: string]: any }) => image.is_primary === true
+    )[0]?.url ||
+    "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg";
+
   return (
     <Box sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}>
       <Typography variant="h6" mb={2}>
@@ -50,7 +50,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
         }}
       >
         <Image
-          src={roomInfo?.thumbnail}
+          src={room_type_avatar}
           alt={roomInfo?.name}
           width={0}
           height={0}
@@ -73,7 +73,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
             <PeopleOutlineOutlinedIcon />
           </SvgIcon>
           <Typography variant="subtitle2" sx={{ ml: 1 }}>
-            {roomInfo?.maxGuests} người lớn
+            {roomInfo?.standard_occupant} người lớn
           </Typography>
         </Box>
 
@@ -86,7 +86,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
                 "&::marker": { color: "neutral.900" },
               }}
             >
-              Sức chứa tối đa của phòng {roomInfo?.maxOccupant}
+              Sức chứa tối đa của phòng {roomInfo?.max_occupant}
             </ListItem>
             <ListItem
               sx={{
@@ -95,7 +95,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
                 "&::marker": { color: "neutral.900" },
               }}
             >
-              Số khách tiêu chuẩn {roomInfo?.maxGuests}
+              Số khách tiêu chuẩn {roomInfo?.standard_occupant}
             </ListItem>
             <ListItem
               sx={{
@@ -104,37 +104,50 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
                 "&::marker": { color: "neutral.900" },
               }}
             >
-              Cho phép ở thêm {roomInfo?.maxChildren} trẻ em thỏa mãn{" "}
-              {roomInfo?.maxOccupant} khách tối đa có thể mất thêm phí
+              Cho phép ở thêm{" "}
+              {roomInfo?.max_extra_bed > 0 &&
+                `${roomInfo?.max_extra_bed} người lớn`}{" "}
+              {roomInfo?.max_children > 0 && `${roomInfo?.max_children} trẻ em`}{" "}
+              thỏa mãn {roomInfo?.max_occupant} khách tối đa có thể mất thêm phí
             </ListItem>
           </List>
         </Box>
       </Box>
-      <Box display="flex" my={1}>
-        <SvgIcon>
-          <VisibilityOutlinedIcon />
-        </SvgIcon>
-        <Typography variant="subtitle2" sx={{ ml: 1 }}>
-          {roomInfo?.views}
-        </Typography>
-      </Box>
-      <Box display="flex" my={1}>
-        <SvgIcon>
-          <SingleBedIcon />
-        </SvgIcon>
-        <Typography variant="subtitle2" sx={{ ml: 1 }}>
-          {booking?.roomBookings[0].bedTypes}
-        </Typography>
-      </Box>
-      <Box display="flex" my={1}>
+      {roomInfo?.views?.length > 0 && (
+        <Box display="flex" my={1}>
+          <SvgIcon>
+            <VisibilityOutlinedIcon />
+          </SvgIcon>
+          {roomInfo.views.map((view: string, index: number) => (
+            <Typography variant="subtitle2" sx={{ ml: 1 }} key={index}>
+              {view}
+            </Typography>
+          ))}
+        </Box>
+      )}
+
+      {roomInfo?.beds?.length > 0 && (
+        <Box display="flex" my={1}>
+          <SvgIcon>
+            <SingleBedIcon />
+          </SvgIcon>
+          {roomInfo?.beds.map((bed: { [key: string]: any }) => (
+            <Typography variant="subtitle2" sx={{ ml: 1 }} key={bed.id}>
+              {bed.quantity}&nbsp;{bed.description}
+            </Typography>
+          ))}
+        </Box>
+      )}
+
+      {/* <Box display="flex" my={1}>
         <SvgIcon>
           <BankTransferIcon />
         </SvgIcon>
         <Typography variant="subtitle2" sx={{ ml: 1 }}>
           {roomInfo?.rates[0].shortCancelPolicy}
         </Typography>
-      </Box>
-      <Box display="flex" my={1}>
+      </Box> */}
+      {/* <Box display="flex" my={1}>
         <SvgIcon>
           <BreakfastIcon />
         </SvgIcon>
@@ -151,7 +164,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
             ? "Bao gồm bữa ăn sáng"
             : "Không bao gồm bữa ăn sáng"}
         </Typography>
-      </Box>
+      </Box> */}
       <Box display="flex" my={1}>
         <SvgIcon>
           <ConfirmIcon />

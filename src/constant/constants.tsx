@@ -37,12 +37,15 @@ export const API: IApi = {
   HOTEL: {
     GET_OUTSTANDING_HOTELS: "/hotel/getOutstandingHotels",
     GET_HOTEL_BY_ID: "/hotel/getHotelById",
-    GET_HOTEL_DETAIL: (hotelId: number) => `/hotel/${hotelId}/getHotelDetail`,
+    GET_HOTEL_DETAIL: "/hotel/:hotel_id/getHotelDetail",
   },
   CUSTOMER: {
     VERIFY_EMAIL: "/customer/verify",
     REGISTER: "/customer/register",
     LOGIN: "/customer/login",
+  },
+  BOOKING: {
+    CREATE_BOOKING: "/booking/createBooking",
   },
 };
 

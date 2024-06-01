@@ -20,76 +20,53 @@ import {
 } from "@mui/material";
 import HotelIcon from "@mui/icons-material/Hotel";
 import * as React from "react";
-import { booking, roomInfo } from "@/utils/data";
-import {
-  BankTransferIcon,
-  MomoIcon,
-  SingleBedIcon,
-  ZaloPayIcon,
-} from "@/constant/icons";
+import { SingleBedIcon } from "@/constant/icons";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import RemoveCircleOutlinedIcon from "@mui/icons-material/RemoveCircleOutlined";
-import QrCodeOutlinedIcon from "@mui/icons-material/QrCodeOutlined";
-import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
 import RoomPricing from "@/components/booking/room-pricing";
 import RoomInfo from "@/components/booking/room-info";
 import BookingDetails from "@/components/booking/booking-details";
+import { paymentMethodsList } from "@/components/booking/payment-methods-list";
+import { postRequest } from "@/services/api-instance";
+import { API, STATUS_CODE } from "@/constant/constants";
 
 const addSpecialRequestList: string[] = [
   "Phòng không hút thuốc",
   "Phòng ở tầng cao",
 ];
 
-const paymentMethodsList: any[] = [
-  {
-    name: "Chuyển khoản (Việt QR miễn phí)",
-    icon: <BankTransferIcon />,
-    code: "VIETQR",
-  },
-  {
-    name: "Vnpay QR",
-    icon: <QrCodeOutlinedIcon />,
-    code: "VNPAYQR",
-  },
-  {
-    name: "ATM/Internet Banking",
-    icon: <CreditCardOutlinedIcon />,
-    code: "ATM/INTERNET_BANKING",
-  },
-  {
-    name: "ZaloPay",
-    icon: <ZaloPayIcon />,
-    code: "ZALOPAY",
-  },
-  {
-    name: "Momo",
-    icon: <MomoIcon />,
-    code: "MOMO",
-  },
-];
+interface Bed {
+  id: number;
+  quantity: number;
+  description: string;
+}
 
-export default function HotelDetail(props: any) {
+interface RenderBedsProps {
+  beds?: Bed[];
+}
+
+export default function Booking(props: any) {
   const {
-    roomId,
-    checkInDate,
-    checkOutDate,
+    roomTypeId,
+    hotelId,
+    checkIn,
+    checkOut,
+    numRooms,
     numAdults,
     numChildren,
-    numRooms,
-    hotelId,
+    childrenAges,
   } = props.searchParams;
 
   const [isAddingSpecialRequest, setIsAddingSpecialRequest] =
     React.useState(false);
-  const [selectedCheckInTime, setSelectedCheckInTime] =
-    React.useState("6:00 - 7:00");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState("");
+  const [error, setError] = React.useState<string | null>(null);
+  const [bookingData, setBookingData] = React.useState<any>({});
+  const [hotelData, setHotelData] = React.useState<any>({});
 
-  const handleChangeCheckInTime = (event: SelectChangeEvent<string>) => {
-    setSelectedCheckInTime(event.target.value as string);
-  };
+  const initialLoad = React.useRef(true);
 
   const handleChangePaymentMethod = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -97,7 +74,68 @@ export default function HotelDetail(props: any) {
     setSelectedPaymentMethod(event.target.value as string);
   };
 
-  const numNights = calculateNumberOfNights(checkInDate, checkOutDate);
+  const numNights = calculateNumberOfNights(checkIn, checkOut);
+
+  const createBooking = async () => {
+    const bookingBody = {
+      customer_id: 21,
+      check_in: checkIn,
+      check_out: checkOut,
+      num_rooms: Number(numRooms),
+      num_adults: Number(numAdults),
+      num_children: Number(numChildren),
+      children_ages: childrenAges ? childrenAges.split(",").map(Number) : [],
+      hotel_id: Number(hotelId),
+      room_type_id: Number(roomTypeId),
+    };
+
+    try {
+      const response = await postRequest(
+        API.BOOKING.CREATE_BOOKING,
+        bookingBody
+      );
+
+      if (response && response.status === STATUS_CODE.CREATED) {
+        setBookingData(response.data);
+        setHotelData(response.data?.hotel);
+      }
+    } catch (error: any) {
+      console.error(error.response?.data?.message || error.message);
+      setError(error.message);
+    }
+  };
+
+  React.useEffect(() => {
+    if (initialLoad.current) {
+      initialLoad.current = false;
+      return;
+    }
+    createBooking();
+  }, [
+    roomTypeId,
+    hotelId,
+    checkIn,
+    checkOut,
+    numRooms,
+    numAdults,
+    numChildren,
+    childrenAges,
+  ]);
+
+  const renderBeds = ({ beds }: RenderBedsProps): JSX.Element | null => {
+    if (!beds || beds.length === 0) return null;
+
+    return (
+      <>
+        {beds.map((bed, index) => (
+          <Typography variant="body1" key={bed.id} component="span" pl={1}>
+            {bed.quantity}&nbsp;{bed.description}
+            {index < beds.length - 1 ? ", " : ""}
+          </Typography>
+        ))}
+      </>
+    );
+  };
 
   return (
     <div>
@@ -115,278 +153,267 @@ export default function HotelDetail(props: any) {
           ]}
         />
 
-        <Grid container spacing={3} my={3}>
-          <Grid item xs={12} md={7}>
-            <BookingDetails booking={booking} numNights={numNights} />
+        {bookingData && (
+          <Grid container spacing={3} my={3}>
+            <Grid item xs={12} md={7}>
+              <BookingDetails booking={bookingData} numNights={numNights} />
 
-            <Box sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}>
-              <Typography variant="h6">Thông tin liên hệ</Typography>
-              <Grid container spacing={2} my={1}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Họ và tên"
-                    name="full_name"
-                    type="text"
-                    placeholder="Nhập họ và tên của bạn"
-                    size="small"
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        bgcolor: "background.paper",
-                      },
-                    }}
-                    // onChange={formik.handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    type="email"
-                    placeholder="Nhập email của bạn"
-                    size="small"
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        bgcolor: "background.paper",
-                      },
-                    }}
-                    // onChange={formik.handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Số điện thoại"
-                    name="phone"
-                    type="text"
-                    placeholder="Nhập số điện thoại của bạn"
-                    size="small"
-                    sx={{
-                      "& .MuiInputBase-input": {
-                        bgcolor: "background.paper",
-                      },
-                    }}
-                    // onChange={formik.handleChange}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
-
-            <Box sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}>
-              <Typography variant="h6">Yêu cầu đặc biệt</Typography>
               <Box
-                sx={{
-                  color: "warning.main",
-                  p: "8px 12px",
-                  borderRadius: 1,
-                  mt: 1,
-                  mb: 3,
-                  bgcolor: "rgba(237, 137, 54, 0.1)",
-                }}
+                sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}
               >
-                Lưu ý: Các yêu cầu của bạn chỉ được đáp ứng tuỳ tình trạng phòng
-                của khách sạn.
+                <Typography variant="h6">Thông tin liên hệ</Typography>
+                <Grid container spacing={2} my={1}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      required
+                      label="Họ và tên"
+                      name="full_name"
+                      type="text"
+                      placeholder="Nhập họ và tên của bạn"
+                      size="small"
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          bgcolor: "background.paper",
+                        },
+                      }}
+                      value={bookingData?.customer?.full_name}
+                      // onChange={formik.handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      required
+                      disabled
+                      id="customer-email"
+                      label="Email"
+                      variant="filled"
+                      size="small"
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          bgcolor: "background.paper",
+                        },
+                      }}
+                      defaultValue={bookingData?.customer?.email}
+                      // onChange={formik.handleChange}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      required
+                      label="Số điện thoại"
+                      name="phone"
+                      type="text"
+                      placeholder="Nhập số điện thoại của bạn"
+                      size="small"
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          bgcolor: "background.paper",
+                        },
+                      }}
+                      value={bookingData?.customer?.phone}
+                      // onChange={formik.handleChange}
+                    />
+                  </Grid>
+                </Grid>
               </Box>
 
-              <Typography variant="subtitle1">Các loại giường</Typography>
-              {booking?.roomBookings?.length > 0 &&
-                booking?.roomBookings.map((roomBooking, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      my: 1,
-                      p: 1,
-                      bgcolor: "background.paper",
-                      borderRadius: 1,
-                      border: "1px solid",
-                      borderColor: "neutral.900",
-                    }}
-                  >
-                    <Typography variant="subtitle2">
-                      Phòng {index + 1}: {roomBooking.name}
-                    </Typography>
-                    <Box
-                      display="flex"
-                      width="50%"
-                      alignItems="center"
-                      pr="2px"
-                      mt={1}
-                    >
-                      {Array.from({ length: roomBooking?.numBeds }).map(
-                        (_, index) => (
-                          <SingleBedIcon key={index} />
-                        )
-                      )}
-                      <Typography variant="body1" sx={{ ml: 1 }}>
-                        {roomBooking?.bedTypes}
-                      </Typography>
-                    </Box>
-                  </Box>
-                ))}
-
-              <Box mt={2}>
-                <Box display="flex" alignItems="center">
-                  <Typography variant="subtitle1">
-                    Thời gian nhận phòng dự kiến (không bắt buộc)
-                  </Typography>
-                </Box>
-                <Box sx={{ minWidth: 120 }}>
-                  <FormControl fullWidth>
-                    <Select
-                      value={selectedCheckInTime}
-                      id="select-check-in-time"
-                      sx={{ bgcolor: "background.paper" }}
-                      label="Thời gian nhận phòng"
-                      onChange={handleChangeCheckInTime}
-                    >
-                      <MenuItem value={"10"}>6:00 - 7:00</MenuItem>
-                      <MenuItem value={"20"}>7:00 - 8:00</MenuItem>
-                      <MenuItem value={"30"}>8:00 - 9:00</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-              </Box>
-
-              <Box bgcolor="primary.light" mt={2} p={2}>
+              <Box
+                sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}
+              >
+                <Typography variant="h6">Yêu cầu đặc biệt</Typography>
                 <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
+                  sx={{
+                    color: "warning.main",
+                    p: "8px 12px",
+                    borderRadius: 1,
+                    mt: 1,
+                    mb: 3,
+                    bgcolor: "rgba(237, 137, 54, 0.1)",
+                  }}
                 >
-                  <Typography variant="subtitle1">
-                    Yêu cầu đặc biệt khác
-                  </Typography>
-                  <IconButton
-                    onClick={() =>
-                      setIsAddingSpecialRequest(!isAddingSpecialRequest)
-                    }
-                  >
-                    {isAddingSpecialRequest ? (
-                      <RemoveCircleOutlinedIcon color="primary" />
-                    ) : (
-                      <AddCircleOutlinedIcon color="primary" />
-                    )}
-                  </IconButton>
+                  Lưu ý: Các yêu cầu của bạn chỉ được đáp ứng tuỳ tình trạng
+                  phòng của khách sạn.
                 </Box>
 
-                {isAddingSpecialRequest && (
-                  <Box>
-                    <FormGroup>
-                      {addSpecialRequestList.map((specialRequest) => (
-                        <FormControlLabel
-                          key={specialRequest}
-                          control={<Checkbox />}
-                          label={specialRequest}
-                          sx={{
-                            "&:hover": {
-                              ".MuiTypography-root, .MuiButtonBase-root": {
-                                color: (theme) => theme.palette.primary.main,
-                                transition: "color 0.2s ease",
-                              },
-                            },
-                          }}
-                        />
-                      ))}
-                    </FormGroup>
-
-                    <Box mt={1}>
-                      <Typography variant="subtitle1">
-                        Yêu cầu riêng của bạn
-                      </Typography>
-                      <TextField
-                        multiline
-                        fullWidth
-                        type="text"
-                        placeholder="Nhập yêu cầu khác"
-                        minRows={3}
-                        maxRows={5}
-                        sx={{ bgcolor: "background.paper", borderRadius: 1 }}
-                      />
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-            </Box>
-
-            <Box sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}>
-              <Typography variant="h6">Phương thức thanh toán</Typography>
-              <Typography variant="subtitle1" color="success.main">
-                Sau khi hoàn tất thanh toán, mã xác nhận phòng sẽ được gửi ngay
-                qua Email của bạn.
-              </Typography>
-              <Box mt={2}>
-                <RadioGroup
-                  aria-labelledby="demo-customized-radios"
-                  name="customized-radios"
-                  value={selectedPaymentMethod}
-                  onChange={handleChangePaymentMethod}
-                >
-                  {paymentMethodsList.length > 0 &&
-                    paymentMethodsList.map((paymentMethod) => (
+                <Typography variant="subtitle1">Các loại giường</Typography>
+                {bookingData?.room_bookings?.length > 0 &&
+                  bookingData?.room_bookings.map(
+                    (room_booking: { [key: string]: any }, index: number) => (
                       <Box
-                        key={paymentMethod.code}
+                        key={index}
                         sx={{
+                          my: 1,
                           p: 1,
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          borderBottom: "1px solid",
-                          "&:hover": {
-                            bgcolor: "neutral.50",
-                            cursor: "pointer",
-                            borderRadius: 1,
-                            border: "none",
-                          },
+                          bgcolor: "background.paper",
+                          borderRadius: 1,
+                          border: "1px solid",
+                          borderColor: "neutral.900",
                         }}
-                        onClick={() =>
-                          setSelectedPaymentMethod(paymentMethod.code)
-                        }
                       >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                          <Icon sx={{ mr: 2 }}>{paymentMethod.icon}</Icon>
-                          {paymentMethod.name}
+                        <Typography variant="subtitle2">
+                          Phòng {index + 1}: {hotelData.roomTypes.name}
+                        </Typography>
+                        <Box
+                          display="flex"
+                          width="100%"
+                          alignItems="center"
+                          pr="2px"
+                          mt={1}
+                        >
+                          <SingleBedIcon />
+                          <>
+                            {renderBeds({ beds: hotelData?.roomTypes?.beds })}
+                          </>
                         </Box>
-                        <FormControlLabel
-                          labelPlacement="start"
-                          value={paymentMethod.code}
-                          control={<Radio />}
-                          label=""
-                          sx={{ marginLeft: 0 }}
+                      </Box>
+                    )
+                  )}
+
+                <Box bgcolor="primary.light" mt={2} p={2}>
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Typography variant="subtitle1">
+                      Yêu cầu đặc biệt khác
+                    </Typography>
+                    <IconButton
+                      onClick={() =>
+                        setIsAddingSpecialRequest(!isAddingSpecialRequest)
+                      }
+                    >
+                      {isAddingSpecialRequest ? (
+                        <RemoveCircleOutlinedIcon color="primary" />
+                      ) : (
+                        <AddCircleOutlinedIcon color="primary" />
+                      )}
+                    </IconButton>
+                  </Box>
+
+                  {isAddingSpecialRequest && (
+                    <Box>
+                      <FormGroup>
+                        {addSpecialRequestList.map((specialRequest) => (
+                          <FormControlLabel
+                            key={specialRequest}
+                            control={<Checkbox />}
+                            label={specialRequest}
+                            sx={{
+                              "&:hover": {
+                                ".MuiTypography-root, .MuiButtonBase-root": {
+                                  color: (theme) => theme.palette.primary.main,
+                                  transition: "color 0.2s ease",
+                                },
+                              },
+                            }}
+                          />
+                        ))}
+                      </FormGroup>
+
+                      <Box mt={1}>
+                        <Typography variant="subtitle1">
+                          Yêu cầu riêng của bạn
+                        </Typography>
+                        <TextField
+                          multiline
+                          fullWidth
+                          type="text"
+                          placeholder="Nhập yêu cầu khác"
+                          minRows={3}
+                          maxRows={5}
+                          sx={{ bgcolor: "background.paper", borderRadius: 1 }}
                         />
                       </Box>
-                    ))}
-                </RadioGroup>
+                    </Box>
+                  )}
+                </Box>
               </Box>
 
               <Box
-                mt={2}
-                display="flex"
-                justifyContent="flex-end"
-                alignItems="center"
+                sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}
               >
-                <Button variant="contained" color="primary">
-                  Đặt phòng
-                </Button>
-              </Box>
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={5}>
-            <RoomInfo roomInfo={roomInfo} booking={booking} />
+                <Typography variant="h6">Phương thức thanh toán</Typography>
+                <Typography variant="subtitle1" color="success.main">
+                  Sau khi hoàn tất thanh toán, mã xác nhận phòng sẽ được gửi
+                  ngay qua Email của bạn.
+                </Typography>
+                <Box mt={2}>
+                  <RadioGroup
+                    aria-labelledby="demo-customized-radios"
+                    name="customized-radios"
+                    value={selectedPaymentMethod}
+                    onChange={handleChangePaymentMethod}
+                  >
+                    {paymentMethodsList?.length > 0 &&
+                      paymentMethodsList.map((paymentMethod) => (
+                        <Box
+                          key={paymentMethod.code}
+                          sx={{
+                            p: 1,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            borderBottom: "1px solid",
+                            "&:hover": {
+                              bgcolor: "neutral.50",
+                              cursor: "pointer",
+                              borderRadius: 1,
+                              border: "none",
+                            },
+                          }}
+                          onClick={() =>
+                            setSelectedPaymentMethod(paymentMethod.code)
+                          }
+                        >
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Icon sx={{ mr: 2 }}>{paymentMethod.icon}</Icon>
+                            {paymentMethod.name}
+                          </Box>
+                          <FormControlLabel
+                            labelPlacement="start"
+                            value={paymentMethod.code}
+                            control={<Radio />}
+                            label=""
+                            sx={{ marginLeft: 0 }}
+                          />
+                        </Box>
+                      ))}
+                  </RadioGroup>
+                </Box>
 
-            <RoomPricing
-              numNights={numNights}
-              booking={booking}
-              roomInfo={roomInfo}
-            />
+                <Box
+                  mt={2}
+                  display="flex"
+                  justifyContent="flex-end"
+                  alignItems="center"
+                >
+                  <Button variant="contained" color="primary">
+                    Đặt phòng
+                  </Button>
+                </Box>
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={5}>
+              <RoomInfo roomInfo={hotelData?.roomTypes} booking={bookingData} />
+
+              <RoomPricing
+                numNights={numNights}
+                booking={bookingData}
+                roomInfo={hotelData?.roomTypes}
+              />
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </Box>
 
       {/* <List>
-        <ListItem>roomId : {roomId}</ListItem>
-        <ListItem>checkInDate : {checkInDate}</ListItem>
-        <ListItem>checkOutDate : {checkOutDate}</ListItem>
+        <ListItem>roomTypeId : {roomTypeId}</ListItem>
+        <ListItem>checkIn : {checkIn}</ListItem>
+        <ListItem>checkOut : {checkOut}</ListItem>
         <ListItem>numAdults : {numAdults}</ListItem>
         <ListItem>numChildren : {numChildren}</ListItem>
         <ListItem>numRooms : {numRooms}</ListItem>

@@ -24,12 +24,12 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DoneIcon from "@mui/icons-material/Done";
 import BedRoundedIcon from "@mui/icons-material/BedRounded";
 import LastPrice from "./last-price";
+import { useRouter } from "next/navigation";
 
 interface RoomTypeListProps {
   hotelData: { [key: string]: any };
   numNights: number;
-  numRooms: number;
-  checkInDate: string;
+  customerRequest: CustomerRequest;
   roomRefs: React.RefObject<{ [key: string]: HTMLDivElement | null }>;
 }
 
@@ -41,14 +41,34 @@ interface IBed {
   [key: string]: any;
 }
 
+interface CustomerRequest {
+  checkIn: string;
+  checkOut: string;
+  numAdults: number;
+  numRooms: number;
+  numChildren: number;
+  childrenAges: number[];
+  hotelId: number;
+}
+
 const RoomTypeList: FC<RoomTypeListProps> = ({
   hotelData,
   numNights,
-  numRooms,
-  checkInDate,
+  customerRequest,
   roomRefs,
 }) => {
   const [selectedFilters, setSelectedFilters] = React.useState<string[]>([]);
+  const router = useRouter();
+
+  const {
+    checkIn,
+    checkOut,
+    numAdults,
+    numRooms,
+    numChildren,
+    childrenAges,
+    hotelId,
+  } = customerRequest;
 
   const handleFilterToggle = (filter: string) => {
     if (selectedFilters.includes(filter)) {
@@ -63,6 +83,22 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
   const handleClearFilters = () => {
     if (selectedFilters.length <= 0) return;
     setSelectedFilters([]);
+  };
+
+  const handleNavigateBooking = (roomTypeId: string) => {
+    const searchParams = new URLSearchParams({
+      roomTypeId: roomTypeId,
+      hotelId: hotelId.toString(),
+      checkIn: checkIn,
+      checkOut: checkOut,
+      numRooms: numRooms.toString(),
+      numNights: numNights.toString(),
+      numAdults: numAdults.toString(),
+      numChildren: numChildren.toString(),
+      childrenAges: childrenAges.join(","),
+    });
+
+    router.push(`/hotel/booking?${searchParams.toString()}`, { scroll: true });
   };
 
   return (
@@ -553,6 +589,9 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
                                   variant="contained"
                                   color="primary"
                                   sx={{ my: 2 }}
+                                  onClick={() =>
+                                    handleNavigateBooking(room_type.id)
+                                  }
                                 >
                                   Đặt phòng
                                 </Button>
@@ -565,8 +604,8 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
                                     }}
                                   >
                                     <LastPrice
-                                      checkInDate={checkInDate}
-                                      numRooms={numRooms}
+                                      checkIn={customerRequest?.checkIn}
+                                      numRooms={customerRequest?.numRooms}
                                       numNights={numNights}
                                       roomCost={room_type?.cost}
                                       serviceCharge={hotelData?.serviceCharge}

@@ -197,8 +197,8 @@ const MyBookings: FC<MyBookingsProps> = () => {
                                   location: getCityFromAddress(
                                     booking?.hotel?.address?.address
                                   ),
-                                  checkInDate: formattedCheckInDate,
-                                  checkOutDate: formattedCheckOutDate,
+                                  checkIn: formattedCheckInDate,
+                                  checkOut: formattedCheckOutDate,
                                   numAdults: "1",
                                   numRooms: "1",
                                 }).toString();

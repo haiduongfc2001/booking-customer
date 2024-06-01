@@ -166,8 +166,8 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
                         {(() => {
                           const searchQueryParams = new URLSearchParams({
                             location: getCityFromAddress(hotel?.hotel_address),
-                            checkInDate: formattedCheckInDate,
-                            checkOutDate: formattedCheckOutDate,
+                            checkIn: formattedCheckInDate,
+                            checkOut: formattedCheckOutDate,
                             numAdults: "1",
                             numRooms: "1",
                           }).toString();

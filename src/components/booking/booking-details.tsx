@@ -1,13 +1,10 @@
 import React from "react";
 import { Box, Typography, Grid } from "@mui/material";
 import Image from "next/image";
+import dayjs from "dayjs";
 
 interface Hotel {
-  thumbnail: { src: string };
-  name: string;
-  address: { address: string };
-  checkInTime: string;
-  checkOutTime: string;
+  [key: string]: any;
 }
 
 interface RoomBooking {
@@ -15,11 +12,8 @@ interface RoomBooking {
 }
 
 interface Booking {
+  [key: string]: any;
   hotel: Hotel;
-  checkIn: string;
-  checkOut: string;
-  numRooms: number;
-  roomBookings: RoomBooking[];
 }
 
 interface BookingDetailsProps {
@@ -31,6 +25,20 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
   booking,
   numNights,
 }) => {
+  const hotelAvatar =
+    booking?.hotel?.hotelImages?.find(
+      (image: { is_primary: boolean }) => image.is_primary
+    )?.url ||
+    "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg";
+
+  const checkInTime = booking?.hotel?.policies?.find(
+    (policy: { type: string }) => policy.type === "CHECK_IN_TIME"
+  )?.value;
+
+  const checkOutTime = booking?.hotel?.policies?.find(
+    (policy: { type: string }) => policy.type === "CHECK_OUT_TIME"
+  )?.value;
+
   return (
     <Box sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}>
       <Box display="flex">
@@ -43,11 +51,12 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
           }}
         >
           <Image
-            src={booking?.hotel.thumbnail.src}
-            alt={booking?.hotel.name}
+            priority
+            src={hotelAvatar}
+            alt={booking?.hotel?.name}
             width="64"
             height="64"
-            loading="lazy"
+            // loading="lazy"
           />
         </div>
         <Box
@@ -57,10 +66,8 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
           alignItems="flex-start"
           ml={2}
         >
-          <Typography variant="h6">{booking?.hotel.name}</Typography>
-          <Typography variant="body2">
-            {booking?.hotel.address.address}
-          </Typography>
+          <Typography variant="h6">{booking?.hotel?.name}</Typography>
+          <Typography variant="body2">{booking?.hotel?.address}</Typography>
         </Box>
       </Box>
 
@@ -76,7 +83,8 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
             >
               <Typography variant="subtitle1">Nhận phòng</Typography>
               <Typography variant="body2">
-                {booking?.hotel.checkInTime} &nbsp; {booking?.checkIn}
+                {checkInTime} &nbsp;{" "}
+                {dayjs(booking?.check_in).format("DD-MM-YYYY")}
               </Typography>
             </Box>
           </Grid>
@@ -90,7 +98,8 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
             >
               <Typography variant="subtitle1">Trả phòng</Typography>
               <Typography variant="body2">
-                {booking?.hotel.checkOutTime} &nbsp; {booking?.checkOut}
+                {checkOutTime} &nbsp;{" "}
+                {dayjs(booking?.check_out).format("DD-MM-YYYY")}
               </Typography>
             </Box>
           </Grid>
@@ -116,10 +125,10 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
             variant="body2"
             sx={{ color: "primary.main", fontWeight: "bold" }}
           >
-            {booking?.numRooms} x&nbsp;
+            {booking?.num_rooms} x&nbsp;
           </Typography>
           <Typography variant="body2">
-            {booking?.roomBookings[0].name}
+            {booking?.hotel?.roomTypes?.name}
           </Typography>
         </Box>
       </Box>

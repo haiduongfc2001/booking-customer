@@ -50,16 +50,16 @@ const SearchBar: FC<SearchBarProps> = () => {
   const formik = useFormik({
     initialValues: {
       location: "Hà Nội",
-      checkInDate: dayjs(),
-      checkOutDate: dayjs().add(1, "day"),
+      checkIn: dayjs(),
+      checkOut: dayjs().add(1, "day"),
       numAdults: 1,
       numRooms: 1,
       submit: null,
     },
     validationSchema: Yup.object({
       location: Yup.string().required("Vui lòng chọn điểm đến!"),
-      checkInDate: Yup.date().required("Vui lòng chọn ngày đến!"),
-      checkOutDate: Yup.date().required("Vui lòng chọn ngày về!"),
+      checkIn: Yup.date().required("Vui lòng chọn ngày đến!"),
+      checkOut: Yup.date().required("Vui lòng chọn ngày về!"),
       // .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
       numAdults: Yup.number()
         .min(1, "Số lượng người tối thiểu phải là 1!")
@@ -79,16 +79,15 @@ const SearchBar: FC<SearchBarProps> = () => {
 
     onSubmit: async (values, helpers) => {
       try {
-        const { location, checkInDate, checkOutDate, numAdults, numRooms } =
-          values;
+        const { location, checkIn, checkOut, numAdults, numRooms } = values;
 
-        const formattedCheckInDate = checkInDate.format("YYYY-MM-DD");
-        const formattedCheckOutDate = checkOutDate.format("YYYY-MM-DD");
+        const formattedCheckInDate = checkIn.format("YYYY-MM-DD");
+        const formattedCheckOutDate = checkOut.format("YYYY-MM-DD");
 
         const searchQueryParams = new URLSearchParams({
           location,
-          checkInDate: formattedCheckInDate,
-          checkOutDate: formattedCheckOutDate,
+          checkIn: formattedCheckInDate,
+          checkOut: formattedCheckOutDate,
           numAdults: String(numAdults),
           numRooms: String(numRooms),
         }).toString();
@@ -97,8 +96,8 @@ const SearchBar: FC<SearchBarProps> = () => {
 
         // const response = await SearchService[API.SEARCH.HOTEL]({
         //   location: values.location.trim(),
-        //   checkInDate: checkInDate,
-        //   checkOutDate: checkOutDate,
+        //   checkIn: checkIn,
+        //   checkOut: checkOut,
         // });
 
         // if (response?.status === STATUS_CODE.CREATED) {
@@ -157,17 +156,17 @@ const SearchBar: FC<SearchBarProps> = () => {
 
   const handleCheckInChange = (newValue: Dayjs | null) => {
     if (newValue) {
-      updateFieldValue("checkInDate", newValue);
+      updateFieldValue("checkIn", newValue);
       const minCheckOutDate = newValue.add(1, "day");
-      if (formik.values.checkOutDate.isBefore(minCheckOutDate)) {
-        updateFieldValue("checkOutDate", minCheckOutDate);
+      if (formik.values.checkOut.isBefore(minCheckOutDate)) {
+        updateFieldValue("checkOut", minCheckOutDate);
       }
     }
   };
 
   const handleCheckOutChange = (newValue: Dayjs | null) => {
     if (newValue) {
-      updateFieldValue("checkOutDate", newValue);
+      updateFieldValue("checkOut", newValue);
     }
   };
 
@@ -217,21 +216,20 @@ const SearchBar: FC<SearchBarProps> = () => {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Ngày đến"
-              name="checkInDate"
+              name="checkIn"
               format="DD/MM/YYYY"
               sx={{ bgcolor: "background.paper", width: "100%" }}
               minDate={dayjs()}
-              value={formik.values.checkInDate}
+              value={formik.values.checkIn}
               onChange={(newValue) => handleCheckInChange(newValue)}
               slotProps={{
                 textField: {
                   error:
-                    formik.touched.checkInDate &&
-                    Boolean(formik.errors.checkInDate),
+                    formik.touched.checkIn && Boolean(formik.errors.checkIn),
                   helperText:
-                    formik.touched.checkInDate &&
-                    typeof formik.errors.checkInDate === "string"
-                      ? formik.errors.checkInDate
+                    formik.touched.checkIn &&
+                    typeof formik.errors.checkIn === "string"
+                      ? formik.errors.checkIn
                       : "",
                 },
               }}
@@ -242,21 +240,20 @@ const SearchBar: FC<SearchBarProps> = () => {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Ngày về"
-              name="checkOutDate"
+              name="checkOut"
               format="DD/MM/YYYY"
               sx={{ bgcolor: "background.paper", width: "100%" }}
-              minDate={formik.values.checkInDate.add(1, "day")}
-              value={formik.values.checkOutDate}
+              minDate={formik.values.checkIn.add(1, "day")}
+              value={formik.values.checkOut}
               onChange={(newValue) => handleCheckOutChange(newValue)}
               slotProps={{
                 textField: {
                   error:
-                    formik.touched.checkOutDate &&
-                    Boolean(formik.errors.checkOutDate),
+                    formik.touched.checkOut && Boolean(formik.errors.checkOut),
                   helperText:
-                    formik.touched.checkOutDate &&
-                    typeof formik.errors.checkOutDate === "string"
-                      ? formik.errors.checkOutDate
+                    formik.touched.checkOut &&
+                    typeof formik.errors.checkOut === "string"
+                      ? formik.errors.checkOut
                       : "",
                 },
               }}

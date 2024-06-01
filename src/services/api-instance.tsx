@@ -36,7 +36,7 @@ const getAuthHeaders = (): { Authorization: string } => {
   //   throw new Error("Access token is null");
   // }
   return {
-    Authorization: `Bearer "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjEsImVtYWlsIjoiaGFpZHVvbmd0YjIwMDFAZ21haWwuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzE3MDg1NTM3LCJleHAiOjE3MTcxNzE5Mzd9.QfBhbwVs-Ewc0vn2v31oFf-oTzwuoXJpHrkhcKIInrU`,
+    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjEsImVtYWlsIjoiaGFpZHVvbmd0YjIwMDFAZ21haWwuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzE3MjYyMTI0fQ.CzSl-0WKC7EUBPnEpFntfobA1S-WCig__oJB0--0HkA`,
   };
 };
 

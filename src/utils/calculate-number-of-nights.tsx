@@ -1,11 +1,11 @@
 // Function to calculate the number of nights from check-in date to check-out date
 export default function calculateNumberOfNights(
-  checkInDate: string,
-  checkOutDate: string
+  checkIn: string,
+  checkOut: string
 ): number {
   // Convert the dates into Date objects
-  var startDate = new Date(checkInDate);
-  var endDate = new Date(checkOutDate);
+  var startDate = new Date(checkIn);
+  var endDate = new Date(checkOut);
 
   // Calculate the number of milliseconds in a day
   var oneDay = 24 * 60 * 60 * 1000;

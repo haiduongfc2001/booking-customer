@@ -41,15 +41,15 @@ import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined
 export default function HotelDetail(props: any) {
   const {
     roomId,
-    checkInDate,
-    checkOutDate,
+    checkIn,
+    checkOut,
     numAdults,
     numChildren,
     numRooms,
     hotelId,
   } = props.searchParams;
 
-  const numNights = calculateNumberOfNights(checkInDate, checkOutDate);
+  const numNights = calculateNumberOfNights(checkIn, checkOut);
 
   return (
     <div>
@@ -85,8 +85,8 @@ export default function HotelDetail(props: any) {
 
       {/* <List>
         <ListItem>roomId : {roomId}</ListItem>
-        <ListItem>checkInDate : {checkInDate}</ListItem>
-        <ListItem>checkOutDate : {checkOutDate}</ListItem>
+        <ListItem>checkIn : {checkIn}</ListItem>
+        <ListItem>checkOut : {checkOut}</ListItem>
         <ListItem>numAdults : {numAdults}</ListItem>
         <ListItem>numChildren : {numChildren}</ListItem>
         <ListItem>numRooms : {numRooms}</ListItem>

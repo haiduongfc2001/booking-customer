@@ -27,16 +27,16 @@ export default function Search() {
   const [error, setError] = React.useState<string | null>(null);
 
   const searchParams = useSearchParams();
-  const checkInDateParam = searchParams.get("checkInDate");
-  const checkOutDateParam = searchParams.get("checkOutDate");
+  const checkInParam = searchParams.get("checkIn");
+  const checkOutParam = searchParams.get("checkOut");
 
   const location: string = searchParams.get("location") || "";
-  const checkInDate = checkInDateParam || dayjs().format("YYYY-MM-DD");
-  const checkOutDate = checkOutDateParam
-    ? dayjs(checkOutDateParam).isAfter(checkInDate)
-      ? checkOutDateParam
-      : dayjs(checkInDate).add(1, "day").format("YYYY-MM-DD")
-    : dayjs(checkInDate).add(1, "day").format("YYYY-MM-DD");
+  const checkIn = checkInParam || dayjs().format("YYYY-MM-DD");
+  const checkOut = checkOutParam
+    ? dayjs(checkOutParam).isAfter(checkIn)
+      ? checkOutParam
+      : dayjs(checkIn).add(1, "day").format("YYYY-MM-DD")
+    : dayjs(checkIn).add(1, "day").format("YYYY-MM-DD");
   const numAdults: number = Number(searchParams.get("numAdults")) || 1;
   const numRooms: number = Number(searchParams.get("numRooms")) || 1;
 
@@ -47,8 +47,8 @@ export default function Search() {
 
       const body = {
         location,
-        check_in_date: checkInDate,
-        check_out_date: checkOutDate,
+        check_in: checkIn,
+        check_out: checkOut,
         num_adults: numAdults,
         num_children: 0,
         num_rooms: numRooms,
@@ -77,8 +77,8 @@ export default function Search() {
     fetchHotels();
   }, [
     location,
-    checkInDate,
-    checkOutDate,
+    checkIn,
+    checkOut,
     numAdults,
     numRooms,
     priceRange,
@@ -90,8 +90,8 @@ export default function Search() {
   const handleFilterHotel = () => {
     console.log({
       location,
-      checkInDate,
-      checkOutDate,
+      checkIn,
+      checkOut,
       numRooms,
       numAdults,
       priceRange,
@@ -145,8 +145,8 @@ export default function Search() {
       >
         <SearchBar
           location={location}
-          checkInDate={dayjs(checkInDate)}
-          checkOutDate={dayjs(checkOutDate)}
+          checkIn={dayjs(checkIn)}
+          checkOut={dayjs(checkOut)}
           numAdults={numAdults}
           numRooms={numRooms}
         />
@@ -196,8 +196,8 @@ export default function Search() {
         ) : hotelSearchResults?.items?.length > 0 ? (
           <SearchResult
             location={location}
-            checkInDate={dayjs(checkInDate)}
-            checkOutDate={dayjs(checkOutDate)}
+            checkIn={dayjs(checkIn)}
+            checkOut={dayjs(checkOut)}
             numAdults={numAdults}
             numRooms={numRooms}
             hotelSearchResults={hotelSearchResults}

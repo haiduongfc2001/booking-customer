@@ -3,19 +3,11 @@ import { Box, Typography } from "@mui/material";
 import formatCurrency from "@/utils/format-currency";
 
 interface Booking {
-  numRooms: number;
-  checkIn: string;
-  totalRoomPrice: number;
-  basePrice: number;
-  totalPrice: number;
+  [key: string]: any;
 }
 
 interface Rate {
-  priceDetail: {
-    occupancies: {
-      totalTaxAndServiceFee: number;
-    }[];
-  };
+  [key: string]: any;
 }
 
 interface RoomInfo {
@@ -28,20 +20,15 @@ interface RoomPricingProps {
   roomInfo: RoomInfo;
 }
 
-const formatDate = (dateString: string, index: number): string => {
-  const [day, month, year] = dateString.split("-");
-  const currentDate = new Date(`${year}-${month}-${day}`);
-  currentDate.setDate(currentDate.getDate() + index);
-  const formattedDay = currentDate.getDate();
-  const formattedMonth = currentDate.getMonth() + 1;
-  return `${formattedDay}/${formattedMonth}`;
-};
-
 const RoomPricing: React.FC<RoomPricingProps> = ({
   numNights,
   booking,
   roomInfo,
 }) => {
+  const total_service_fee_and_tax = Math.floor(
+    Number(booking?.cost?.total_service_fee + booking?.cost?.total_tax)
+  );
+
   return (
     <Box sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}>
       <Typography variant="h6" mb={2}>
@@ -68,9 +55,9 @@ const RoomPricing: React.FC<RoomPricingProps> = ({
           }}
         >
           <Typography>
-            Giá cho {numNights} đêm x {booking.numRooms} phòng
+            Giá cho {numNights} đêm x {booking?.num_rooms} phòng
           </Typography>
-          <Typography>{formatCurrency(booking.totalRoomPrice)}</Typography>
+          <Typography>{formatCurrency(booking?.total_room_price)}</Typography>
         </Box>
 
         <Box
@@ -84,26 +71,34 @@ const RoomPricing: React.FC<RoomPricingProps> = ({
             borderRadius: 1,
           }}
         >
-          {Array.from({ length: numNights }, (_, index) => (
-            <Box
-              key={index}
-              sx={{
-                px: 2,
-                width: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Typography variant="body2">
-                Đêm {index + 1} ({formatDate(booking.checkIn, index)}) x{" "}
-                {booking.numRooms} phòng
-              </Typography>
-              <Typography variant="body2">
-                {formatCurrency(booking.numRooms * booking.basePrice)}
-              </Typography>
-            </Box>
-          ))}
+          {Array.from({ length: numNights }, (_, index) => {
+            const currentDate = new Date(booking?.check_in);
+            currentDate.setDate(currentDate.getDate() + index);
+            const day = currentDate.getDate();
+            const month = currentDate.getMonth() + 1;
+
+            return (
+              <Box
+                key={index}
+                sx={{
+                  pl: 2,
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography variant="body2">
+                  Đêm {index + 1} ({day}/{month}) x {booking?.num_rooms} phòng
+                </Typography>
+                <Typography variant="body2">
+                  {formatCurrency(
+                    booking?.num_rooms * booking?.cost?.total_room_price
+                  )}
+                </Typography>
+              </Box>
+            );
+          })}
         </Box>
 
         <Box
@@ -117,12 +112,7 @@ const RoomPricing: React.FC<RoomPricingProps> = ({
           }}
         >
           <Typography>Thuế và phí dịch vụ khách sạn</Typography>
-          <Typography>
-            {formatCurrency(
-              roomInfo.rates[0].priceDetail.occupancies[0]
-                .totalTaxAndServiceFee * numNights
-            )}
-          </Typography>
+          <Typography>{formatCurrency(total_service_fee_and_tax)}</Typography>
         </Box>
 
         <Box
@@ -149,10 +139,10 @@ const RoomPricing: React.FC<RoomPricingProps> = ({
               Đã bao gồm thuế, phí, VAT
             </Typography>
             <Typography variant="subtitle2">
-              Giá cho {numNights} đêm, {booking.numRooms} phòng
+              Giá cho {numNights} đêm, {booking?.num_rooms} phòng
             </Typography>
           </Box>
-          <Typography>{formatCurrency(booking.totalPrice)}</Typography>
+          <Typography>{formatCurrency(booking?.cost?.final_price)}</Typography>
         </Box>
       </Box>
     </Box>

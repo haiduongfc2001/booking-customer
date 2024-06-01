@@ -5,7 +5,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import formatCurrency from "@/utils/format-currency";
 
 interface ILastPriceProps {
-  checkInDate: string;
+  checkIn: string;
   numRooms: number;
   numNights: number;
   roomCost: { [key: string]: number };
@@ -13,13 +13,13 @@ interface ILastPriceProps {
 }
 
 const LastPrice: FC<ILastPriceProps> = ({
-  checkInDate,
+  checkIn,
   numRooms,
   numNights,
   roomCost,
   serviceCharge,
 }) => {
-  const startDate = new Date(checkInDate);
+  const startDate = new Date(checkIn);
 
   const {
     room_price_per_night,

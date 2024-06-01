@@ -35,8 +35,19 @@ import {
   roundAverageRating,
 } from "@/utils/rating-utils";
 
+interface CustomerRequest {
+  checkIn: string;
+  checkOut: string;
+  numNights: number;
+  numAdults: number;
+  numRooms: number;
+  numChildren: number;
+  childrenAges: number[];
+  hotelId: number;
+}
+
 export default function HotelDetail(props: any) {
-  const { location, checkInDate, checkOutDate, numAdults, numRooms, filters } =
+  const { location, checkIn, checkOut, numAdults, numRooms, filters } =
     props.searchParams;
   const { hotel_id } = props.params;
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -49,8 +60,8 @@ export default function HotelDetail(props: any) {
 
   const searchQueryParams = new URLSearchParams({
     location,
-    checkInDate,
-    checkOutDate,
+    checkIn,
+    checkOut,
     numAdults,
     numRooms,
   }).toString();
@@ -63,15 +74,15 @@ export default function HotelDetail(props: any) {
   // Sử dụng giá trị ratings để tính toán phần trăm
   const percentRating = calculateAndConvertToPercentage(ratings);
 
-  const numNights = calculateNumberOfNights(checkInDate, checkOutDate);
+  const numNights = calculateNumberOfNights(checkIn, checkOut);
 
   React.useEffect(() => {
     const fetchHotels = async () => {
       setError(null);
 
       const detailBody = {
-        check_in_date: checkInDate,
-        check_out_date: checkOutDate,
+        check_in: checkIn,
+        check_out: checkOut,
         num_adults: Number(numAdults),
         num_children: Number(0),
         num_rooms: Number(numRooms),
@@ -87,8 +98,8 @@ export default function HotelDetail(props: any) {
 
       const searchBody = {
         location,
-        check_in_date: checkInDate,
-        check_out_date: checkOutDate,
+        check_in: checkIn,
+        check_out: checkOut,
         num_adults: Number(numAdults),
         num_children: Number(0),
         num_rooms: Number(numRooms),
@@ -123,15 +134,7 @@ export default function HotelDetail(props: any) {
     };
 
     fetchHotels();
-  }, [
-    location,
-    checkInDate,
-    checkOutDate,
-    numAdults,
-    numRooms,
-    filters,
-    hotel_id,
-  ]);
+  }, [location, checkIn, checkOut, numAdults, numRooms, filters, hotel_id]);
 
   const roomRefs = React.useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -149,6 +152,16 @@ export default function HotelDetail(props: any) {
         });
       }
     }
+  };
+
+  const customerRequest = {
+    checkIn,
+    checkOut,
+    numAdults,
+    numRooms,
+    numChildren: 0,
+    childrenAges: [],
+    hotelId: Number(hotel_id),
   };
 
   return (
@@ -622,9 +635,8 @@ export default function HotelDetail(props: any) {
             <RoomTypeList
               hotelData={hotelData}
               numNights={numNights}
-              numRooms={numRooms}
-              checkInDate={checkInDate}
               roomRefs={roomRefs}
+              customerRequest={customerRequest}
             />
           ) : (
             <Grid item xs={12}>
@@ -674,8 +686,8 @@ export default function HotelDetail(props: any) {
 
         {/* <List>
         <ListItem>location : {location}</ListItem>
-        <ListItem>checkInDate : {checkInDate}</ListItem>
-        <ListItem>checkOutDate : {checkOutDate}</ListItem>
+        <ListItem>checkIn : {checkIn}</ListItem>
+        <ListItem>checkOut : {checkOut}</ListItem>
         <ListItem>numAdults : {numAdults}</ListItem>
         <ListItem>numRooms : {numRooms}</ListItem>
       </List> */}

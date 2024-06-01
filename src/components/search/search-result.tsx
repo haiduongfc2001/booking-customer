@@ -17,8 +17,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 
 interface SearchResultProps {
   location: string;
-  checkInDate: Dayjs;
-  checkOutDate: Dayjs;
+  checkIn: Dayjs;
+  checkOut: Dayjs;
   numAdults: number;
   numRooms: number;
   hotelSearchResults: { [key: string]: any };
@@ -30,8 +30,8 @@ interface IHotel {
 
 const SearchResult: FC<SearchResultProps> = ({
   location = "",
-  checkInDate = dayjs(),
-  checkOutDate = dayjs().add(1, "day"),
+  checkIn = dayjs(),
+  checkOut = dayjs().add(1, "day"),
   numAdults = 1,
   numRooms = 1,
   hotelSearchResults = {},
@@ -40,13 +40,13 @@ const SearchResult: FC<SearchResultProps> = ({
   const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
 
   const handleNavigate = (hotel_id: number) => {
-    const formattedCheckInDate = checkInDate.format("YYYY-MM-DD");
-    const formattedCheckOutDate = checkOutDate.format("YYYY-MM-DD");
+    const formattedCheckInDate = checkIn.format("YYYY-MM-DD");
+    const formattedCheckOutDate = checkOut.format("YYYY-MM-DD");
 
     const searchQueryParams = new URLSearchParams({
       location,
-      checkInDate: formattedCheckInDate,
-      checkOutDate: formattedCheckOutDate,
+      checkIn: formattedCheckInDate,
+      checkOut: formattedCheckOutDate,
       numAdults: String(numAdults),
       numRooms: String(numRooms),
     }).toString();
@@ -100,11 +100,11 @@ const SearchResult: FC<SearchResultProps> = ({
       <Grid container spacing={3}>
         {/* Display hotels as cards */}
         {hotelSearchResults?.items.map((hotel: { [key: string]: any }) => {
-          const hotel_avatar = hotel?.images?.filter(
-            (image: { [key: string]: any }) => {
+          const hotel_avatar =
+            hotel?.images?.filter((image: { [key: string]: any }) => {
               return image.is_primary === true;
-            }
-          )[0]?.url;
+            })[0]?.url ||
+            "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg";
 
           const discountPercent = Math.floor(
             (1 - hotel.min_room_price / hotel.original_room_price) * 100
@@ -146,10 +146,7 @@ const SearchResult: FC<SearchResultProps> = ({
                   >
                     <CardMedia
                       component="img"
-                      src={
-                        hotel_avatar ||
-                        "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg"
-                      }
+                      src={hotel_avatar}
                       alt={hotel?.name}
                       sx={{
                         width: "100%",
