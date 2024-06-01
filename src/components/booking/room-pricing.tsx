@@ -23,7 +23,7 @@ interface RoomInfo {
 }
 
 interface RoomPricingProps {
-  numberOfNights: number;
+  numNights: number;
   booking: Booking;
   roomInfo: RoomInfo;
 }
@@ -38,7 +38,7 @@ const formatDate = (dateString: string, index: number): string => {
 };
 
 const RoomPricing: React.FC<RoomPricingProps> = ({
-  numberOfNights,
+  numNights,
   booking,
   roomInfo,
 }) => {
@@ -68,7 +68,7 @@ const RoomPricing: React.FC<RoomPricingProps> = ({
           }}
         >
           <Typography>
-            Giá cho {numberOfNights} đêm x {booking.numRooms} phòng
+            Giá cho {numNights} đêm x {booking.numRooms} phòng
           </Typography>
           <Typography>{formatCurrency(booking.totalRoomPrice)}</Typography>
         </Box>
@@ -84,7 +84,7 @@ const RoomPricing: React.FC<RoomPricingProps> = ({
             borderRadius: 1,
           }}
         >
-          {Array.from({ length: numberOfNights }, (_, index) => (
+          {Array.from({ length: numNights }, (_, index) => (
             <Box
               key={index}
               sx={{
@@ -120,7 +120,7 @@ const RoomPricing: React.FC<RoomPricingProps> = ({
           <Typography>
             {formatCurrency(
               roomInfo.rates[0].priceDetail.occupancies[0]
-                .totalTaxAndServiceFee * numberOfNights
+                .totalTaxAndServiceFee * numNights
             )}
           </Typography>
         </Box>
@@ -149,7 +149,7 @@ const RoomPricing: React.FC<RoomPricingProps> = ({
               Đã bao gồm thuế, phí, VAT
             </Typography>
             <Typography variant="subtitle2">
-              Giá cho {numberOfNights} đêm, {booking.numRooms} phòng
+              Giá cho {numNights} đêm, {booking.numRooms} phòng
             </Typography>
           </Box>
           <Typography>{formatCurrency(booking.totalPrice)}</Typography>

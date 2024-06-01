@@ -26,6 +26,7 @@ interface IHotel {
 interface IHotelAround {
   hotel_id: number;
   name: string;
+  province: string;
   address: string;
   images: { [key: string]: any };
   min_room_price: number;
@@ -43,9 +44,7 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
   const isSm = useMediaQuery(theme.breakpoints.only("sm"));
   const isMd = useMediaQuery(theme.breakpoints.only("md"));
 
-  // State to hold the current number of items per page
   const [itemsPerPage, setItemsPerPage] = useState(() => {
-    // Determine initial itemsPerPage based on screen size
     if (isXs) {
       return 1;
     } else if (isSm) {
@@ -53,12 +52,12 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
     } else if (isMd) {
       return 3;
     } else {
-      return 4; // For lg and up
+      return 4;
     }
   });
-  const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
 
-  // Update itemsPerPage when screen size changes
+  const [likedHotels, setLikedHotels] = useState<number[]>([]);
+
   useEffect(() => {
     const updateItemsPerPage = () => {
       if (isXs) {
@@ -72,7 +71,7 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
       }
     };
 
-    updateItemsPerPage(); // Call initially to set correct itemsPerPage
+    updateItemsPerPage();
 
     const handleResize = () => {
       updateItemsPerPage();
@@ -85,16 +84,14 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
     };
   }, [isMd, isSm, isXs, theme]);
 
-  // Xử lý hiệu chỉnh danh sách hotel đã thích khi hotelsAround thay đổi
-  React.useEffect(() => {
-    // Lọc ra danh sách các hotel đã được yêu thích ban đầu
+  useEffect(() => {
     if (Array.isArray(hotelsAround)) {
       const initialLikedHotels = hotelsAround
-        .map((hotel: IHotelAround) => hotel.hotel_id) // Lấy danh sách hotel_id
-        .filter((hotelId: number) => likedHotels.includes(hotelId)); // Lọc ra các hotel_id mà đã được thích
+        .map((hotel: IHotelAround) => hotel.hotel_id)
+        .filter((hotelId: number) => likedHotels.includes(hotelId));
       setLikedHotels(initialLikedHotels);
     }
-  }, [hotelsAround, likedHotels]);
+  }, [hotelsAround]);
 
   if (!hotelsAround) {
     return <SkeletonLoading itemsPerPage={itemsPerPage} />;
@@ -105,11 +102,6 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
     groupedItems.push(hotelsAround.slice(i, i + itemsPerPage));
   }
 
-  const extractCityFromAddress = (address: string): string => {
-    const parts = address.split(",");
-    return parts[parts.length - 1].trim();
-  };
-
   const handleNavigate = (hotel_id: number) => {
     const hotel = hotelsAround?.find(
       (hotel: IHotelAround) => hotel.hotel_id === hotel_id
@@ -119,10 +111,8 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
       return;
     }
 
-    const city = extractCityFromAddress(hotel.address);
-
     const searchQueryParams = new URLSearchParams({
-      location: city,
+      location: hotel.province,
       checkInDate: dayjs().format("YYYY-MM-DD"),
       checkOutDate: dayjs().add(1, "day").format("YYYY-MM-DD"),
       numAdults: "1",
@@ -134,14 +124,10 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
 
   const toggleLike = (hotel_id: number) => {
     if (likedHotels.includes(hotel_id)) {
-      // Unlike hotel
-      console.log("Remove hotel favorite: ", hotel_id);
       setLikedHotels((prevLikedHotels) =>
         prevLikedHotels.filter((id) => id !== hotel_id)
       );
     } else {
-      // Like hotel
-      console.log("Add hotel favorite: ", hotel_id);
       setLikedHotels((prevLikedHotels) => [...prevLikedHotels, hotel_id]);
     }
   };
@@ -356,17 +342,19 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
                           alignItems: "flex-end",
                         }}
                       >
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: "#718096",
-                            textDecoration: "line-through",
-                            cursor: "pointer",
-                          }}
-                          component="span"
-                        >
-                          {formatCurrency(item.original_room_price)}
-                        </Typography>
+                        {item?.original_room_price !== item?.min_room_price && (
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: "#718096",
+                              textDecoration: "line-through",
+                              cursor: "pointer",
+                            }}
+                            component="span"
+                          >
+                            {formatCurrency(item.original_room_price)}
+                          </Typography>
+                        )}
                         <Typography
                           variant="body1"
                           sx={{

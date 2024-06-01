@@ -70,9 +70,8 @@ const SearchHotel: FC<SearchHotelProps> = ({
     validationSchema: Yup.object({
       location: Yup.string().required("Vui lòng chọn điểm đến!"),
       checkInDate: Yup.date().required("Vui lòng chọn ngày đến!"),
-      checkOutDate: Yup.date()
-        .required("Vui lòng chọn ngày về!")
-        .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
+      checkOutDate: Yup.date().required("Vui lòng chọn ngày về!"),
+      // .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
       numAdults: Yup.number()
         .min(1, "Số lượng người tối thiểu phải là 1!")
         .required("Vui lòng chọn số lượng người!"),

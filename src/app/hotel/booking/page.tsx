@@ -83,7 +83,8 @@ export default function HotelDetail(props: any) {
 
   const [isAddingSpecialRequest, setIsAddingSpecialRequest] =
     React.useState(false);
-  const [selectedCheckInTime, setSelectedCheckInTime] = React.useState("6:00 - 7:00");
+  const [selectedCheckInTime, setSelectedCheckInTime] =
+    React.useState("6:00 - 7:00");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState("");
 
   const handleChangeCheckInTime = (event: SelectChangeEvent<string>) => {
@@ -96,7 +97,7 @@ export default function HotelDetail(props: any) {
     setSelectedPaymentMethod(event.target.value as string);
   };
 
-  const numberOfNights = calculateNumberOfNights(checkInDate, checkOutDate);
+  const numNights = calculateNumberOfNights(checkInDate, checkOutDate);
 
   return (
     <div>
@@ -116,7 +117,7 @@ export default function HotelDetail(props: any) {
 
         <Grid container spacing={3} my={3}>
           <Grid item xs={12} md={7}>
-            <BookingDetails booking={booking} numberOfNights={numberOfNights} />
+            <BookingDetails booking={booking} numNights={numNights} />
 
             <Box sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}>
               <Typography variant="h6">Thông tin liên hệ</Typography>
@@ -374,7 +375,7 @@ export default function HotelDetail(props: any) {
             <RoomInfo roomInfo={roomInfo} booking={booking} />
 
             <RoomPricing
-              numberOfNights={numberOfNights}
+              numNights={numNights}
               booking={booking}
               roomInfo={roomInfo}
             />

@@ -36,7 +36,7 @@ import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
 import RoomPricing from "@/components/booking/room-pricing";
 import RoomInfo from "@/components/booking/room-info";
 import BookingDetails from "@/components/booking/booking-details";
-import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 
 export default function HotelDetail(props: any) {
   const {
@@ -49,7 +49,7 @@ export default function HotelDetail(props: any) {
     hotelId,
   } = props.searchParams;
 
-  const numberOfNights = calculateNumberOfNights(checkInDate, checkOutDate);
+  const numNights = calculateNumberOfNights(checkInDate, checkOutDate);
 
   return (
     <div>
@@ -69,13 +69,13 @@ export default function HotelDetail(props: any) {
 
         <Grid container spacing={3} my={3}>
           <Grid item xs={12} md={7}>
-            <BookingDetails booking={booking} numberOfNights={numberOfNights} />
+            <BookingDetails booking={booking} numNights={numNights} />
           </Grid>
           <Grid item xs={12} md={5}>
             <RoomInfo roomInfo={roomInfo} booking={booking} />
 
             <RoomPricing
-              numberOfNights={numberOfNights}
+              numNights={numNights}
               booking={booking}
               roomInfo={roomInfo}
             />

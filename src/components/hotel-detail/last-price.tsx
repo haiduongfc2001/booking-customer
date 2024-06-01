@@ -1,28 +1,33 @@
 import { FC } from "react";
 import CustomizedTooltip from "@/lib/tooltip";
-import { Box, Divider, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import formatCurrency from "@/utils/format-currency";
 
 interface ILastPriceProps {
+  checkInDate: string;
   numRooms: number;
-  numberOfNights: number;
-  roomPrice: number;
+  numNights: number;
+  roomCost: { [key: string]: number };
   serviceCharge: number;
 }
 
 const LastPrice: FC<ILastPriceProps> = ({
+  checkInDate,
   numRooms,
-  numberOfNights,
-  roomPrice,
+  numNights,
+  roomCost,
   serviceCharge,
 }) => {
-  const totalRoomPriceOneNight = roomPrice * numRooms;
-  const totalRooomPrice = totalRoomPriceOneNight * numberOfNights;
-  const tax = totalRooomPrice * 0.1;
-  const lastPrice = totalRooomPrice + tax + serviceCharge;
+  const startDate = new Date(checkInDate);
 
-  const startDate = new Date("2024-04-27");
+  const {
+    room_price_per_night,
+    total_room_price,
+    total_service_fee,
+    total_tax,
+    final_price,
+  } = roomCost;
 
   return (
     <>
@@ -49,9 +54,9 @@ const LastPrice: FC<ILastPriceProps> = ({
               }}
             >
               <Typography>
-                Giá cho {numberOfNights} đêm x {numRooms} phòng
+                Giá cho {numNights} đêm x {numRooms} phòng
               </Typography>
-              <Typography>{formatCurrency(totalRooomPrice)}</Typography>
+              <Typography>{formatCurrency(total_room_price)}</Typography>
             </Box>
 
             <Box
@@ -65,7 +70,7 @@ const LastPrice: FC<ILastPriceProps> = ({
                 borderRadius: 1,
               }}
             >
-              {Array.from({ length: numberOfNights }, (_, index) => {
+              {Array.from({ length: numNights }, (_, index) => {
                 const currentDate = new Date(startDate);
                 currentDate.setDate(currentDate.getDate() + index);
                 const day = currentDate.getDate();
@@ -85,7 +90,7 @@ const LastPrice: FC<ILastPriceProps> = ({
                       Đêm {index + 1} ({day}/{month}) x {numRooms} phòng
                     </Typography>
                     <Typography>
-                      {formatCurrency(totalRoomPriceOneNight)}
+                      {formatCurrency(room_price_per_night)}
                     </Typography>
                   </Box>
                 );
@@ -103,7 +108,9 @@ const LastPrice: FC<ILastPriceProps> = ({
               }}
             >
               <Typography>Thuế và phí dịch vụ khách sạn</Typography>
-              <Typography>{formatCurrency(tax + serviceCharge)}</Typography>
+              <Typography>
+                {formatCurrency(total_service_fee + total_tax)}
+              </Typography>
             </Box>
 
             <Box
@@ -130,10 +137,10 @@ const LastPrice: FC<ILastPriceProps> = ({
                   Đã bao gồm thuế, phí, VAT
                 </Typography>
                 <Typography variant="subtitle2">
-                  Giá cho {numberOfNights} đêm, {numRooms} phòng
+                  Giá cho {numNights} đêm, {numRooms} phòng
                 </Typography>
               </Box>
-              <Typography>{formatCurrency(lastPrice)}</Typography>
+              <Typography>{formatCurrency(final_price)}</Typography>
             </Box>
           </Box>
         }
@@ -158,7 +165,7 @@ const LastPrice: FC<ILastPriceProps> = ({
               }}
             >
               <Typography variant="subtitle2">
-                Giá cuối cùng {formatCurrency(lastPrice)}&nbsp;
+                Giá cuối cùng {formatCurrency(final_price)}&nbsp;
               </Typography>
               <InfoOutlinedIcon />
             </Box>
@@ -173,7 +180,7 @@ const LastPrice: FC<ILastPriceProps> = ({
                 justifyContent: "flex-end",
               }}
             >
-              cho {numRooms} phòng {numberOfNights} đêm
+              cho {numRooms} phòng {numNights} đêm
             </Box>
           </Box>
         }

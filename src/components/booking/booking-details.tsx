@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Typography, Grid } from '@mui/material';
-import Image from 'next/image';
+import React from "react";
+import { Box, Typography, Grid } from "@mui/material";
+import Image from "next/image";
 
 interface Hotel {
   thumbnail: { src: string };
@@ -24,10 +24,13 @@ interface Booking {
 
 interface BookingDetailsProps {
   booking: Booking;
-  numberOfNights: number;
+  numNights: number;
 }
 
-const BookingDetails: React.FC<BookingDetailsProps> = ({ booking, numberOfNights }) => {
+const BookingDetails: React.FC<BookingDetailsProps> = ({
+  booking,
+  numNights,
+}) => {
   return (
     <Box sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}>
       <Box display="flex">
@@ -100,7 +103,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({ booking, numberOfNights
               borderRadius={1}
             >
               <Typography variant="subtitle1">Số đêm</Typography>
-              <Typography variant="body2">{numberOfNights}</Typography>
+              <Typography variant="body2">{numNights}</Typography>
             </Box>
           </Grid>
         </Grid>
