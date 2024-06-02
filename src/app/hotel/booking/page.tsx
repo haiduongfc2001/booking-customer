@@ -4,19 +4,16 @@ import {
   Box,
   Button,
   Checkbox,
-  FormControl,
   FormControlLabel,
   FormGroup,
   Grid,
   Icon,
   IconButton,
-  MenuItem,
   Radio,
   RadioGroup,
-  Select,
-  SelectChangeEvent,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import HotelIcon from "@mui/icons-material/Hotel";
 import * as React from "react";
@@ -30,22 +27,14 @@ import RoomInfo from "@/components/booking/room-info";
 import BookingDetails from "@/components/booking/booking-details";
 import { paymentMethodsList } from "@/components/booking/payment-methods-list";
 import { postRequest } from "@/services/api-instance";
-import { API, STATUS_CODE } from "@/constant/constants";
+import { API, PAYMENT_METHODS, STATUS_CODE } from "@/constant/constants";
+import { CountdownTimer } from "@/components/booking/countdown-timer";
+import { renderBeds } from "@/utils/render-beds";
 
 const addSpecialRequestList: string[] = [
   "Phòng không hút thuốc",
   "Phòng ở tầng cao",
 ];
-
-interface Bed {
-  id: number;
-  quantity: number;
-  description: string;
-}
-
-interface RenderBedsProps {
-  beds?: Bed[];
-}
 
 export default function Booking(props: any) {
   const {
@@ -122,28 +111,84 @@ export default function Booking(props: any) {
     childrenAges,
   ]);
 
-  const renderBeds = ({ beds }: RenderBedsProps): JSX.Element | null => {
-    if (!beds || beds.length === 0) return null;
+  const theme = useTheme();
+  const [scrollY, setScrollY] = React.useState(0);
 
-    return (
-      <>
-        {beds.map((bed, index) => (
-          <Typography variant="body1" key={bed.id} component="span" pl={1}>
-            {bed.quantity}&nbsp;{bed.description}
-            {index < beds.length - 1 ? ", " : ""}
-          </Typography>
-        ))}
-      </>
-    );
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const searchQueryParams = new URLSearchParams({
+    location: bookingData?.hotel?.province,
+    checkIn,
+    checkOut,
+    numAdults: String(numAdults),
+    numRooms: String(numRooms),
+  }).toString();
+
+  const handleBooking = async () => {
+    if (!selectedPaymentMethod) {
+      alert("Vui lòng chọn phương thức thanh toán!");
+      return;
+    }
+
+    const amount = bookingData?.cost?.final_price;
+    const description = `Payment for booking at ${hotelData?.name} from ${checkIn} to ${checkOut}. 
+      Room type: ${hotelData.roomTypes.name}, 
+      Number of rooms: ${numRooms}, 
+      Number of adults: ${numAdults}, 
+      Number of children: ${numChildren}.
+      Booking reference: #${bookingData?.code}`;
+
+    if (selectedPaymentMethod === PAYMENT_METHODS.ZALOPAY) {
+      const body = {
+        booking_id: Number(bookingData.id),
+        appUser: bookingData?.customer?.email,
+        amount,
+        bankCode: "",
+        description,
+      };
+
+      try {
+        const response = await postRequest(
+          API.PAYMENT.CREATE_ZALOPAY_PAYMENT_URL,
+          body
+        );
+
+        if (response && response.return_code === 1) {
+          window.location.href = response?.order_url;
+        }
+      } catch (error: any) {
+        console.error(error.response?.data?.message || error.message);
+        setError(error.message);
+      }
+    }
   };
 
   return (
     <div>
-      <Box mx={10} my={4}>
+      <CountdownTimer
+        theme={theme}
+        scrollY={scrollY}
+        hotelId={Number(hotelId)}
+        searchQueryParams={searchQueryParams}
+        expiresAt={bookingData.expires_at}
+      />
+
+      <Box mx={10} my={6}>
         <CustomizedBreadcrumbs
           newBreadcrumbsData={[
             {
-              label: "Khách sạn",
+              label: `${bookingData?.hotel?.name}`,
+              href: `/hotel/${hotelId}?${searchQueryParams}`,
               icon: <HotelIcon />,
             },
             {
@@ -315,7 +360,7 @@ export default function Booking(props: any) {
                       </FormGroup>
 
                       <Box mt={1}>
-                        <Typography variant="subtitle1">
+                        <Typography variant="subtitle1" my={1}>
                           Yêu cầu riêng của bạn
                         </Typography>
                         <TextField
@@ -325,7 +370,13 @@ export default function Booking(props: any) {
                           placeholder="Nhập yêu cầu khác"
                           minRows={3}
                           maxRows={5}
-                          sx={{ bgcolor: "background.paper", borderRadius: 1 }}
+                          sx={{
+                            bgcolor: "background.paper",
+                            borderRadius: 1,
+                            "& .MuiInputBase-root.MuiFilledInput-root": {
+                              p: "8px 12px",
+                            },
+                          }}
                         />
                       </Box>
                     </Box>
@@ -391,7 +442,11 @@ export default function Booking(props: any) {
                   justifyContent="flex-end"
                   alignItems="center"
                 >
-                  <Button variant="contained" color="primary">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleBooking}
+                  >
                     Đặt phòng
                   </Button>
                 </Box>

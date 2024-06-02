@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Tabs from "@mui/material/Tabs";
@@ -88,17 +89,12 @@ function a11yProps(index: number) {
   };
 }
 
-export interface TabInfo {
-  href: string;
-  label: string;
-  content: React.ReactNode;
-}
-
 interface CustomizedTabsProps {
   tabs: TabInfo[];
 }
 
 export default function CustomizedTabs({ tabs }: CustomizedTabsProps) {
+  // Destructure the tabs prop
   const router = useRouter();
   const pathname = usePathname();
 
@@ -122,13 +118,13 @@ export default function CustomizedTabs({ tabs }: CustomizedTabsProps) {
         >
           {tabs?.length > 0 &&
             tabs.map((tab, index) => (
-              <StyledTab key={index} label={tab.label} {...a11yProps(index)} />
+              <StyledTab key={tab.id} label={tab.label} {...a11yProps(index)} />
             ))}
         </StyledTabs>
       </Box>
       {tabs?.length > 0 &&
         tabs.map((tab, index) => (
-          <CustomTabPanel key={index} value={value} index={index}>
+          <CustomTabPanel key={tab.id} value={value} index={index}>
             {tab.content}
           </CustomTabPanel>
         ))}

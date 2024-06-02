@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Typography, Grid } from "@mui/material";
 import Image from "next/image";
 import dayjs from "dayjs";
+import { FALLBACK_URL } from "@/constant/constants";
 
 interface Hotel {
   [key: string]: any;
@@ -28,8 +29,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
   const hotelAvatar =
     booking?.hotel?.hotelImages?.find(
       (image: { is_primary: boolean }) => image.is_primary
-    )?.url ||
-    "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg";
+    )?.url || FALLBACK_URL.HOTEL_NO_IMAGE;
 
   const checkInTime = booking?.hotel?.policies?.find(
     (policy: { type: string }) => policy.type === "CHECK_IN_TIME"

@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
 import { Box, Button } from "@mui/material";
-import { useSearchParams } from "next/navigation";
 import SearchBar from "@/components/search/search-hotel";
 import dayjs from "dayjs";
 import SearchResult from "@/components/search/search-result";
@@ -12,7 +11,7 @@ import RoomTypeFilter from "@/components/search/filter/room-type-filter";
 import RatingFilter from "@/components/search/filter/rating-filter";
 import { postRequest } from "@/services/api-instance";
 
-export default function Search() {
+export default function Search(props: any) {
   const [priceRange, setPriceRange] = React.useState<number[]>([
     FILTER.PRICE.MIN,
     FILTER.PRICE.MAX,
@@ -26,24 +25,18 @@ export default function Search() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const searchParams = useSearchParams();
-  const checkInParam = searchParams.get("checkIn");
-  const checkOutParam = searchParams.get("checkOut");
-
-  const location: string = searchParams.get("location") || "";
-  const checkIn = checkInParam || dayjs().format("YYYY-MM-DD");
-  const checkOut = checkOutParam
-    ? dayjs(checkOutParam).isAfter(checkIn)
-      ? checkOutParam
-      : dayjs(checkIn).add(1, "day").format("YYYY-MM-DD")
-    : dayjs(checkIn).add(1, "day").format("YYYY-MM-DD");
-  const numAdults: number = Number(searchParams.get("numAdults")) || 1;
-  const numRooms: number = Number(searchParams.get("numRooms")) || 1;
+  const {
+    location = "",
+    checkIn = dayjs().format("YYYY-MM-DD"),
+    checkOut = dayjs(checkIn).add(1, "day").format("YYYY-MM-DD"),
+    numRooms = 1,
+    numAdults = 1,
+  } = props.searchParams;
 
   React.useEffect(() => {
     const fetchHotels = async () => {
       setIsLoading(true);
-      setError(null); // Reset error state
+      setError(null);
 
       const body = {
         location,
@@ -128,7 +121,6 @@ export default function Search() {
 
   return (
     <>
-      {/* <React.Suspense fallback={null}> */}
       <Box
         sx={{
           color: "#1a202c",
@@ -206,7 +198,6 @@ export default function Search() {
           <div>Không có khách sạn nào thỏa mãn yêu cầu của quý khách!</div>
         )}
       </Box>
-      {/* </React.Suspense> */}
     </>
   );
 }

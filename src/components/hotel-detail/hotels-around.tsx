@@ -18,6 +18,7 @@ import SkeletonLoading from "./skeleton-loading";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { FALLBACK_URL } from "@/constant/constants";
 
 interface IHotel {
   [key: string]: string | number;
@@ -232,10 +233,7 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
                   <Box position="relative">
                     <CardMedia
                       component="img"
-                      src={
-                        hotel_avatar ||
-                        "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg"
-                      }
+                      src={hotel_avatar || FALLBACK_URL.HOTEL_NO_IMAGE}
                       alt={item.name}
                       sx={{
                         height: "150px",

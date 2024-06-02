@@ -17,6 +17,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import Link from "next/link";
 import dayjs from "dayjs";
 import NoHotels from "./no-hotels";
+import { FALLBACK_URL } from "@/constant/constants";
 
 interface FavoriteHotelsProps {}
 
@@ -47,8 +48,8 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
 
   const isHotelLiked = (hotel_id: number) => likedHotels.includes(hotel_id);
 
-  const formattedCheckInDate = dayjs().format("YYYY-MM-DD");
-  const formattedCheckOutDate = dayjs().add(1).format("YYYY-MM-DD");
+  const formattedCheckIn = dayjs().format("YYYY-MM-DD");
+  const formattedCheckOut = dayjs().add(1).format("YYYY-MM-DD");
 
   const getCityFromAddress = (address: string): string => {
     const addressArray = address?.split(",");
@@ -101,10 +102,7 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
                   >
                     <CardMedia
                       component="img"
-                      src={
-                        hotel?.hotel_avatar ||
-                        "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg"
-                      }
+                      src={hotel?.hotel_avatar || FALLBACK_URL.HOTEL_NO_IMAGE}
                       alt={hotel?.hotel_name}
                       sx={{
                         width: "100%",
@@ -166,8 +164,8 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
                         {(() => {
                           const searchQueryParams = new URLSearchParams({
                             location: getCityFromAddress(hotel?.hotel_address),
-                            checkIn: formattedCheckInDate,
-                            checkOut: formattedCheckOutDate,
+                            checkIn: formattedCheckIn,
+                            checkOut: formattedCheckOut,
                             numAdults: "1",
                             numRooms: "1",
                           }).toString();

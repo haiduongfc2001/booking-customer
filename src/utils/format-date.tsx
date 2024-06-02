@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const formatDate = (date: Date | number = new Date()) => {
   if (typeof date === "number") {
     const dateInpuit = new Date(date);
@@ -19,4 +21,19 @@ export const formatDate = (date: Date | number = new Date()) => {
   const year = date.getFullYear(); // Lấy năm
 
   return `${day}-${month}-${year}`; // Trả về chuỗi đã định dạng
+};
+
+export const formatDateLocaleVi = (date: string): string => {
+  const parsedDate = dayjs(date, "DD-MM-YYYY");
+  const formattedDate = parsedDate
+    .locale("vi")
+    .format("dddd, ngày DD [tháng] MM");
+
+  // Chuyển chữ cái đầu thành chữ cái viết hoa
+  const formattedDateCapitalized = formattedDate.replace(
+    formattedDate.charAt(0),
+    formattedDate.charAt(0).toUpperCase()
+  );
+
+  return formattedDateCapitalized;
 };

@@ -7,6 +7,8 @@ import SingleBedIcon from "@mui/icons-material/SingleBed";
 import BreakfastIcon from "@mui/icons-material/BreakfastDining";
 import ConfirmIcon from "@mui/icons-material/CheckCircleOutline";
 import { BankTransferIcon } from "@/constant/icons";
+import { renderBeds } from "@/utils/render-beds";
+import { FALLBACK_URL } from "@/constant/constants";
 
 interface RoomRate {
   shortCancelPolicy: string;
@@ -34,8 +36,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
   const room_type_avatar =
     roomInfo?.images?.filter(
       (image: { [key: string]: any }) => image.is_primary === true
-    )[0]?.url ||
-    "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg";
+    )[0]?.url || FALLBACK_URL.HOTEL_NO_IMAGE;
 
   return (
     <Box sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}>
@@ -131,11 +132,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
           <SvgIcon>
             <SingleBedIcon />
           </SvgIcon>
-          {roomInfo?.beds.map((bed: { [key: string]: any }) => (
-            <Typography variant="subtitle2" sx={{ ml: 1 }} key={bed.id}>
-              {bed.quantity}&nbsp;{bed.description}
-            </Typography>
-          ))}
+          {renderBeds({ beds: roomInfo?.beds })}
         </Box>
       )}
 

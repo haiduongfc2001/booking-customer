@@ -18,6 +18,7 @@ export default function FavoriteHotel(props: any) {
       <CustomizedBreadcrumbs
         newBreadcrumbsData={[
           {
+            href: "/account",
             label: "Tài khoản",
             icon: <AccountCircleIcon />,
           },

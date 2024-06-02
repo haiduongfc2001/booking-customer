@@ -47,6 +47,9 @@ export const API: IApi = {
   BOOKING: {
     CREATE_BOOKING: "/booking/createBooking",
   },
+  PAYMENT: {
+    CREATE_ZALOPAY_PAYMENT_URL: "/payment/zalopay/createPaymentUrl",
+  },
 };
 
 /**
@@ -83,4 +86,31 @@ export const RATING_CATEGORIES: IRatingCategories = {
   GOOD: "Tốt",
   SATISFIED: "Hài lòng",
   UNSATISFIED: "Không hài lòng",
+};
+
+export const PAYMENT_METHODS: IPaymentMethods = {
+  ZALOPAY: "ZALOPAY",
+  VNPAY: "VNPAY",
+};
+
+export const BOOKING_STATUS: IBookingStatus = {
+  PENDING: "PENDING",
+  CONFIRMED: "CONFIRMED",
+  CHECKED_IN: "CHECKED_IN",
+  CHECKED_OUT: "CHECKED_OUT",
+  CANCELLED: "CANCELLED",
+};
+
+export const PAYMENT_STATUS: IPaymentStatus = {
+  PENDING: "PENDING",
+  COMPLETED: "COMPLETED",
+  FAILED: "FAILED",
+  CANCELLED: "CANCELLED",
+  REFUNDED: "REFUNDED",
+  EXPIRED: "EXPIRED",
+};
+
+export const FALLBACK_URL = {
+  HOTEL_NO_IMAGE:
+    "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg",
 };

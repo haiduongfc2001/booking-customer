@@ -15,7 +15,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import formatCurrency from "@/utils/format-currency";
 import useCustomAPI from "@/services/common-swr";
-import { API } from "@/constant/constants";
+import { API, FALLBACK_URL } from "@/constant/constants";
 import SkeletonLoading from "./skeleton-loading";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
@@ -236,10 +236,7 @@ const OutstandingHotel: React.FC = () => {
                 <Box position="relative">
                   <CardMedia
                     component="img"
-                    src={
-                      item?.hotel_avatar ||
-                      "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg"
-                    }
+                    src={item?.hotel_avatar || FALLBACK_URL.HOTEL_NO_IMAGE}
                     alt={item.hotel_name}
                     sx={{
                       height: "150px",

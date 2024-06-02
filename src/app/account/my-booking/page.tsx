@@ -18,6 +18,7 @@ export default function MyBooking(props: any) {
       <CustomizedBreadcrumbs
         newBreadcrumbsData={[
           {
+            href: "/account",
             label: "Tài khoản",
             icon: <AccountCircleIcon />,
           },

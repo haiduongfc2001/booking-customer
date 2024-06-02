@@ -11,7 +11,12 @@ import NextLink from "next/link";
 export default function VerifyAccount() {
   const router = useRouter();
 
-  const customer_id = new URLSearchParams(window.location.search).get("id");
+  let customer_id;
+
+  if (typeof window !== "undefined") {
+    customer_id = new URLSearchParams(window.location.search).get("id");
+  }
+
   const { data, error } = useCustomAPI(
     `${API.CUSTOMER.VERIFY_EMAIL}?id=${customer_id}`,
     { method: "POST" }

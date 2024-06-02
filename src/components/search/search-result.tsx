@@ -14,6 +14,7 @@ import formatCurrency from "@/utils/format-currency";
 import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { FALLBACK_URL } from "@/constant/constants";
 
 interface SearchResultProps {
   location: string;
@@ -40,13 +41,13 @@ const SearchResult: FC<SearchResultProps> = ({
   const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
 
   const handleNavigate = (hotel_id: number) => {
-    const formattedCheckInDate = checkIn.format("YYYY-MM-DD");
-    const formattedCheckOutDate = checkOut.format("YYYY-MM-DD");
+    const formattedCheckIn = checkIn.format("YYYY-MM-DD");
+    const formattedCheckOut = checkOut.format("YYYY-MM-DD");
 
     const searchQueryParams = new URLSearchParams({
       location,
-      checkIn: formattedCheckInDate,
-      checkOut: formattedCheckOutDate,
+      checkIn: formattedCheckIn,
+      checkOut: formattedCheckOut,
       numAdults: String(numAdults),
       numRooms: String(numRooms),
     }).toString();
@@ -100,11 +101,9 @@ const SearchResult: FC<SearchResultProps> = ({
       <Grid container spacing={3}>
         {/* Display hotels as cards */}
         {hotelSearchResults?.items.map((hotel: { [key: string]: any }) => {
-          const hotel_avatar =
-            hotel?.images?.filter((image: { [key: string]: any }) => {
-              return image.is_primary === true;
-            })[0]?.url ||
-            "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg";
+          const hotelAvatar =
+            hotel?.images?.find((image: any) => image.is_primary === true)
+              ?.url || FALLBACK_URL.HOTEL_NO_IMAGE;
 
           const discountPercent = Math.floor(
             (1 - hotel.min_room_price / hotel.original_room_price) * 100
@@ -146,7 +145,7 @@ const SearchResult: FC<SearchResultProps> = ({
                   >
                     <CardMedia
                       component="img"
-                      src={hotel_avatar}
+                      src={hotelAvatar}
                       alt={hotel?.name}
                       sx={{
                         width: "100%",

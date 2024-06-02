@@ -24,6 +24,7 @@ interface IApi {
   HOTEL: { [key: string]: string };
   CUSTOMER: { [key: string]: string };
   BOOKING: { [key: string]: string };
+  PAYMENT: { [key: string]: string };
 }
 
 /**
@@ -53,4 +54,23 @@ interface ISnackbarState {
   open: boolean;
   message: string;
   severity: "success" | "error" | "info" | "warning" | undefined;
+}
+
+interface IPaymentMethods {
+  [key: string]: string;
+}
+
+interface IBookingStatus {
+  [key: string]: string;
+}
+
+interface IPaymentStatus {
+  [key: string]: string;
+}
+
+interface TabInfo {
+  id: number;
+  href: string;
+  label: string;
+  content: React.ReactNode;
 }

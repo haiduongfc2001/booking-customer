@@ -1,25 +1,27 @@
-"use client";
 import * as React from "react";
 import CustomizedBreadcrumbs from "@/lib/breadcrumbs";
 import { Box } from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import CustomizedTabs, { TabInfo } from "@/lib/tabs";
+import CustomizedTabs from "@/lib/tabs";
 import AccountManagement from "@/components/account/account-management";
 import FavoriteHotels from "@/components/account/favorite-hotels";
 import MyBookings from "@/components/account/my-bookings";
 
 export const tabs: TabInfo[] = [
   {
+    id: 1,
     href: "/account",
     label: "Quản lý tài khoản",
     content: <AccountManagement />,
   },
   {
+    id: 2,
     href: "/account/my-booking",
-    label: "Đơn phòng",
+    label: "Đơn đặt phòng",
     content: <MyBookings />,
   },
   {
+    id: 3,
     href: "/account/favorite-hotel",
     label: "Khách sạn yêu thích",
     content: <FavoriteHotels />,
@@ -42,7 +44,6 @@ export default function UserAccount() {
           },
         ]}
       />
-
       <CustomizedTabs tabs={tabs} />
     </Box>
   );

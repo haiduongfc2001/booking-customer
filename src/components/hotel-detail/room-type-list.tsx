@@ -6,6 +6,7 @@ import {
   Button,
   CardMedia,
   Grid,
+  Icon,
   List,
   ListItem,
   ListItemIcon,
@@ -25,6 +26,8 @@ import DoneIcon from "@mui/icons-material/Done";
 import BedRoundedIcon from "@mui/icons-material/BedRounded";
 import LastPrice from "./last-price";
 import { useRouter } from "next/navigation";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { FALLBACK_URL } from "@/constant/constants";
 
 interface RoomTypeListProps {
   hotelData: { [key: string]: any };
@@ -281,9 +284,7 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
                     room_type?.images?.filter(
                       (image: { [key: string]: any }) =>
                         image.is_primary === true
-                    )[0]?.url ||
-                    "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg";
-
+                    )[0]?.url || FALLBACK_URL.HOTEL_NO_IMAGE;
                   const discountPercent = Math.floor(
                     (room_type?.room_discount / room_type.base_price) * 100
                   );
@@ -344,86 +345,16 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
                                 color: "#4A5568",
                                 display: "flex",
                                 alignItems: "center",
+                                justifyContent: "space-between",
                               }}
                             >
                               <Box
                                 sx={{
-                                  cursor: "pointer",
+                                  color: "#4A5568",
                                   display: "flex",
                                   alignItems: "center",
-                                  pr: 3,
                                 }}
                               >
-                                <PeopleIcon /> &nbsp;
-                                {room_type?.standard_occupant} người
-                                <CustomizedTooltip
-                                  title={
-                                    <ul style={{ paddingLeft: 10 }}>
-                                      <li>
-                                        Sức chứa tối đa của phòng{" "}
-                                        {room_type?.max_occupant}
-                                      </li>
-                                      <li>
-                                        Sức khách tiêu chuẩn{" "}
-                                        {room_type?.standard_occupant}
-                                      </li>
-                                      <li>
-                                        Cho phép ở thêm{" "}
-                                        {room_type?.max_extra_bed > 0 &&
-                                          `${room_type?.max_extra_bed} người lớn`}{" "}
-                                        {room_type?.max_children > 0 &&
-                                          `${room_type?.max_children} trẻ em`}{" "}
-                                        thoả mãn {room_type?.max_occupant} khách
-                                        tối đa có thể mất thêm phí
-                                      </li>
-                                      <li>
-                                        Chi tiết phí phụ thu vui lòng xem tại{" "}
-                                        <em>
-                                          <strong>
-                                            &quot;Giá cuối cùng&quot;
-                                          </strong>
-                                        </em>
-                                      </li>
-                                    </ul>
-                                  }
-                                  content={
-                                    <Typography
-                                      variant="body1"
-                                      sx={{
-                                        color: "primary.main",
-                                        ml: 0.5,
-                                      }}
-                                    >
-                                      (Xem chi tiết)
-                                    </Typography>
-                                  }
-                                />
-                              </Box>
-
-                              <Box
-                                sx={{
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  pr: 3,
-                                }}
-                              >
-                                <AspectRatioIcon />
-                                <CustomizedTooltip
-                                  title={
-                                    <span>
-                                      Diện tích phòng: {room_type?.area}m&sup2;
-                                    </span>
-                                  }
-                                  content={
-                                    <Typography variant="body1">
-                                      &nbsp;{room_type?.area}m&sup2;
-                                    </Typography>
-                                  }
-                                />
-                              </Box>
-
-                              {room_type?.views?.length > 0 && (
                                 <Box
                                   sx={{
                                     cursor: "pointer",
@@ -432,23 +363,135 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
                                     pr: 3,
                                   }}
                                 >
-                                  <VisibilityIcon />
+                                  <PeopleIcon /> &nbsp;
+                                  {room_type?.standard_occupant} người
                                   <CustomizedTooltip
-                                    title={room_type.views.map(
-                                      (view: string, index: number) => (
-                                        <span key={index}>{view}</span>
-                                      )
-                                    )}
-                                    content={room_type.views.map(
-                                      (view: string, index: number) => (
-                                        <Typography key={index} variant="body1">
-                                          &nbsp;{view}
-                                        </Typography>
-                                      )
-                                    )}
+                                    title={
+                                      <ul style={{ paddingLeft: 10 }}>
+                                        <li>
+                                          Sức chứa tối đa của phòng{" "}
+                                          {room_type?.max_occupant}
+                                        </li>
+                                        <li>
+                                          Sức khách tiêu chuẩn{" "}
+                                          {room_type?.standard_occupant}
+                                        </li>
+                                        <li>
+                                          Cho phép ở thêm{" "}
+                                          {room_type?.max_extra_bed > 0 &&
+                                            `${room_type?.max_extra_bed} người lớn`}{" "}
+                                          {room_type?.max_children > 0 &&
+                                            `${room_type?.max_children} trẻ em`}{" "}
+                                          thoả mãn {room_type?.max_occupant}{" "}
+                                          khách tối đa có thể mất thêm phí
+                                        </li>
+                                        <li>
+                                          Chi tiết phí phụ thu vui lòng xem tại{" "}
+                                          <em>
+                                            <strong>
+                                              &quot;Giá cuối cùng&quot;
+                                            </strong>
+                                          </em>
+                                        </li>
+                                      </ul>
+                                    }
+                                    content={
+                                      <Typography
+                                        variant="body1"
+                                        sx={{
+                                          color: "primary.main",
+                                          ml: 0.5,
+                                        }}
+                                      >
+                                        (Xem chi tiết)
+                                      </Typography>
+                                    }
                                   />
                                 </Box>
-                              )}
+
+                                <Box
+                                  sx={{
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    pr: 3,
+                                  }}
+                                >
+                                  <AspectRatioIcon />
+                                  <CustomizedTooltip
+                                    title={
+                                      <span>
+                                        Diện tích phòng: {room_type?.area}
+                                        m&sup2;
+                                      </span>
+                                    }
+                                    content={
+                                      <Typography variant="body1">
+                                        &nbsp;{room_type?.area}m&sup2;
+                                      </Typography>
+                                    }
+                                  />
+                                </Box>
+
+                                {room_type?.views?.length > 0 && (
+                                  <Box
+                                    sx={{
+                                      cursor: "pointer",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      pr: 3,
+                                    }}
+                                  >
+                                    <VisibilityIcon />
+                                    <CustomizedTooltip
+                                      title={room_type.views.map(
+                                        (view: string, index: number) => (
+                                          <span key={index}>{view}</span>
+                                        )
+                                      )}
+                                      content={room_type.views.map(
+                                        (view: string, index: number) => (
+                                          <Typography
+                                            key={index}
+                                            variant="body1"
+                                          >
+                                            &nbsp;{view}
+                                          </Typography>
+                                        )
+                                      )}
+                                    />
+                                  </Box>
+                                )}
+                              </Box>
+
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "flex-end",
+                                  alignItems: "flex-end",
+                                }}
+                              >
+                                {room_type?.rooms.length <= 5 && (
+                                  <Box
+                                    sx={{
+                                      color: "error.main",
+                                      display: "flex",
+                                      padding: 1,
+                                      alignItems: "center",
+                                      borderRadius: 1,
+                                      bgcolor: "rgba(229, 62, 62, 0.1)",
+                                    }}
+                                  >
+                                    <Icon sx={{ mr: 0.5 }}>
+                                      <ErrorOutlineIcon />
+                                    </Icon>
+                                    <Typography>
+                                      Chỉ còn {room_type?.rooms.length} phòng
+                                      trống
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </Box>
                             </Box>
                           </Grid>
 

@@ -84,13 +84,13 @@ const SearchHotel: FC<SearchHotelProps> = ({
       try {
         const { location, checkIn, checkOut, numAdults, numRooms } = values;
 
-        const formattedCheckInDate = checkIn.format("YYYY-MM-DD");
-        const formattedCheckOutDate = checkOut.format("YYYY-MM-DD");
+        const formattedCheckIn = checkIn.format("YYYY-MM-DD");
+        const formattedCheckOut = checkOut.format("YYYY-MM-DD");
 
         const searchQueryParams = new URLSearchParams({
           location,
-          checkIn: formattedCheckInDate,
-          checkOut: formattedCheckOutDate,
+          checkIn: formattedCheckIn,
+          checkOut: formattedCheckOut,
           numAdults: String(numAdults),
           numRooms: String(numRooms),
         }).toString();
@@ -131,9 +131,9 @@ const SearchHotel: FC<SearchHotelProps> = ({
   const handleCheckInChange = (newValue: Dayjs | null) => {
     if (newValue) {
       updateFieldValue("checkIn", newValue);
-      const minCheckOutDate = newValue.add(1, "day");
-      if (formik.values.checkOut.isBefore(minCheckOutDate)) {
-        updateFieldValue("checkOut", minCheckOutDate);
+      const minCheckOut = newValue.add(1, "day");
+      if (formik.values.checkOut.isBefore(minCheckOut)) {
+        updateFieldValue("checkOut", minCheckOut);
       }
     }
   };
