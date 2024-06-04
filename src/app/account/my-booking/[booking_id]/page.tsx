@@ -1,312 +1,278 @@
 "use client";
-import CustomizedBreadcrumbs from "@/lib/breadcrumbs";
-import { Box, Chip, Grid, Icon, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CardMedia,
+  Chip,
+  Grid,
+  Icon,
+  SvgIcon,
+  Typography,
+} from "@mui/material";
 import * as React from "react";
-import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import BookingDetails from "@/components/booking/booking-details";
-import RoomPricing from "@/components/booking/room-pricing";
-import RoomInfo from "@/components/booking/room-info";
 import { getRequest } from "@/services/api-instance";
-import { FALLBACK_URL, STATUS_CODE } from "@/constant/constants";
+import {
+  BOOKING_STATUS,
+  FALLBACK_URL,
+  PAYMENT_METHODS,
+  PAYMENT_STATUS,
+  STATUS_CODE,
+} from "@/constant/constants";
 import NoBookings from "@/components/account/no-bookings";
 import dayjs from "dayjs";
 import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
-import { getBookingStatusColor } from "@/utils/get-status-color";
+import {
+  getBookingStatusColor,
+  getPaymentStatusColor,
+} from "@/utils/get-status-color";
+import { formatDateTime, formatDateLocaleVi } from "@/utils/format-date";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import { renderBeds } from "@/utils/render-beds";
+import SingleBedIcon from "@mui/icons-material/SingleBed";
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
+import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
+import formatCurrency from "@/utils/format-currency";
+import { ZaloPayIcon } from "@/constant/icons";
+import Image from "next/image";
+import Link from "next/link";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 interface Booking {
   [key: string]: any;
 }
 
-const bookingFake = {
-  id: 85,
-  code: "20240603094050_6NGS4VGH",
-  customer_id: 21,
-  check_in: "2024-06-03T07:00:00.000Z",
-  check_out: "2024-06-04T05:00:00.000Z",
-  note: "",
-  total_room_price: 800000,
-  tax_and_fee: 160000,
-  status: "CANCELLED",
-  expires_at: "2024-06-03T02:50:50.261Z",
-  created_at: "2024-06-03T02:40:50.265Z",
-  updated_at: "2024-06-03T02:51:00.457Z",
-  roomBookings: [
-    {
-      id: 74,
-      room_id: 2,
-      booking_id: 85,
-      num_adults: 1,
-      num_children: 0,
-      children_ages: [],
-      base_price: 1000000,
-      surcharge: 0,
-      discount: 200000,
-      created_at: "2024-06-03T02:40:50.274Z",
-      updated_at: "2024-06-03T02:40:50.274Z",
-      room: {
-        id: 2,
-        room_type_id: 1,
-        number: "102",
-        description: "Standard Room with garden view.",
-        status: "AVAILABLE",
-        created_at: "2024-05-28T06:38:44.114Z",
-        updated_at: "2024-06-03T02:51:00.631Z",
-        roomType: {
-          id: 1,
-          hotel_id: 1,
-          name: "Standard Room",
-          description: "A cozy room with basic amenities.",
-          base_price: 1000000,
-          standard_occupant: 3,
-          max_children: 2,
-          max_occupant: 4,
-          max_extra_bed: 1,
-          views: ["city view"],
-          area: 30,
-          created_at: "2024-05-28T06:35:23.786Z",
-          updated_at: "2024-05-28T06:35:23.786Z",
-          hotel: {
-            id: 1,
-            name: "Hotel 1",
-            street: "123 ABC Street",
-            ward: "Ward 1",
-            district: "District 1",
-            province: "Hà Nội",
-            latitude: "10.1234",
-            longitude: "20.5678",
-            description: "Description of Hotel 1",
-            contact: "Contact 1",
-            created_at: "2024-05-28T06:28:30.869Z",
-            updated_at: "2024-05-28T06:28:30.869Z",
-            hotelImages: [
-              {
-                id: 15,
-                hotel_id: 1,
-                url: "http://localhost:9000/europetrip/hotels/1/1717238495385_6O6zy0DpRfPk89cP.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240603T025244Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=e61de91620dc81c3b4ed1bb49ce67a36218843fdfa9df63a591f0d004923c987",
-                caption: "Caption for image 1",
-                is_primary: true,
-                created_at: "2024-06-01T10:41:35.397Z",
-                updated_at: "2024-06-01T10:41:35.397Z",
-              },
-              {
-                id: 12,
-                hotel_id: 1,
-                url: "http://localhost:9000/europetrip/hotels/1/1717238479398_gNCEjUI17oIWQxRu.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240603T025244Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=07ccdbce4a70cd59be449bb393788b430313767442042cb5d0e0b71b88f7624e",
-                caption: "Caption for image 1",
-                is_primary: false,
-                created_at: "2024-06-01T10:41:19.454Z",
-                updated_at: "2024-06-01T10:41:35.400Z",
-              },
-              {
-                id: 1,
-                hotel_id: 1,
-                url: "http://localhost:9000/europetrip/hotels/1/1717091783502_ylokpTHyvaf9PBd8.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240603T025244Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=420cce57d14a9db11e0b0186db56b4f7e51c522cafb93fab11b45b8f974fe8b3",
-                caption: "Caption for image 1",
-                is_primary: false,
-                created_at: "2024-05-30T17:56:23.523Z",
-                updated_at: "2024-06-01T10:41:35.400Z",
-              },
-              {
-                id: 13,
-                hotel_id: 1,
-                url: "http://localhost:9000/europetrip/hotels/1/1717238479460_HFfXMPqEE2lLiiL8.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240603T025244Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=9cdba0c3c80468a715719411d49b851cc89c1b3d65badd07a0fb471cc1a9a63e",
-                caption: "Caption for image 2",
-                is_primary: false,
-                created_at: "2024-06-01T10:41:19.468Z",
-                updated_at: "2024-06-01T10:41:35.400Z",
-              },
-              {
-                id: 14,
-                hotel_id: 1,
-                url: "http://localhost:9000/europetrip/hotels/1/1717238479469_keUiY3w9nF9JoNyw.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minio%2F20240603%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240603T025244Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=517ddbfe6bf4855416232e6d5c297a2ee300d9e7390ec15d8d7a163440f53c5e",
-                caption: "Caption for image 3",
-                is_primary: false,
-                created_at: "2024-06-01T10:41:19.475Z",
-                updated_at: "2024-06-01T10:41:35.400Z",
-              },
-            ],
-          },
-        },
-      },
-    },
-  ],
-  customer: {
-    id: 21,
-    full_name: "Đỗ Hải Dương",
-    email: "haiduongtb2001@gmail.com",
-    password: "$2b$10$338ILf4GPmIDRloi9pbyf.V0./jdrI2hVKpo2j.BDe4mMjfq21Rdy",
-    gender: "MALE",
-    phone: "",
-    dob: "",
-    avatar: "1717319922621_w7yikXgH2sGbVKi1.jpg",
-    address: "",
-    location: "",
-    token:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjEsImVtYWlsIjoiaGFpZHVvbmd0YjIwMDFAZ21haWwuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzE3MjYyMTI0fQ.CzSl-0WKC7EUBPnEpFntfobA1S-WCig__oJB0--0HkA",
-    is_verified: true,
-    created_at: "2024-05-28T07:16:36.450Z",
-    updated_at: "2024-06-02T09:18:42.642Z",
-  },
-  translateStatus: "Đã hủy",
-  totalAdults: 1,
-  totalChildren: 0,
-  totalPrice: 960000,
-};
+export default function BookingDetails(props: any) {
+  const [booking, setBooking] = React.useState<Booking>({});
 
-export default function BookingDetail(props: any) {
-  const [booking, setBooking] = React.useState<Booking>(bookingFake);
+  const { booking_id } = props.params;
 
-  // const { booking_id } = props.params;
+  const initialLoad = React.useRef(true);
 
-  // const initialLoad = React.useRef(true);
+  const fetchBookingDetails = async () => {
+    try {
+      const response = await getRequest(
+        `/booking/${booking_id}/getBookingById`
+      );
 
-  // const fetchBookingDetails = async () => {
-  //   try {
-  //     const response = await getRequest(
-  //       `/booking/${booking_id}/getBookingById`
-  //     );
+      if (response && response.status === STATUS_CODE.OK) {
+        setBooking(response.data);
+      }
+    } catch (error: any) {
+      console.error(error.response?.data?.message || error.message);
+    }
+  };
 
-  //     if (response && response.status === STATUS_CODE.OK) {
-  //       setBooking(response.data);
-  //       // Set other necessary data such as roomInfo and numNights
-  //     }
-  //   } catch (error: any) {
-  //     console.error(error.response?.data?.message || error.message);
-  //   }
-  // };
-
-  // React.useEffect(() => {
-  //   if (initialLoad.current) {
-  //     initialLoad.current = false;
-  //     return;
-  //   }
-  //   fetchBookingDetails();
-  // }, [booking_id]);
+  React.useEffect(() => {
+    if (initialLoad.current) {
+      initialLoad.current = false;
+      return;
+    }
+    fetchBookingDetails();
+  }, [booking_id]);
 
   return (
-    <div>
-      <Box mx={10} my={4}>
-        <CustomizedBreadcrumbs
-          newBreadcrumbsData={[
-            {
-              href: "/account",
-              label: "Tài khoản",
-              icon: <PersonOutlineOutlinedIcon />,
-            },
-            {
-              label: "Đơn đặt phòng",
-              icon: <BorderColorOutlinedIcon />,
-            },
-          ]}
-        />
-
-        {booking ? (
+    <Box
+      sx={{
+        bgcolor: "background.paper",
+        py: 2,
+        px: 2,
+        my: 3,
+        mx: 10,
+        borderRadius: 1,
+      }}
+    >
+      <Box display="flex" justifyContent="flex-start" alignItems="center">
+        <Link href={"/account/my-booking"}>
           <Box
             sx={{
-              bgcolor: "background.paper",
-              p: 2,
-              my: 3,
-              borderRadius: 1,
+              color: "primary.main",
+              display: "flex",
+              alignItems: "center",
+              pb: "20px",
             }}
           >
-            <Grid container spacing={3}>
-              <Grid
-                item
-                xs={12}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Icon></Icon>
+            <Icon>
+              <ArrowBackIcon />
+            </Icon>
+            <Typography variant="body1">
+              &nbsp;Quay lại đơn đặt phòng
+            </Typography>
+          </Box>
+        </Link>
+      </Box>
+      {booking?.roomBookings?.length > 0 ? (
+        <Grid container spacing={3}>
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              p: 2,
+              mb: 2,
+            }}
+          >
+            <Grid
+              container
+              spacing={2}
+              sx={{
+                width: "calc(100% + 16px)",
+                margin: "-8px",
+              }}
+            >
+              <Grid item xs={12} sm={4} p={1}>
                 <Box
                   sx={{
                     display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: { xs: "100%", md: "30%" },
-                    mb: { xs: 2, md: 0 },
+                    padding: "10px 0 0 10px",
+                    position: "relative",
+                    minHeight: "80px",
+                    borderRadius: "8px",
+                    flexDirection: "column",
+                    bgcolor: "#F7FAFC",
                   }}
                 >
+                  <Typography variant="body1" pb={1}>
+                    Mã đặt phòng
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: "rgb(0, 182, 243)",
+                      fontSize: "18px",
+                      fontWeight: 600,
+                      lineHeight: "21px",
+                    }}
+                  >
+                    {booking.code}
+                  </Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={4} p={1}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    padding: "10px 0 0 10px",
+                    position: "relative",
+                    minHeight: "80px",
+                    borderRadius: "8px",
+                    flexDirection: "column",
+                    bgcolor: "#F7FAFC",
+                  }}
+                >
+                  <Typography variant="body1" pb={1}>
+                    Trạng thái
+                  </Typography>
                   <Chip
                     label={booking?.translateStatus}
                     color={getBookingStatusColor(booking?.status)}
                     sx={{
-                      width: "100%",
+                      width: "90%",
                       fontWeight: 700,
                     }}
                   />
                 </Box>
               </Grid>
+              <Grid item xs={12} sm={4} p={1}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    padding: "10px 0 0 10px",
+                    position: "relative",
+                    minHeight: "80px",
+                    borderRadius: "8px",
+                    flexDirection: "column",
+                    bgcolor: "#F7FAFC",
+                  }}
+                >
+                  <Typography variant="body1" pb={1}>
+                    Ngày đặt
+                  </Typography>
+                  <Typography variant="body1">
+                    {formatDateTime(new Date(booking.created_at))}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Grid>
 
-              <Grid item xs={12}>
-                {(() => {
-                  const hotelImages =
-                    booking?.roomBookings[0]?.room?.roomType?.hotel
-                      ?.hotelImages || [];
+          <Grid item xs={12}>
+            {(() => {
+              const hotel = booking?.roomBookings[0]?.room?.roomType?.hotel;
+              const hotelImages = hotel.hotelImages || [];
 
-                  const primaryImageUrl = hotelImages
-                    .filter((hotelImage: any) => hotelImage.is_primary === true)
-                    .map((hotelImage: any) => hotelImage.url)
-                    .find((url: string) => url);
+              const primaryImageUrl = hotelImages
+                .filter((hotelImage: any) => hotelImage.is_primary === true)
+                .map((hotelImage: any) => hotelImage.url)
+                .find((url: string) => url);
 
-                  const hotelAvatar =
-                    primaryImageUrl || FALLBACK_URL.HOTEL_NO_IMAGE;
+              const hotelAvatar =
+                primaryImageUrl || FALLBACK_URL.HOTEL_NO_IMAGE;
 
-                  const hotelName =
-                    booking?.roomBookings[0]?.room?.roomType?.hotel?.name ||
-                    "N/A";
-                  const hotelAddress =
-                    booking?.roomBookings[0]?.room?.roomType?.hotel?.address ||
-                    "N/A";
-                  const roomTypeName =
-                    booking?.roomBookings[0]?.room?.roomType?.name || "N/A";
-                  const numRooms = booking?.roomBookings?.length || 0;
+              const hotelName = hotel.name || "N/A";
+              const hotelAddress =
+                `${hotel.street}, ${hotel.ward}, ${hotel.district}, ${hotel.province}` ||
+                "N/A";
 
-                  return (
-                    <Box
+              return (
+                <Grid container spacing={2} mt={2} mb={2}>
+                  <Grid
+                    item
+                    xs={12}
+                    md={3}
+                    sx={{
+                      width: { xs: "150px", md: "100px" },
+                      height: { xs: "150px", md: "100px" },
+                      objectFit: "cover",
+                      borderRadius: 1,
+                      display: "flex",
+                      justifyContent: { xs: "center" },
+                      alignItems: "center",
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      src={hotelAvatar}
+                      alt={
+                        booking?.roomBookings[0]?.room?.roomType?.hotel?.name ||
+                        "Hotel Image"
+                      }
                       sx={{
-                        bgcolor: "background.paper",
-                        p: 2,
-                        mb: 2,
+                        width: { xs: "250px", md: "200px" },
+                        height: { xs: "250px", md: "200px" },
+                        objectFit: "cover",
                         borderRadius: 1,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={9}>
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="flex-start"
+                      alignItems="flex-start"
+                      ml={2}
                     >
-                      <Box display="flex">
-                        <div
-                          style={{
-                            borderRadius: "8px",
-                            overflow: "hidden",
-                            width: "64px",
-                            height: "64px",
-                          }}
-                        >
-                          <img
-                            src={hotelAvatar}
-                            alt={hotelName}
-                            style={{ width: "64px", height: "64px" }}
-                          />
-                        </div>
-                        <Box
-                          display="flex"
-                          flexDirection="column"
-                          justifyContent="center"
-                          alignItems="flex-start"
-                          ml={2}
-                        >
-                          <Typography variant="h6">{hotelName}</Typography>
-                          <Typography variant="body2">
-                            {hotelAddress}
-                          </Typography>
-                        </Box>
-                      </Box>
+                      <Typography variant="h6">{hotelName}</Typography>
+                      <Typography variant="body2">{hotelAddress}</Typography>
 
                       <Box my={3}>
-                        <Grid container spacing={2}>
-                          <Grid item xs={12} md={4}>
+                        <Grid container spacing={2} display={"flex"}>
+                          <Grid
+                            item
+                            xs={12}
+                            md={4}
+                            sx={{
+                              borderLeft: "2px solid",
+                              borderLeftColor: "primary.main",
+                              pt: "0px !important",
+                            }}
+                          >
                             <Box
                               display="flex"
                               flexDirection="column"
@@ -314,17 +280,41 @@ export default function BookingDetail(props: any) {
                               p={1}
                               borderRadius={1}
                             >
-                              <Typography variant="subtitle1">
+                              <Typography
+                                variant="subtitle1"
+                                sx={{
+                                  color: "neutral",
+                                  display: "flex",
+                                  lineHeight: "17px",
+                                  justifyContent: "space-between",
+                                  mb: 1,
+                                }}
+                              >
                                 Nhận phòng
                               </Typography>
-                              <Typography variant="body2">
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontSize: "14px",
+                                  fontWeight: 600,
+                                  lineHeight: "17px",
+                                }}
+                              >
                                 {dayjs(booking?.check_in).format("HH:mm")}{" "}
-                                &nbsp;{" "}
-                                {dayjs(booking?.check_in).format("DD-MM-YYYY")}
+                                &nbsp; {formatDateLocaleVi(booking?.check_in)}
                               </Typography>
                             </Box>
                           </Grid>
-                          <Grid item xs={12} md={4}>
+                          <Grid
+                            item
+                            xs={12}
+                            md={4}
+                            sx={{
+                              borderLeft: "2px solid",
+                              borderLeftColor: "primary.main",
+                              pt: "0px !important",
+                            }}
+                          >
                             <Box
                               display="flex"
                               flexDirection="column"
@@ -332,17 +322,41 @@ export default function BookingDetail(props: any) {
                               p={1}
                               borderRadius={1}
                             >
-                              <Typography variant="subtitle1">
+                              <Typography
+                                variant="subtitle1"
+                                sx={{
+                                  color: "neutral",
+                                  display: "flex",
+                                  lineHeight: "17px",
+                                  justifyContent: "space-between",
+                                  mb: 1,
+                                }}
+                              >
                                 Trả phòng
                               </Typography>
-                              <Typography variant="body2">
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontSize: "14px",
+                                  fontWeight: 600,
+                                  lineHeight: "17px",
+                                }}
+                              >
                                 {dayjs(booking?.check_out).format("HH:mm")}{" "}
-                                &nbsp;{" "}
-                                {dayjs(booking?.check_out).format("DD-MM-YYYY")}
+                                &nbsp; {formatDateLocaleVi(booking?.check_out)}
                               </Typography>
                             </Box>
                           </Grid>
-                          <Grid item xs={12} md={4}>
+                          <Grid
+                            item
+                            xs={12}
+                            md={4}
+                            sx={{
+                              borderLeft: "2px solid",
+                              borderLeftColor: "primary.main",
+                              pt: "0px !important",
+                            }}
+                          >
                             <Box
                               display="flex"
                               flexDirection="column"
@@ -350,10 +364,26 @@ export default function BookingDetail(props: any) {
                               p={1}
                               borderRadius={1}
                             >
-                              <Typography variant="subtitle1">
+                              <Typography
+                                variant="subtitle1"
+                                sx={{
+                                  color: "neutral",
+                                  display: "flex",
+                                  lineHeight: "17px",
+                                  justifyContent: "space-between",
+                                  mb: 1,
+                                }}
+                              >
                                 Số đêm
                               </Typography>
-                              <Typography variant="body2">
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontSize: "14px",
+                                  fontWeight: 600,
+                                  lineHeight: "17px",
+                                }}
+                              >
                                 {calculateNumberOfNights(
                                   booking?.check_in,
                                   booking?.check_out
@@ -363,40 +393,314 @@ export default function BookingDetail(props: any) {
                           </Grid>
                         </Grid>
                       </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+              );
+            })()}
+          </Grid>
 
-                      <Box display="flex" flexDirection="column">
-                        <Typography variant="subtitle1">Số phòng</Typography>
-                        <Box display="flex">
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "primary.main", fontWeight: "bold" }}
+          <Grid container spacing={2}>
+            <Grid item xs={3}></Grid>
+            <Grid item xs={9}>
+              {(() => {
+                const beds = booking?.roomBookings[0]?.room?.roomType?.beds;
+                const roomImages =
+                  booking?.roomBookings[0]?.room?.roomType?.roomImages || [];
+
+                const primaryImageUrl = roomImages
+                  .filter((roomImage: any) => roomImage.is_primary === true)
+                  .map((roomImage: any) => roomImage.url)
+                  .find((url: string) => url);
+
+                const fallbackUrl = FALLBACK_URL.HOTEL_NO_IMAGE;
+
+                const roomTypeAvatar = primaryImageUrl || fallbackUrl;
+
+                return (
+                  <Box p={2} mb={2}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={8}>
+                        <Box display="flex" flexDirection="column">
+                          <Box
+                            component="span"
+                            sx={{
+                              display: "inline-block",
+                              overflow: "hidden !important",
+                              maxWidth: "400px",
+                              textOverflow: "ellipsis",
+
+                              fontWeight: 600,
+                              lineHeight: "17px",
+                              pb: 1,
+                            }}
                           >
-                            {numRooms} x&nbsp;
-                          </Typography>
-                          <Typography variant="body2">
-                            {roomTypeName}
-                          </Typography>
+                            {booking?.roomBookings.length}x&nbsp;
+                            {booking?.roomBookings[0]?.room?.roomType?.name}
+                          </Box>
+                          <Box display="flex" alignItems="center">
+                            <PeopleAltIcon fontSize="small" />
+                            <Box
+                              component="span"
+                              sx={{
+                                fontSize: "12px",
+                                pl: 0.5,
+                              }}
+                            >
+                              {booking?.totalAdults} người lớn
+                              {booking?.totalChildren > 0 &&
+                                `, ${booking.totalChildren} trẻ em`}
+                            </Box>
+                          </Box>
+                          {beds?.length > 0 && (
+                            <Box display="flex" my={1}>
+                              <SvgIcon>
+                                <SingleBedIcon />
+                              </SvgIcon>
+                              {renderBeds({
+                                beds,
+                              })}
+                            </Box>
+                          )}
                         </Box>
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <CardMedia
+                          component="img"
+                          src={roomTypeAvatar}
+                          alt={
+                            booking?.roomBookings[0]?.room?.roomType?.name ||
+                            "Room Type Image"
+                          }
+                          sx={{
+                            width: "100%",
+                            height: "200px",
+                            objectFit: "cover",
+                            borderRadius: 1,
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
+                );
+              })()}
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={2}>
+            <Grid item xs={3}></Grid>
+            <Grid item xs={9}>
+              {(() => {
+                const customer = booking?.customer;
+
+                return (
+                  <Box display="flex" flexDirection="column" p={2} mb={2}>
+                    <Box
+                      component="span"
+                      sx={{
+                        display: "inline-block",
+                        overflow: "hidden !important",
+                        maxWidth: "400px",
+                        textOverflow: "ellipsis",
+
+                        fontWeight: 600,
+                        lineHeight: "17px",
+                        pb: 1,
+                      }}
+                    >
+                      Thông tin liên hệ
+                    </Box>
+                    <Box display="flex" alignItems="center" pt={1}>
+                      <PeopleAltIcon fontSize="small" />
+                      <Box
+                        component="span"
+                        sx={{
+                          fontSize: "12px",
+                          pl: 1,
+                        }}
+                      >
+                        {customer.full_name}
                       </Box>
                     </Box>
-                  );
-                })()}
-              </Grid>
-
-              {/* <Grid item xs={12} md={5}>
-              <RoomInfo roomInfo={roomInfo} booking={booking} />
-              <RoomPricing
-                numNights={numNights}
-                booking={booking}
-                roomInfo={roomInfo}
-              />
-            </Grid> */}
+                    <Box display="flex" alignItems="center" pt={1}>
+                      <AlternateEmailIcon fontSize="small" />
+                      <Box
+                        component="span"
+                        sx={{
+                          fontSize: "12px",
+                          pl: 1,
+                        }}
+                      >
+                        {customer.email}
+                      </Box>
+                    </Box>
+                    <Box display="flex" alignItems="center" pt={1}>
+                      <PhoneAndroidIcon fontSize="small" />
+                      <Box
+                        component="span"
+                        sx={{
+                          fontSize: "12px",
+                          pl: 1,
+                        }}
+                      >
+                        {customer.phone}
+                      </Box>
+                    </Box>
+                  </Box>
+                );
+              })()}
             </Grid>
-          </Box>
-        ) : (
-          <NoBookings />
-        )}
-      </Box>
-    </div>
+          </Grid>
+
+          <Grid container spacing={2}>
+            <Grid item xs={3}></Grid>
+            <Grid item xs={9}>
+              {(() => {
+                const checkIn = dayjs(booking.check_in).format("YYYY-MM-DD");
+                const checkOut = dayjs(booking.check_out).format("YYYY-MM-DD");
+
+                const numNights = calculateNumberOfNights(checkIn, checkOut);
+
+                return (
+                  <Box p={2} mb={2}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Box display="flex" flexDirection="column">
+                          <Box display="flex" alignItems="center">
+                            <Typography variant="h6">Tổng tiền</Typography>
+                          </Box>
+                          <Typography variant="body2">
+                            Đã bao gồm thuế, phí, VAT
+                          </Typography>
+                        </Box>
+                        <Typography variant="h6">
+                          {formatCurrency(booking.totalPrice)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography variant="body1">
+                          {booking?.roomBookings?.length} phòng x {numNights}{" "}
+                          đêm
+                        </Typography>
+                        <Typography variant="body1">
+                          {formatCurrency(booking.total_room_price)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography variant="body1">
+                          Thuế và phí dịch vụ của khách sạn
+                        </Typography>
+                        <Typography variant="body1">
+                          {formatCurrency(booking.tax_and_fee)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                );
+              })()}
+            </Grid>
+          </Grid>
+
+          {booking?.payment && (
+            <Grid container spacing={2}>
+              <Grid item xs={3}></Grid>
+              <Grid item xs={9}>
+                <Box p={2} mb={2}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    mb={2}
+                  >
+                    <Typography variant="subtitle1">
+                      Phương thức thanh toán
+                    </Typography>
+                    <Icon sx={{ mr: 2 }}>
+                      {booking?.payment.paymentMethod.code ===
+                        PAYMENT_METHODS.ZALOPAY && <ZaloPayIcon />}
+                    </Icon>
+                  </Box>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    mb={2}
+                  >
+                    <Typography variant="subtitle1">Trạng thái</Typography>
+
+                    <Chip
+                      label={booking?.payment?.translateStatus}
+                      color={getPaymentStatusColor(booking?.payment?.status)}
+                      sx={{
+                        width: "auto",
+                        fontWeight: 700,
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Grid>
+            </Grid>
+          )}
+
+          {booking?.status === BOOKING_STATUS.CONFIRMED &&
+            booking?.payment?.status === PAYMENT_STATUS.COMPLETED && (
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Button variant="contained" color="inherit">
+                      Hủy đặt phòng
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            )}
+        </Grid>
+      ) : (
+        <NoBookings />
+      )}
+    </Box>
   );
 }

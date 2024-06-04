@@ -21,6 +21,8 @@ interface SearchResultProps {
   checkIn: Dayjs;
   checkOut: Dayjs;
   numAdults: number;
+  numChildren: number;
+  childrenAges: any[];
   numRooms: number;
   hotelSearchResults: { [key: string]: any };
 }
@@ -34,6 +36,8 @@ const SearchResult: FC<SearchResultProps> = ({
   checkIn = dayjs(),
   checkOut = dayjs().add(1, "day"),
   numAdults = 1,
+  numChildren = 0,
+  childrenAges = [],
   numRooms = 1,
   hotelSearchResults = {},
 }) => {
@@ -49,6 +53,8 @@ const SearchResult: FC<SearchResultProps> = ({
       checkIn: formattedCheckIn,
       checkOut: formattedCheckOut,
       numAdults: String(numAdults),
+      numChildren: String(numChildren),
+      childrenAges: String(childrenAges),
       numRooms: String(numRooms),
     }).toString();
 

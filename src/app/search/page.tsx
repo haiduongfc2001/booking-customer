@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { Box, Button } from "@mui/material";
-import SearchBar from "@/components/search/search-hotel";
+import SearchHotel from "@/components/search/search-hotel";
 import dayjs from "dayjs";
 import SearchResult from "@/components/search/search-result";
 import PriceFilter from "@/components/search/filter/filter-hotel";
@@ -31,7 +31,13 @@ export default function Search(props: any) {
     checkOut = dayjs(checkIn).add(1, "day").format("YYYY-MM-DD"),
     numRooms = 1,
     numAdults = 1,
+    numChildren = 0,
+    childrenAges = [],
   } = props.searchParams;
+
+  const childrenAgesArray: number[] = childrenAges
+    .split(",")
+    .map((age: string) => Number(age));
 
   React.useEffect(() => {
     const fetchHotels = async () => {
@@ -43,8 +49,9 @@ export default function Search(props: any) {
         check_in: checkIn,
         check_out: checkOut,
         num_adults: numAdults,
-        num_children: 0,
+        num_children: numChildren,
         num_rooms: numRooms,
+        children_ages: childrenAgesArray,
         filters: {
           price_range: priceRange,
           amenities: selectedAmenities,
@@ -73,6 +80,8 @@ export default function Search(props: any) {
     checkIn,
     checkOut,
     numAdults,
+    numChildren,
+    childrenAges,
     numRooms,
     priceRange,
     selectedAmenities,
@@ -135,11 +144,13 @@ export default function Search(props: any) {
           alignItems: "center",
         }}
       >
-        <SearchBar
+        <SearchHotel
           location={location}
           checkIn={dayjs(checkIn)}
           checkOut={dayjs(checkOut)}
           numAdults={numAdults}
+          numChildren={numChildren}
+          childrenAges={childrenAgesArray}
           numRooms={numRooms}
         />
       </Box>
@@ -191,6 +202,8 @@ export default function Search(props: any) {
             checkIn={dayjs(checkIn)}
             checkOut={dayjs(checkOut)}
             numAdults={numAdults}
+            numChildren={numChildren}
+            childrenAges={childrenAgesArray}
             numRooms={numRooms}
             hotelSearchResults={hotelSearchResults}
           />

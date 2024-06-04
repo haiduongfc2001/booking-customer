@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import "dayjs/locale/vi"; // Import locale Vietnamese
 
 export const formatDate = (date: Date | number = new Date()) => {
   if (typeof date === "number") {
@@ -36,4 +37,20 @@ export const formatDateLocaleVi = (date: string): string => {
   );
 
   return formattedDateCapitalized;
+};
+
+export const formatDateTime = (
+  date: Date | string | number,
+  format: string = "DD/MM/YYYY HH:mm:ss"
+): string => {
+  let parsedDate;
+  if (typeof date === "number") {
+    parsedDate = dayjs(date);
+  } else if (typeof date === "string") {
+    parsedDate = dayjs(date, "DD/MM/YYYY HH:mm:ss");
+  } else {
+    parsedDate = dayjs(date);
+  }
+
+  return parsedDate.format(format);
 };

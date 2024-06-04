@@ -5,10 +5,12 @@ import dayjs, { Dayjs } from "dayjs";
 import {
   Box,
   Button,
-  ClickAwayListener,
+  FormControl,
   Grid,
   IconButton,
   InputAdornment,
+  MenuItem,
+  Select,
   Stack,
   TextField,
   Typography,
@@ -31,14 +33,20 @@ interface SearchHotelProps {
   checkIn: Dayjs;
   checkOut: Dayjs;
   numAdults: number;
+  numChildren: number;
+  childrenAges: number[];
   numRooms: number;
 }
+
+const ageOptions = Array.from({ length: 17 }, (_, i) => i + 1);
 
 const SearchHotel: FC<SearchHotelProps> = ({
   location = "",
   checkIn = dayjs(),
   checkOut = dayjs().add(1, "day"),
   numAdults = 1,
+  numChildren = 0,
+  childrenAges = [],
   numRooms = 1,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
@@ -51,7 +59,10 @@ const SearchHotel: FC<SearchHotelProps> = ({
     checkIn,
     checkOut,
     numAdults,
+    numChildren,
+    childrenAges,
     numRooms,
+    summit: null,
   };
 
   const open = Boolean(anchorEl);
@@ -73,16 +84,40 @@ const SearchHotel: FC<SearchHotelProps> = ({
       checkOut: Yup.date().required("Vui lòng chọn ngày về!"),
       // .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
       numAdults: Yup.number()
-        .min(1, "Số lượng người tối thiểu phải là 1!")
+        .min(1, "Số lượng người lớn tối thiểu phải là 1!")
+        .test({
+          name: "roomCheck",
+          message: "Số người lớn ở ít nhất phải bằng số phòng!",
+          test: function (value) {
+            const numRooms = this.parent.numRooms as number;
+            return typeof value === "number" && value >= numRooms;
+          },
+        })
         .required("Vui lòng chọn số lượng người!"),
+      numChildren: Yup.number()
+        .min(0, "Số lượng người tối thiểu phải là 0!")
+        .required("Vui lòng chọn số lượng trẻ em!"),
       numRooms: Yup.number()
         .min(1, "Số lượng phòng tối thiểu phải là 1!")
         .required("Vui lòng chọn số lượng phòng!"),
+      // childrenAges: Yup.array().of(
+      //   Yup.number()
+      //     .min(1, "Tuổi trẻ em phải từ 1 đến 17!")
+      //     .max(17, "Tuổi trẻ em phải từ 1 đến 17!")
+      // ),
     }),
 
     onSubmit: async (values, helpers) => {
       try {
-        const { location, checkIn, checkOut, numAdults, numRooms } = values;
+        const {
+          location,
+          checkIn,
+          checkOut,
+          numAdults,
+          numChildren,
+          childrenAges,
+          numRooms,
+        } = values;
 
         const formattedCheckIn = checkIn.format("YYYY-MM-DD");
         const formattedCheckOut = checkOut.format("YYYY-MM-DD");
@@ -92,6 +127,8 @@ const SearchHotel: FC<SearchHotelProps> = ({
           checkIn: formattedCheckIn,
           checkOut: formattedCheckOut,
           numAdults: String(numAdults),
+          numChildren: String(numChildren),
+          childrenAges: childrenAges.join(","),
           numRooms: String(numRooms),
         }).toString();
 
@@ -108,24 +145,58 @@ const SearchHotel: FC<SearchHotelProps> = ({
     formik.setFieldValue(field, newValue);
   };
 
-  const handleSubPerson = () => {
-    if (formik.values.numAdults <= 1) return;
-    updateFieldValue("numAdults", formik.values.numAdults - 1);
+  const handleSubAdult = () => {
+    if (Number(formik.values.numAdults) > Number(formik.values.numRooms)) {
+      updateFieldValue("numAdults", Number(formik.values.numAdults) - 1);
+    } else if (
+      Number(formik.values.numAdults) === Number(formik.values.numRooms)
+    ) {
+      updateFieldValue("numAdults", Number(formik.values.numAdults) - 1);
+      updateFieldValue("numRooms", Number(formik.values.numRooms) - 1);
+    } else {
+      return;
+    }
   };
 
-  const handleAddPerson = () => {
-    if (formik.values.numAdults < 1) return;
-    updateFieldValue("numAdults", formik.values.numAdults + 1);
+  const handleAddAdult = () => {
+    if (Number(formik.values.numAdults) < 1) return;
+    updateFieldValue("numAdults", Number(formik.values.numAdults) + 1);
+  };
+
+  const handleSubChildren = () => {
+    if (formik.values.numChildren <= 0) return;
+    updateFieldValue("numChildren", formik.values.numChildren - 1);
+    updateFieldValue(
+      "childrenAges",
+      formik.values.childrenAges.slice(0, formik.values.numChildren - 1)
+    );
+  };
+
+  const handleAddChildren = () => {
+    updateFieldValue("numChildren", formik.values.numChildren + 1);
+    updateFieldValue("childrenAges", [...formik.values.childrenAges, 1]);
   };
 
   const handleSubRoom = () => {
-    if (formik.values.numRooms <= 1) return;
-    updateFieldValue("numRooms", formik.values.numRooms - 1);
+    if (Number(formik.values.numRooms) <= 1) {
+      return;
+    } else {
+      updateFieldValue("numRooms", Number(formik.values.numRooms) - 1);
+      if (formik.values.numAdults < Number(formik.values.numRooms)) {
+        updateFieldValue("numAdults", Number(formik.values.numRooms));
+      }
+    }
   };
 
   const handleAddRoom = () => {
-    if (formik.values.numRooms < 1) return;
-    updateFieldValue("numRooms", formik.values.numRooms + 1);
+    if (Number(formik.values.numRooms) < 1) {
+      return;
+    } else {
+      updateFieldValue("numRooms", Number(formik.values.numRooms) + 1);
+      if (formik.values.numAdults <= Number(formik.values.numRooms)) {
+        updateFieldValue("numAdults", Number(formik.values.numAdults) + 1);
+      }
+    }
   };
 
   const handleCheckInChange = (newValue: Dayjs | null) => {
@@ -142,6 +213,12 @@ const SearchHotel: FC<SearchHotelProps> = ({
     if (newValue) {
       updateFieldValue("checkOut", newValue);
     }
+  };
+
+  const handleChildrenAgeChange = (index: number, age: number) => {
+    const updatedChildrenAges = [...formik.values.childrenAges];
+    updatedChildrenAges[index] = age;
+    updateFieldValue("childrenAges", updatedChildrenAges);
   };
 
   return (
@@ -186,7 +263,7 @@ const SearchHotel: FC<SearchHotelProps> = ({
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={2.5}>
+        <Grid item xs={12} sm={6} md={2}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Ngày đến"
@@ -210,7 +287,8 @@ const SearchHotel: FC<SearchHotelProps> = ({
             />
           </LocalizationProvider>
         </Grid>
-        <Grid item xs={12} sm={6} md={2.5}>
+
+        <Grid item xs={12} sm={6} md={2}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label="Ngày về"
@@ -235,38 +313,54 @@ const SearchHotel: FC<SearchHotelProps> = ({
           </LocalizationProvider>
         </Grid>
 
-        <Grid item xs={12} md={2.5}>
-          <ClickAwayListener onClickAway={handleClose}>
-            <div>
-              <Button
-                variant="contained"
-                color="inherit"
-                onClick={handleClick}
-                sx={{
-                  bgcolor: "background.paper",
-                  width: "100%",
-                  boxShadow: 1,
-                  p: 1,
-                  display: "flex",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
-                }}
-              >
-                <PersonIcon sx={{ fontSize: 28, color: "primary.main" }} />
-                <Stack direction="column" pl={1} alignItems="flex-start">
+        <Grid item xs={12} md={3.5}>
+          <div>
+            <Button
+              variant="contained"
+              color="inherit"
+              onClick={handleClick}
+              sx={{
+                bgcolor: "background.paper",
+                width: "100%",
+                boxShadow: 1,
+                p: 1,
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+              }}
+            >
+              <PersonIcon sx={{ fontSize: 28, color: "primary.main" }} />
+              <Stack direction="column" pl={1} alignItems="flex-start">
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems={"center"}
+                >
                   <Typography
                     variant="h6"
                     color="textPrimary"
                     fontSize="16px"
                     fontWeight="600"
                   >
-                    {formik.values.numAdults} người
+                    {formik.values.numAdults} người lớn
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {formik.values.numRooms} phòng
-                  </Typography>
-                </Stack>
-              </Button>
+                  {formik.values.numChildren > 0 && (
+                    <Typography
+                      variant="h6"
+                      color="textPrimary"
+                      fontSize="16px"
+                      fontWeight="600"
+                    >
+                      , {formik.values.numChildren} trẻ em
+                    </Typography>
+                  )}
+                </Box>
+                <Typography variant="body2" color="textSecondary">
+                  {formik.values.numRooms} phòng
+                </Typography>
+              </Stack>
+            </Button>
+            {open && (
               <Popover
                 id={id}
                 open={open}
@@ -280,11 +374,12 @@ const SearchHotel: FC<SearchHotelProps> = ({
                   vertical: "top",
                   horizontal: "left",
                 }}
+                sx={{ width: "auto" }}
               >
                 <Box sx={{ p: 2 }}>
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Typography variant="subtitle1" minWidth="100px">
-                      Số người
+                      Số người lớn
                     </Typography>
                     <IconButton
                       size="small"
@@ -304,7 +399,7 @@ const SearchHotel: FC<SearchHotelProps> = ({
                         },
                       }}
                       disabled={formik.values.numAdults <= 1}
-                      onClick={handleSubPerson}
+                      onClick={handleSubAdult}
                     >
                       <RemoveIcon />
                     </IconButton>
@@ -325,11 +420,103 @@ const SearchHotel: FC<SearchHotelProps> = ({
                           background: "rgb(237, 240, 249)",
                         },
                       }}
-                      onClick={handleAddPerson}
+                      onClick={handleAddAdult}
                     >
                       <AddIcon />
                     </IconButton>
                   </Stack>
+
+                  <Stack direction="row" spacing={2} alignItems="center" mt={1}>
+                    <Typography variant="subtitle1" minWidth="100px">
+                      Số trẻ em
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      sx={{
+                        width: "28px",
+                        height: "28px",
+                        border: "1px solid",
+                        color:
+                          formik.values.numChildren > 0
+                            ? "primary.main"
+                            : "inherit",
+                        borderColor: "rgb(168, 179, 203)",
+                        borderRadius: "50%",
+                        cursor: "pointer",
+                        "&:hover": {
+                          background: "rgb(237, 240, 249)",
+                        },
+                      }}
+                      disabled={formik.values.numChildren <= 0}
+                      onClick={handleSubChildren}
+                    >
+                      <RemoveIcon />
+                    </IconButton>
+                    <Typography variant="h6">
+                      {formik.values.numChildren}
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      sx={{
+                        width: "28px",
+                        height: "28px",
+                        color: "primary.main",
+                        border: "1px solid",
+                        borderColor: "rgb(168, 179, 203)",
+                        borderRadius: "50%",
+                        cursor: "pointer",
+                        "&:hover": {
+                          background: "rgb(237, 240, 249)",
+                        },
+                      }}
+                      onClick={handleAddChildren}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Stack>
+
+                  {formik.values.numChildren > 0 &&
+                    formik.values.childrenAges.length > 0 && (
+                      <Box mt={2}>
+                        {formik.values.childrenAges?.map(
+                          (age: number, index: number) => (
+                            <Stack
+                              direction="row"
+                              spacing={2}
+                              alignItems="center"
+                              key={index}
+                              mt={1}
+                            >
+                              <Typography variant="subtitle1" minWidth="100px">
+                                Tuổi trẻ {index + 1}
+                              </Typography>
+                              <FormControl fullWidth>
+                                <Select
+                                  labelId={`age-select-label-${index}`}
+                                  id={`age-select-${index}`}
+                                  value={age}
+                                  label="Age"
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onChange={(e) =>
+                                    handleChildrenAgeChange(
+                                      index,
+                                      Number(e.target.value)
+                                    )
+                                  }
+                                >
+                                  {ageOptions.map((option) => (
+                                    <MenuItem key={option} value={option}>
+                                      {option}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
+                            </Stack>
+                          )
+                        )}
+                      </Box>
+                    )}
+
                   <Stack direction="row" spacing={2} alignItems="center" mt={1}>
                     <Typography variant="subtitle1" minWidth="100px">
                       Số phòng
@@ -380,8 +567,8 @@ const SearchHotel: FC<SearchHotelProps> = ({
                   </Stack>
                 </Box>
               </Popover>
-            </div>
-          </ClickAwayListener>
+            )}
+          </div>
         </Grid>
 
         <Grid item xs={12} md={2}>
@@ -400,12 +587,6 @@ const SearchHotel: FC<SearchHotelProps> = ({
             Tìm
           </Button>
         </Grid>
-
-        {/* {formik.errors.submit && (
-          <Typography color="error" sx={{ mt: 3 }} variant="body2">
-            {formik.errors.submit}
-          </Typography>
-        )} */}
       </Grid>
     </Box>
   );
