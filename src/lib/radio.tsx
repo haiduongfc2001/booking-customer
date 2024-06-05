@@ -69,13 +69,13 @@ export default function CustomizedRadios() {
     <FormControl>
       <FormLabel id="demo-customized-radios">Gender</FormLabel>
       <RadioGroup
-        defaultValue="female"
+        defaultValue="FEMALE"
         aria-labelledby="demo-customized-radios"
         name="customized-radios"
       >
-        <FormControlLabel value="female" control={<BpRadio />} label="Female" />
-        <FormControlLabel value="male" control={<BpRadio />} label="Male" />
-        <FormControlLabel value="other" control={<BpRadio />} label="Other" />
+        <FormControlLabel value="FEMALE" control={<BpRadio />} label="FeMALE" />
+        <FormControlLabel value="MALE" control={<BpRadio />} label="Male" />
+        <FormControlLabel value="OTHER" control={<BpRadio />} label="Other" />
         <FormControlLabel
           value="disabled"
           disabled

@@ -716,9 +716,9 @@ export default function UpdateBookingStatus(props: any) {
           alignItems: "center",
         }}
       >
-        <Link href={"/"}>
+        <Link href={"/account/my-booking"}>
           <Button variant="contained" color="primary">
-            Quay lại trang chủ
+            Đơn đặt phòng của tôi
           </Button>
         </Link>
       </Box>

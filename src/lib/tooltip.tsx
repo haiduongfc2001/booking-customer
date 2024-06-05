@@ -59,7 +59,7 @@ const CustomizedTooltip: React.FC<CustomizedTooltipProps> = ({
         },
       }}
     >
-      <div>{content}</div>
+      <div style={{ cursor: "pointer" }}>{content}</div>
     </StyledTooltip>
   );
 };

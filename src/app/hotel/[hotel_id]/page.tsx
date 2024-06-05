@@ -477,6 +477,7 @@ export default function HotelDetail(props: any) {
                         Đánh giá
                       </Typography>
                       <Box display="flex" justifyContent="space-between" mt={2}>
+                        {/* {hotelData?.} */}
                         <Box
                           sx={{
                             width: 160,
@@ -605,36 +606,38 @@ export default function HotelDetail(props: any) {
                           mt: "12px",
                         }}
                       >
-                        {amenitiesData?.map((amenity) => (
-                          <Box
-                            key={amenity.id}
-                            sx={{
-                              width: isMd ? "50%" : "33.33%",
-                              display: "flex",
-                              p: "12px 7px",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <CheckCircleOutlineIcon
-                              sx={{ color: "primary.main" }}
-                            />
+                        {hotelData?.hotelAmenities?.map(
+                          (amenity: { [key: string]: any }) => (
                             <Box
-                              component="span"
+                              key={amenity?.id}
                               sx={{
-                                display: "-webkit-box",
-                                overflow: "hidden",
-                                minWidth: "85px",
-                                textAlign: "center",
-                                WebkitBoxOrient: "vertical",
-                                WebkitLineClamp: 2,
-                                ml: 0.5,
+                                width: isMd ? "50%" : "33.33%",
+                                display: "flex",
+                                p: "12px 7px",
+                                alignItems: "center",
+                                justifyContent: "center",
                               }}
                             >
-                              {amenity.name}
+                              <CheckCircleOutlineIcon
+                                sx={{ color: "primary.main" }}
+                              />
+                              <Box
+                                component="span"
+                                sx={{
+                                  display: "-webkit-box",
+                                  overflow: "hidden",
+                                  minWidth: "85px",
+                                  textAlign: "center",
+                                  WebkitBoxOrient: "vertical",
+                                  WebkitLineClamp: 2,
+                                  ml: 0.5,
+                                }}
+                              >
+                                {amenity?.amenity}
+                              </Box>
                             </Box>
-                          </Box>
-                        ))}
+                          )
+                        )}
                       </Box>
                     </Box>
                   </Grid>

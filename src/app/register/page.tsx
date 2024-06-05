@@ -21,11 +21,11 @@ import {
 } from "@mui/material";
 import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { API } from "@/constant/constants";
+import { API, STATUS_CODE } from "@/constant/constants";
 import CircularProgress from "@mui/material/CircularProgress";
-import axios from "axios";
 import CustomizedSnackbars from "@/lib/snackbar";
 import { useRouter } from "next/navigation";
+import { postRequest } from "@/services/api-instance";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -74,7 +74,7 @@ export default function RegisterPage() {
         .required("Vui lòng nhập địa chỉ email!"),
       full_name: Yup.string().max(255).required("Vui lòng nhập họ và tên!"),
       gender: Yup.mixed()
-        .oneOf(["male", "female", "other"])
+        .oneOf(["MALE", "FEMALE", "OTHER"])
         .required("Vui lòng nhập giới tính của bạn!"),
       password: Yup.string()
         .min(6, "Mật khẩu phải có ít nhất 6 ký tự!")
@@ -94,41 +94,36 @@ export default function RegisterPage() {
         const { email, full_name, gender, password } = values;
         setIsLoading(true);
 
-        axios
-          .post(API.CUSTOMER.REGISTER, {
-            email,
-            full_name,
-            gender,
-            password,
-          })
-          .then(function (response) {
-            formik.resetForm();
-            setSnackbar({
-              open: true,
-              message: response.data.message,
-              severity: "success",
-            });
+        const response = await postRequest(API.CUSTOMER.REGISTER, {
+          email,
+          full_name,
+          gender,
+          password,
+        });
 
-            const timeout = setTimeout(() => {
-              router.push("/account/verify");
-            }, 3000);
-
-            return () => clearTimeout(timeout);
-          })
-          .catch(function (error) {
-            setSnackbar({
-              open: true,
-              message: error.response.data.message,
-              severity: "error",
-            });
-          })
-          .finally(function () {
-            setIsLoading(false);
+        if (response && response.status === STATUS_CODE.CREATED) {
+          formik.resetForm();
+          setSnackbar({
+            open: true,
+            message: response.message || "",
+            severity: "success",
           });
-      } catch (err: any) {
+
+          setTimeout(() => {
+            router.push("/account/verify");
+          }, 3000);
+        }
+      } catch (error: any) {
         helpers.setStatus({ success: false });
-        helpers.setErrors({ submit: err.message });
+        helpers.setErrors({ submit: error.message });
         helpers.setSubmitting(false);
+        setSnackbar({
+          open: true,
+          message: error.response?.data?.message || error.message,
+          severity: "error",
+        });
+      } finally {
+        setIsLoading(false);
       }
     },
   });
@@ -146,35 +141,6 @@ export default function RegisterPage() {
       return () => clearTimeout(timeout);
     }
   }, [snackbar.open]);
-
-  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const { data, error } = useCustomAPI(API.CUSTOMER.REGISTER, {
-  //       method: "POST",
-  //       body: JSON.stringify({
-  //         email: formik.values.email,
-  //         full_name: formik.values.full_name,
-  //         gender: formik.values.gender,
-  //         password: formik.values.password,
-  //       }),
-  //     });
-
-  //     if (error) {
-  //       // Handle API errors here, e.g., display an error message to the user
-  //       console.error("API error:", error);
-  //       return; // or set formik status to error
-  //     }
-
-  //     if (data) {
-  //       alert(data.message);
-  //     }
-  //   } catch (err) {
-  //     console.error("Error submitting form:", err);
-  //     // Handle other errors here, e.g., display an error message to the user
-  //   }
-  // };
 
   return (
     <Box
@@ -276,17 +242,17 @@ export default function RegisterPage() {
                     onChange={formik.handleChange}
                   >
                     <FormControlLabel
-                      value="male"
+                      value="MALE"
                       control={<Radio />}
                       label="Nam"
                     />
                     <FormControlLabel
-                      value="female"
+                      value="FEMALE"
                       control={<Radio />}
                       label="Nữ"
                     />
                     <FormControlLabel
-                      value="other"
+                      value="OTHER"
                       control={<Radio />}
                       label="Khác"
                     />

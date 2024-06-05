@@ -30,7 +30,7 @@ const AccountManagement: FC<IAccountManagement> = () => {
     initialValues: {
       email: userInfo.email,
       full_name: userInfo.name,
-      gender: "male",
+      gender: "MALE",
       submit: null,
     },
     validationSchema: Yup.object({
@@ -40,7 +40,7 @@ const AccountManagement: FC<IAccountManagement> = () => {
         .required("Vui lòng nhập địa chỉ email!"),
       full_name: Yup.string().max(255).required("Vui lòng nhập họ và tên!"),
       gender: Yup.mixed()
-        .oneOf(["male", "female", "other"])
+        .oneOf(["MALE", "FEMALE", "OTHER"])
         .required("Vui lòng nhập giới tính của bạn!"),
     }),
     onSubmit: async (values, helpers) => {
@@ -226,17 +226,17 @@ const AccountManagement: FC<IAccountManagement> = () => {
                     onChange={formik.handleChange}
                   >
                     <FormControlLabel
-                      value="male"
+                      value="MALE"
                       control={<Radio />}
                       label="Nam"
                     />
                     <FormControlLabel
-                      value="female"
+                      value="FEMALE"
                       control={<Radio />}
                       label="Nữ"
                     />
                     <FormControlLabel
-                      value="other"
+                      value="OTHER"
                       control={<Radio />}
                       label="Khác"
                     />

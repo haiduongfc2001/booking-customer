@@ -58,7 +58,7 @@ const RegisterPage = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        setIsLoading(false);
+        setIsLoading(true);
 
         const { email, password } = values;
 
@@ -96,7 +96,7 @@ const RegisterPage = () => {
         helpers.setErrors({ submit: err.message });
         helpers.setSubmitting(false);
       } finally {
-        setIsLoading(false);
+        // setIsLoading(false);
       }
     },
   });

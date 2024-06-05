@@ -4,10 +4,18 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Popover from "@mui/material/Popover";
 
-const RoomAmenitiesList = ({ roomAmenities }: { roomAmenities: string[] }) => {
+const RoomAmenitiesList = ({
+  roomTypeAmenities = [],
+}: {
+  roomTypeAmenities: { [key: string]: any }[];
+}) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-  const amenitiesToShow = roomAmenities.slice(0, 6);
-  const remainingAmenitiesCount = roomAmenities.length - amenitiesToShow.length;
+  const amenitiesToShow: string[] = roomTypeAmenities
+    ?.slice(0, 6)
+    .map((roomTypeAmenity) => roomTypeAmenity.amenity);
+
+  const remainingAmenitiesCount =
+    roomTypeAmenities.length - amenitiesToShow.length;
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -20,7 +28,7 @@ const RoomAmenitiesList = ({ roomAmenities }: { roomAmenities: string[] }) => {
   const open = Boolean(anchorEl);
 
   return (
-    <Box sx={{ m: "-3px", display: "flex", flexWrap: "wrap" }}>
+    <Box sx={{ my: 2, mx: "4px", display: "flex", flexWrap: "wrap" }}>
       {amenitiesToShow.map((amenity, index) => (
         <Box
           key={index}
@@ -88,9 +96,9 @@ const RoomAmenitiesList = ({ roomAmenities }: { roomAmenities: string[] }) => {
                 flexWrap: "wrap",
               }}
             >
-              {roomAmenities?.map((amenity, index) => (
+              {roomTypeAmenities?.map((amenity: { [key: string]: any }) => (
                 <Box
-                  key={index}
+                  key={amenity.id}
                   sx={{
                     m: "3px",
                     p: "5px 8px",
@@ -101,7 +109,7 @@ const RoomAmenitiesList = ({ roomAmenities }: { roomAmenities: string[] }) => {
                     bgcolor: "#EDF2F7",
                   }}
                 >
-                  {amenity}
+                  {amenity.amenity}
                 </Box>
               ))}
             </Box>

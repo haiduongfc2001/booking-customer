@@ -4,6 +4,7 @@ module.exports = {
     GOONG_MAP_KEY: process.env.GOONG_MAP_KEY,
   },
   images: {
+    domains: ["127.0.0.1"],
     remotePatterns: [
       {
         protocol: "https",

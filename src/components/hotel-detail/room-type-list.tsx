@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import formatCurrency from "@/utils/format-currency";
-import { filterRoom, roomAmenities, roomBenefits } from "../../utils/data";
+import { filterRoom } from "../../utils/data";
 import TuneIcon from "@mui/icons-material/Tune";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import RoomAmenitiesList from "@/components/hotel-detail/room-amenities-list";
@@ -28,6 +28,7 @@ import LastPrice from "./last-price";
 import { useRouter } from "next/navigation";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { FALLBACK_URL } from "@/constant/constants";
+import { sortSurchargeRates, extractSurchargeValues } from "@/utils/surcharge";
 
 interface RoomTypeListProps {
   hotelData: { [key: string]: any };
@@ -53,6 +54,128 @@ interface CustomerRequest {
   childrenAges: number[];
   hotelId: number;
 }
+
+type Benefit = {
+  contentTooltip: string;
+  titleTooltip?: React.JSX.Element;
+};
+
+const roomBenefits = (
+  room_type: { [key: string]: any },
+  hotelData: { [key: string]: any }
+): Benefit[] => {
+  const surchargePolicy = hotelData.policies.find(
+    (policy: any) => policy.type === "SURCHARGE_RATES"
+  );
+  let surchargeRates: { [key: string]: number } | null = null;
+
+  if (surchargePolicy) {
+    surchargeRates = JSON.parse(surchargePolicy.value);
+  }
+
+  const sortedSurchargeKeys = sortSurchargeRates(surchargeRates || {});
+  const {
+    freeChildAge,
+    freeChildMaxAge,
+    nextChildRange,
+    nextChildStartAge,
+    nextChildEndAge,
+    adultAge,
+    adultStartAge,
+    adultRate,
+  } = extractSurchargeValues(sortedSurchargeKeys, surchargeRates || {});
+
+  const benefits: Benefit[] = [
+    {
+      contentTooltip: "Hoàn huỷ một phần",
+      titleTooltip: (
+        <ul style={{ paddingLeft: 10 }}>
+          <li>
+            Quý khách sẽ được hoàn tiền 100% nếu hủy đặt phòng trước 5 ngày so
+            với ngày nhận phòng.
+          </li>
+          <li>
+            Quý khách sẽ được hoàn tiền 50% nếu hủy đặt phòng trước 3 ngày so
+            với ngày nhận phòng.
+          </li>
+          <li>Các trường hợp hủy sau thời hạn trên sẽ không được hoàn tiền.</li>
+        </ul>
+      ),
+    },
+    {
+      contentTooltip: "Chính sách đặt phòng & phụ thu",
+      titleTooltip: (
+        <span>
+          <p>Trẻ em lớn hơn {adultStartAge} tuổi sẽ được xem như người lớn</p>
+          <p>
+            Quý khách hàng vui lòng nhập đúng số lượng khách và tuổi để có giá
+            chính xác
+          </p>
+          <div>
+            <ul style={{ listStyle: "none", paddingInlineStart: 0 }}>
+              <li style={{ paddingLeft: "10px" }}>
+                <span>
+                  Phụ thu người lớn sẽ bị tính phí{" "}
+                  {formatCurrency(room_type?.effective_price * adultRate)}.
+                </span>
+              </li>
+              <li style={{ paddingLeft: "10px" }}>
+                <span>Phụ thu trẻ em:</span>
+              </li>
+              {surchargeRates && (
+                <ul style={{ paddingLeft: "20px" }}>
+                  <li>
+                    <span>
+                      Miễn phí {room_type.max_children} trẻ dưới{" "}
+                      {freeChildMaxAge} tuổi, từ trẻ thứ{" "}
+                      {room_type.max_children + 1} sẽ bị tính phí{" "}
+                      {formatCurrency(
+                        room_type?.effective_price *
+                          surchargeRates[nextChildRange]
+                      )}
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      Trẻ từ {nextChildStartAge} tuổi đến {nextChildEndAge} tuổi
+                      sẽ bị tính phí{" "}
+                      {formatCurrency(
+                        room_type?.effective_price *
+                          surchargeRates[nextChildRange]
+                      )}
+                      .
+                    </span>
+                  </li>
+                  <li>
+                    <span>
+                      Trẻ từ {adultStartAge} tuổi trở lên sẽ bị tính phí như
+                      người lớn{" "}
+                      {formatCurrency(room_type?.effective_price * adultRate)}
+                    </span>
+                  </li>
+                </ul>
+              )}
+            </ul>
+          </div>
+        </span>
+      ),
+    },
+  ];
+
+  if (room_type.free_breakfast) {
+    benefits.splice(1, 0, {
+      contentTooltip: "Giá đã bao gồm bữa sáng",
+      titleTooltip: (
+        <span>
+          Giá đã bao gồm bữa sáng cho tất cả thành viên trong phòng (không tính
+          người ở thêm)
+        </span>
+      ),
+    });
+  }
+
+  return benefits;
+};
 
 const RoomTypeList: FC<RoomTypeListProps> = ({
   hotelData,
@@ -288,6 +411,7 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
                   const discountPercent = Math.floor(
                     (room_type?.room_discount / room_type.base_price) * 100
                   );
+                  const benefits = roomBenefits(room_type, hotelData);
 
                   return (
                     <Grid container spacing={2}>
@@ -302,7 +426,7 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
                             borderRadius: 1,
                           }}
                         />
-                        <Button
+                        {/* <Button
                           color="primary"
                           endIcon={<ChevronRightIcon />}
                           sx={{
@@ -310,8 +434,10 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
                           }}
                         >
                           Xem chi tiết phòng
-                        </Button>
-                        <RoomAmenitiesList roomAmenities={roomAmenities} />
+                        </Button> */}
+                        <RoomAmenitiesList
+                          roomTypeAmenities={room_type?.roomTypeAmenities}
+                        />
                       </Grid>
                       <Grid item sm={12} md={9.5}>
                         <Grid container spacing={2}>
@@ -521,12 +647,17 @@ const RoomTypeList: FC<RoomTypeListProps> = ({
                                     },
                                   }}
                                 >
-                                  {roomBenefits?.map((benefit, index) => (
+                                  {benefits.map((benefit, index) => (
                                     <ListItem key={index} sx={{ py: 0 }}>
                                       <ListItemIcon>
                                         <DoneIcon />
                                       </ListItemIcon>
-                                      <ListItemText>{benefit}</ListItemText>
+                                      <ListItemText>
+                                        <CustomizedTooltip
+                                          title={benefit.titleTooltip}
+                                          content={benefit.contentTooltip}
+                                        />
+                                      </ListItemText>
                                     </ListItem>
                                   ))}
                                 </List>
