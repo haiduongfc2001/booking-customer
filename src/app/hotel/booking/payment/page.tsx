@@ -88,8 +88,6 @@ export default function UpdateBookingStatus(props: any) {
 
   const { apptransid } = props.searchParams;
 
-  const initialLoad = React.useRef(true);
-
   const fetchBookingDetails = async () => {
     try {
       const response = await getRequest(
@@ -100,19 +98,37 @@ export default function UpdateBookingStatus(props: any) {
         setPayment(response.data);
         setBooking(response.data?.bookingInfo);
 
-        // Set other necessary data such as roomInfo and numNights
+        if (response.details.return_code === 1) {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+          }
+        }
       }
     } catch (error: any) {
       console.error(error.response?.data?.message || error.message);
     }
   };
 
+  const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
+
   React.useEffect(() => {
-    if (initialLoad.current) {
-      initialLoad.current = false;
-      return;
-    }
+    // Immediately fetch the data
     fetchBookingDetails();
+
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    // Set up the interval to fetch data every 2000 milliseconds
+    intervalRef.current = setInterval(fetchBookingDetails, 2000);
+
+    // Clean up interval on component unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, [apptransid]);
 
   return (

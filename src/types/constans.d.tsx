@@ -68,6 +68,10 @@ interface IPaymentStatus {
   [key: string]: string;
 }
 
+interface IRefundStatus {
+  [key: string]: string;
+}
+
 interface TabInfo {
   id: number;
   href: string;

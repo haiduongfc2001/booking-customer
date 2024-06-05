@@ -1,4 +1,8 @@
-import { BOOKING_STATUS, PAYMENT_STATUS } from "@/constant/constants";
+import {
+  BOOKING_STATUS,
+  PAYMENT_STATUS,
+  REFUND_STATUS,
+} from "@/constant/constants";
 
 // Hàm để xác định màu sắc dựa trên trạng thái của booking
 export const getBookingStatusColor = (status: string) => {
@@ -32,6 +36,22 @@ export const getPaymentStatusColor = (status: string) => {
       return "info";
     case PAYMENT_STATUS.EXPIRED:
       return "default";
+    default:
+      return "default";
+  }
+};
+
+export const getRefundStatusColor = (status: string | number) => {
+  switch (status) {
+    case REFUND_STATUS.PENDING:
+    case 3:
+      return "warning";
+    case REFUND_STATUS.COMPLETED:
+    case 1:
+      return "success";
+    case REFUND_STATUS.FAILED:
+    case 2:
+      return "error";
     default:
       return "default";
   }

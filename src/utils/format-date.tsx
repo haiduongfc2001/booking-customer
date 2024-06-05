@@ -25,7 +25,7 @@ export const formatDate = (date: Date | number = new Date()) => {
 };
 
 export const formatDateLocaleVi = (date: string): string => {
-  const parsedDate = dayjs(date, "DD-MM-YYYY");
+  const parsedDate = dayjs(date, "YYYY-MM-DD");
   const formattedDate = parsedDate
     .locale("vi")
     .format("dddd, ngày DD [tháng] MM");
