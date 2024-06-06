@@ -15,11 +15,12 @@ const NoBookings = () => {
         }}
       >
         <Image
+          priority
           src="https://img.freepik.com/free-vector/flat-hotel-booking-concept-background_23-2148147581.jpg"
           alt="no-hotels"
           width="249"
           height="210"
-          loading="lazy"
+          // loading="lazy"
         />
         <Typography variant="h6" sx={{ pb: 2 }}>
           Chưa có đơn đặt phòng nào

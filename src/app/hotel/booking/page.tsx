@@ -67,7 +67,7 @@ export default function Booking(props: any) {
 
   const createBooking = async () => {
     const bookingBody = {
-      customer_id: 21,
+      customer_id: 525,
       check_in: checkIn,
       check_out: checkOut,
       num_rooms: Number(numRooms),

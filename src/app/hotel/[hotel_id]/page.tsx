@@ -22,7 +22,6 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Image from "next/image";
 import { Line, Circle } from "rc-progress";
 import ratingCategory from "@/utils/rating-category";
-import { amenitiesData, hotelDataFake, ratingData } from "@/utils/data";
 import RoomTypeList from "@/components/hotel-detail/room-type-list";
 import HotelsAround from "@/components/hotel-detail/hotels-around";
 import HotelReviews from "@/components/hotel-detail/hotel-reviews";
@@ -66,14 +65,6 @@ export default function HotelDetail(props: any) {
     numAdults,
     numRooms,
   }).toString();
-
-  // Trích xuất giá trị rating từ mảng ratingData
-  const ratings: string[] = ratingData.map((item) => item.rating);
-
-  const numericRating = roundAverageRating(calculateAverageRating(ratings));
-
-  // Sử dụng giá trị ratings để tính toán phần trăm
-  const percentRating = calculateAndConvertToPercentage(ratings);
 
   const numNights = calculateNumberOfNights(checkIn, checkOut);
 
@@ -167,6 +158,39 @@ export default function HotelDetail(props: any) {
     hotelId: Number(hotel_id),
   };
 
+  const ratingData = (averageRatings: { [key: string]: any }) => {
+    return [
+      {
+        id: 1,
+        criteria: "Vị trí",
+        rating: averageRatings?.location || 0,
+      },
+      {
+        id: 2,
+        criteria: "Giá cả",
+        rating: averageRatings?.price || 0,
+      },
+      {
+        id: 3,
+        criteria: "Phục vụ",
+        rating: averageRatings?.service || 0,
+      },
+      {
+        id: 4,
+        criteria: "Vệ sinh",
+        rating: averageRatings?.cleanliness || 0,
+      },
+      {
+        id: 5,
+        criteria: "Tiện nghi",
+        rating: averageRatings?.amenities || 0,
+      },
+    ];
+  };
+
+  // Sử dụng giá trị ratings để tính toán phần trăm
+  const percentRating = (hotelData?.averageRatings?.overall / 10) * 100;
+
   return (
     <div>
       <Box mx={10} my={4}>
@@ -249,7 +273,7 @@ export default function HotelDetail(props: any) {
                         <RateReviewIcon />
                         {hotelData?.reviews.average_rate}
                       </IconButton>
-                      {ratingCategory(numericRating)}
+                      {ratingCategory(hotelData?.averageRatings?.overall)}
                       <Box
                         component="span"
                         sx={{
@@ -476,111 +500,128 @@ export default function HotelDetail(props: any) {
                       <Typography variant="h6" mb={1}>
                         Đánh giá
                       </Typography>
-                      <Box display="flex" justifyContent="space-between" mt={2}>
-                        {/* {hotelData?.} */}
+                      {hotelData?.averageRatings?.overall === 0 ? (
                         <Box
-                          sx={{
-                            width: 160,
-                            height: 160,
-                            position: "relative",
-                          }}
+                          display={"flex"}
+                          justifyContent={"center"}
+                          alignItems={"center"}
                         >
-                          <Circle
-                            percent={percentRating}
-                            strokeWidth={4}
-                            strokeColor="#6366F1"
-                            trailWidth={4}
-                            trailColor="#e2e8f0"
-                            style={{
-                              width: 160,
-                              height: 160,
-                            }}
-                          />
+                          Chưa có đánh giá!
+                        </Box>
+                      ) : (
+                        <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          mt={2}
+                        >
                           <Box
                             sx={{
-                              top: "50%",
-                              left: "50%",
-                              display: "flex",
-                              position: "absolute",
-                              transform: "translate(-50%, -50%)",
-                              textAlign: "center",
-                              alignItems: "center",
-                              flexDirection: "column",
-                              justifyContent: "center",
+                              width: 160,
+                              height: 160,
+                              position: "relative",
                             }}
                           >
+                            <Circle
+                              percent={percentRating}
+                              strokeWidth={4}
+                              strokeColor="#6366F1"
+                              trailWidth={4}
+                              trailColor="#e2e8f0"
+                              style={{
+                                width: 160,
+                                height: 160,
+                              }}
+                            />
                             <Box
-                              component="span"
                               sx={{
-                                color: "primary.main",
-                                fontSize: "30px",
-                                fontWeight: "600",
-                                lineHeight: "42px",
+                                top: "50%",
+                                left: "50%",
+                                display: "flex",
+                                position: "absolute",
+                                transform: "translate(-50%, -50%)",
+                                textAlign: "center",
+                                alignItems: "center",
+                                flexDirection: "column",
+                                justifyContent: "center",
                               }}
                             >
-                              {numericRating}
-                            </Box>
-                            <Box
-                              component="span"
-                              sx={{
-                                fontWeight: "400",
-                              }}
-                            >
-                              {ratingCategory(numericRating)}
+                              <Box
+                                component="span"
+                                sx={{
+                                  color: "primary.main",
+                                  fontSize: "30px",
+                                  fontWeight: "600",
+                                  lineHeight: "42px",
+                                }}
+                              >
+                                {hotelData?.averageRatings?.overall}
+                              </Box>
+                              <Box
+                                component="span"
+                                sx={{
+                                  fontWeight: "400",
+                                }}
+                              >
+                                {ratingCategory(
+                                  hotelData?.averageRatings?.overall
+                                )}
+                              </Box>
                             </Box>
                           </Box>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            mr: 8,
-                          }}
-                        >
-                          {ratingData.map((rating) => (
-                            <Box
-                              key={rating.id}
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                mb: "10px",
-                              }}
-                            >
-                              <Box
-                                component="span"
-                                sx={{
-                                  width: "70px",
-                                  mr: "10px",
-                                }}
-                              >
-                                {rating.criteria}
-                              </Box>
-                              <Box width={200}>
-                                <Line
-                                  percent={parseFloat(rating.rating) * 10}
-                                  strokeWidth={4}
-                                  strokeColor="#6366F1"
-                                  trailWidth={4}
-                                  trailColor="#e2e8f0"
-                                  style={{
-                                    width: 200,
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              mr: 8,
+                            }}
+                          >
+                            {ratingData(hotelData?.averageRatings).map(
+                              (rating) => (
+                                <Box
+                                  key={rating.id}
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    mb: "10px",
                                   }}
-                                />
-                              </Box>
-                              <Box
-                                component="span"
-                                sx={{
-                                  textAlign: "right",
-                                  ml: "10px",
-                                }}
-                              >
-                                {rating.rating}
-                              </Box>
-                            </Box>
-                          ))}
+                                >
+                                  <Box
+                                    component="span"
+                                    sx={{
+                                      width: "70px",
+                                      mr: "10px",
+                                    }}
+                                  >
+                                    {rating.criteria}
+                                  </Box>
+                                  <Box width={200}>
+                                    <Line
+                                      percent={parseFloat(rating.rating) * 10}
+                                      strokeWidth={4}
+                                      strokeColor="#6366F1"
+                                      trailWidth={4}
+                                      trailColor="#e2e8f0"
+                                      style={{
+                                        width: 200,
+                                      }}
+                                    />
+                                  </Box>
+                                  <Box
+                                    component="span"
+                                    sx={{
+                                      textAlign: "right",
+                                      ml: "10px",
+                                    }}
+                                  >
+                                    {rating.rating}
+                                  </Box>
+                                </Box>
+                              )
+                            )}
+                          </Box>
                         </Box>
-                      </Box>
+                      )}
                     </Box>
                   </Grid>
                   <Grid item xs={12} md={5}>
@@ -688,14 +729,14 @@ export default function HotelDetail(props: any) {
               />
             </Box>
 
-            {hotelData?.reviews?.length > 0 && (
+            {/* {hotelData?.reviews?.length > 0 && (
               <HotelReviews
                 hotelData={hotelData}
                 numericRating={numericRating}
                 percentRating={percentRating}
                 countByRatingLevel={hotelDataFake?.countByRatingLevel}
               />
-            )}
+            )} */}
           </>
         )}
       </Box>

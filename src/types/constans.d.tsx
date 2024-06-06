@@ -25,6 +25,7 @@ interface IApi {
   CUSTOMER: { [key: string]: string };
   BOOKING: { [key: string]: string };
   PAYMENT: { [key: string]: string };
+  REVIEW: { [key: string]: string };
 }
 
 /**

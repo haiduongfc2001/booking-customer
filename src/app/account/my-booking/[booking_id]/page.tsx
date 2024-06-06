@@ -17,6 +17,7 @@ import {
 import * as React from "react";
 import { getRequest, postRequest } from "@/services/api-instance";
 import {
+  API,
   BOOKING_STATUS,
   FALLBACK_URL,
   PAYMENT_METHODS,
@@ -39,10 +40,11 @@ import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
 import formatCurrency from "@/utils/format-currency";
 import { ZaloPayIcon } from "@/constant/icons";
-import Link from "next/link";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CustomizedTooltip from "@/lib/tooltip";
 import InfoIcon from "@mui/icons-material/Info";
+import BookingReview from "@/components/account/booking-review";
+import { useRouter } from "next/navigation";
 
 interface Booking {
   [key: string]: any;
@@ -98,6 +100,7 @@ const CancelBookingDialogContent = ({
 };
 
 export default function BookingDetails(props: any) {
+  const router = useRouter();
   const [booking, setBooking] = React.useState<Booking>({});
   const [openModalCancelBooking, setOpenModalCancelBooking] =
     React.useState<boolean>(false);
@@ -110,6 +113,7 @@ export default function BookingDetails(props: any) {
     status: "",
     translateStatus: "",
   });
+  const [openModalReview, setOpenModalReview] = React.useState<boolean>(false);
 
   const { booking_id } = props.params;
 
@@ -248,29 +252,53 @@ export default function BookingDetails(props: any) {
         py: 2,
         px: 4,
         my: 3,
-        width: "70%",
+        width: { xs: "90%", sm: "90%", md: "80%", lg: "70%", xl: "70%" },
         mx: "auto",
         borderRadius: 1,
       }}
     >
-      <Box display="flex" justifyContent="flex-start" alignItems="center">
-        <Link href={"/account/my-booking"}>
-          <Box
-            sx={{
-              color: "primary.main",
-              display: "flex",
-              alignItems: "center",
-              pb: "20px",
-            }}
+      <Box
+        display="flex"
+        justifyContent={
+          booking.status === BOOKING_STATUS.CHECKED_OUT
+            ? "space-between"
+            : "flex-start"
+        }
+        alignItems="center"
+        mb={2}
+      >
+        <Button
+          onClick={() => router.push("/account/my-booking")}
+          variant="outlined"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            color: "primary.main",
+            borderColor: "primary.main",
+            textTransform: "none",
+            "&:hover": {
+              borderColor: "primary.dark",
+              backgroundColor: "primary.light",
+            },
+          }}
+        >
+          <Icon sx={{ color: "primary.main", mr: 1, display: "flex" }}>
+            <ArrowBackIcon />
+          </Icon>
+          <Typography variant="body1" sx={{ color: "primary.main" }}>
+            Quay lại đơn đặt phòng
+          </Typography>
+        </Button>
+
+        {booking.status === BOOKING_STATUS.CHECKED_OUT && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setOpenModalReview(true)}
           >
-            <Icon>
-              <ArrowBackIcon />
-            </Icon>
-            <Typography variant="body1">
-              &nbsp;Quay lại đơn đặt phòng
-            </Typography>
-          </Box>
-        </Link>
+            Đánh giá
+          </Button>
+        )}
       </Box>
       {booking?.roomBookings?.length > 0 ? (
         <Grid container spacing={3}>
@@ -341,7 +369,13 @@ export default function BookingDetails(props: any) {
                     label={booking?.translateStatus}
                     color={getBookingStatusColor(booking?.status)}
                     sx={{
-                      width: "90%",
+                      width: {
+                        xs: "50%",
+                        sm: "50%",
+                        md: "60%",
+                        lg: "70%",
+                        xl: "70%",
+                      },
                       fontWeight: 700,
                     }}
                   />
@@ -999,6 +1033,14 @@ export default function BookingDetails(props: any) {
         </Grid>
       ) : (
         <NoBookings />
+      )}
+
+      {openModalReview && booking_id && (
+        <BookingReview
+          booking_id={booking_id}
+          openModalReview={openModalReview}
+          setOpenModalReview={setOpenModalReview}
+        />
       )}
     </Box>
   );

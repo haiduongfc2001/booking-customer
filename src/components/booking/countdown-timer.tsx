@@ -41,7 +41,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
 
   const calculateTimeLeft = (): TimeLeft => {
     const difference = +new Date(expiresAt) - +new Date();
-    let timeLeft: TimeLeft = { minutes: 0, seconds: 0 };
+    let timeLeft: TimeLeft = { minutes: 10, seconds: 0 };
 
     if (difference > 0) {
       timeLeft = {

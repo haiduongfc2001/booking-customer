@@ -4,6 +4,7 @@ import { styled } from "@mui/material/styles";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { ReactNode } from "react";
 import { Fade } from "@mui/material";
+import { textTransform } from "@mui/system";
 
 interface CustomizedTooltipProps {
   title: ReactNode;
@@ -39,6 +40,16 @@ const CustomizedTooltip: React.FC<CustomizedTooltipProps> = ({
   title,
   content,
 }) => {
+  const [isHovered, setIsHovered] = React.useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
   return (
     <StyledTooltip
       arrow
@@ -59,7 +70,17 @@ const CustomizedTooltip: React.FC<CustomizedTooltipProps> = ({
         },
       }}
     >
-      <div style={{ cursor: "pointer" }}>{content}</div>
+      <div
+        style={{
+          cursor: "pointer",
+          color: isHovered ? "#6366F1" : "inherit",
+          textDecoration: isHovered ? "underline" : "none",
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {content}
+      </div>
     </StyledTooltip>
   );
 };

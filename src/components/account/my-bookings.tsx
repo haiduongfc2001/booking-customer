@@ -25,12 +25,9 @@ interface RoomBooking {
 type RoomBookingList = RoomBooking[];
 
 const MyBookings: FC<MyBookingsProps> = () => {
-  const formattedCheckIn = dayjs().format("YYYY-MM-DD");
-  const formattedCheckOut = dayjs().add(1).format("YYYY-MM-DD");
-
   const router = useRouter();
 
-  const customer_id = 21;
+  const customer_id = 525;
 
   const initialLoad = React.useRef(true);
   const [myBookings, setMyBookingsData] = React.useState<RoomBookingList>([]);
@@ -380,10 +377,10 @@ const MyBookings: FC<MyBookingsProps> = () => {
                                 </Box>
                                 <Box
                                   sx={{
-                                    width: "auto",
+                                    width: "100%",
                                     display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "flex-end",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
                                     mb: { xs: 2, md: 0 },
                                   }}
                                 >

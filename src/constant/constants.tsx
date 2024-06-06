@@ -50,6 +50,9 @@ export const API: IApi = {
   PAYMENT: {
     CREATE_ZALOPAY_PAYMENT_URL: "/payment/zalopay/createPaymentUrl",
   },
+  REVIEW: {
+    CREATE_REVIEW: "/review/createReview",
+  },
 };
 
 /**
