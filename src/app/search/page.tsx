@@ -27,8 +27,8 @@ export default function Search(props: any) {
 
   const {
     location = "",
-    checkIn = dayjs().format("YYYY-MM-DD"),
-    checkOut = dayjs(checkIn).add(1, "day").format("YYYY-MM-DD"),
+    checkIn = dayjs().add(5, "day").format("YYYY-MM-DD"),
+    checkOut = dayjs(checkIn).add(6, "day").format("YYYY-MM-DD"),
     numRooms = 1,
     numAdults = 1,
     numChildren = 0,

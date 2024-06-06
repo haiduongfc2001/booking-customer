@@ -11,7 +11,9 @@ import {
   DialogTitle,
   Grid,
   Icon,
+  Rating,
   SvgIcon,
+  TextField,
   Typography,
 } from "@mui/material";
 import * as React from "react";
@@ -290,7 +292,7 @@ export default function BookingDetails(props: any) {
           </Typography>
         </Button>
 
-        {booking.status === BOOKING_STATUS.CHECKED_OUT && (
+        {booking.status === BOOKING_STATUS.CHECKED_OUT && !booking.review && (
           <Button
             variant="contained"
             color="primary"
@@ -1029,6 +1031,79 @@ export default function BookingDetails(props: any) {
                 </Box>
               </Grid>
             </Grid>
+          )}
+
+          {booking?.review && (
+            <>
+              <Box
+                sx={{
+                  width: "calc(100% + 32px)",
+                  mr: "12px",
+                  ml: "24px",
+                  height: "2px",
+                  bgcolor: "neutral.200",
+                }}
+              />
+
+              <Grid container spacing={2} mb={2}>
+                <Grid item xs={12} md={3}></Grid>
+                <Grid item xs={12} md={9}>
+                  <Box p={2} mb={2}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      mb={2}
+                    >
+                      <Typography variant="h6">Đánh giá của bạn</Typography>
+                    </Box>
+                    <Grid container spacing={3}>
+                      {[
+                        { label: "Vị trí", name: "location_rating" },
+                        { label: "Giá cả", name: "price_rating" },
+                        { label: "Dịch vụ", name: "service_rating" },
+                        { label: "Độ sạch sẽ", name: "cleanliness_rating" },
+                        { label: "Tiện nghi", name: "amenities_rating" },
+                      ].map((item) => (
+                        <Grid
+                          item
+                          xs={12}
+                          key={item.name}
+                          container
+                          alignItems="center"
+                          ml={4}
+                        >
+                          <Grid item xs={4}>
+                            <Typography component="span" variant="subtitle1">
+                              {item.label}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={8}>
+                            <Rating
+                              readOnly
+                              name={item.name}
+                              value={booking?.review[item.name] as number}
+                              max={10}
+                            />
+                          </Grid>
+                        </Grid>
+                      ))}
+                      <Grid item xs={12}>
+                        <TextField
+                          label="Bình luận"
+                          multiline
+                          disabled
+                          rows={4}
+                          fullWidth
+                          variant="outlined"
+                          value={booking?.review.comment}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Grid>
+              </Grid>
+            </>
           )}
         </Grid>
       ) : (

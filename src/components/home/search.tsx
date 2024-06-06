@@ -54,8 +54,8 @@ const SearchBar: FC<SearchBarProps> = () => {
   const formik = useFormik({
     initialValues: {
       location: "Hà Nội",
-      checkIn: dayjs(),
-      checkOut: dayjs().add(1, "day"),
+      checkIn: dayjs().add(5, "day"),
+      checkOut: dayjs().add(6, "day"),
       numRooms: 1,
       numAdults: 1,
       numChildren: 0,

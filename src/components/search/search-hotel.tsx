@@ -42,8 +42,8 @@ const ageOptions = Array.from({ length: 17 }, (_, i) => i + 1);
 
 const SearchHotel: FC<SearchHotelProps> = ({
   location = "",
-  checkIn = dayjs(),
-  checkOut = dayjs().add(1, "day"),
+  checkIn = dayjs().add(5, "day"),
+  checkOut = dayjs().add(6, "day"),
   numAdults = 1,
   numChildren = 0,
   childrenAges = [],

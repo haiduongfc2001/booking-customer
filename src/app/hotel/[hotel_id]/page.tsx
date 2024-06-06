@@ -28,23 +28,7 @@ import HotelReviews from "@/components/hotel-detail/hotel-reviews";
 import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
 import { API, STATUS_CODE } from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
-import {
-  calculateAndConvertToPercentage,
-  calculateAverageRating,
-  roundAverageRating,
-} from "@/utils/rating-utils";
 import SkeletonComponent from "@/components/layout/loading-skeleton";
-
-interface CustomerRequest {
-  checkIn: string;
-  checkOut: string;
-  numNights: number;
-  numAdults: number;
-  numRooms: number;
-  numChildren: number;
-  childrenAges: number[];
-  hotelId: number;
-}
 
 export default function HotelDetail(props: any) {
   const { location, checkIn, checkOut, numAdults, numRooms, filters } =
@@ -131,6 +115,7 @@ export default function HotelDetail(props: any) {
   }, [location, checkIn, checkOut, numAdults, numRooms, filters, hotel_id]);
 
   const roomRefs = React.useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const reviewRef = React.useRef<HTMLDivElement | null>(null);
 
   const scrollToRoom = (minRoomPrice: number, originalRoomPrice: number) => {
     if (hotelData && hotelData?.room_types) {
@@ -146,6 +131,12 @@ export default function HotelDetail(props: any) {
         });
       }
     }
+  };
+
+  const scrollToReview = () => {
+    reviewRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
   };
 
   const customerRequest = {
@@ -250,30 +241,44 @@ export default function HotelDetail(props: any) {
                     {hotelData?.name}
                   </Typography>
 
-                  {hotelData?.reviews && (
+                  {hotelData?.totalReviews !== 0 && (
                     <Box
                       sx={{
                         display: "flex",
                         alignItems: "center",
                         mt: 1,
+                        p: 0.5,
                       }}
                     >
-                      <IconButton
-                        size="small"
+                      <Box
                         sx={{
-                          color: "#FF3366",
                           display: "flex",
-                          p: "1px 2px 0 0",
-                          fontWeight: "600",
-                          mr: "5px",
-                          borderRadius: "4px",
-                          bgcolor: "rgba(255, 51, 102, 0.1)",
+                          alignItems: "center",
                         }}
                       >
-                        <RateReviewIcon />
-                        {hotelData?.reviews.average_rate}
-                      </IconButton>
-                      {ratingCategory(hotelData?.averageRatings?.overall)}
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            color: "#ffffff",
+                            display: "flex",
+                            padding: "4px 8px",
+                            fontSize: "14px",
+                            bgcolor: "primary.main",
+                            alignItems: "center",
+                            fontWeight: 600,
+                            borderRadius: "4px",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {hotelData?.averageRatings?.overall}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ ml: 1, fontWeight: 600 }}
+                        >
+                          {ratingCategory(hotelData?.averageRatings?.overall)}
+                        </Typography>
+                      </Box>
                       <Box
                         component="span"
                         sx={{
@@ -281,7 +286,7 @@ export default function HotelDetail(props: any) {
                           ml: "5px",
                         }}
                       >
-                        ({hotelData?.reviews.total_reviews} đánh giá)
+                        ({hotelData?.totalReviews} đánh giá)
                       </Box>
                       <Button
                         color="primary"
@@ -290,6 +295,7 @@ export default function HotelDetail(props: any) {
                           p: "5px",
                           minHeight: "auto",
                         }}
+                        onClick={scrollToReview}
                       >
                         Xem đánh giá
                       </Button>
@@ -500,7 +506,7 @@ export default function HotelDetail(props: any) {
                       <Typography variant="h6" mb={1}>
                         Đánh giá
                       </Typography>
-                      {hotelData?.averageRatings?.overall === 0 ? (
+                      {hotelData?.totalReviews === 0 ? (
                         <Box
                           display={"flex"}
                           justifyContent={"center"}
@@ -729,14 +735,9 @@ export default function HotelDetail(props: any) {
               />
             </Box>
 
-            {/* {hotelData?.reviews?.length > 0 && (
-              <HotelReviews
-                hotelData={hotelData}
-                numericRating={numericRating}
-                percentRating={percentRating}
-                countByRatingLevel={hotelDataFake?.countByRatingLevel}
-              />
-            )} */}
+            {hotelData?.averageRatings?.overall !== 0 && (
+              <HotelReviews hotelId={hotelData.id} reviewRef={reviewRef} />
+            )}
           </>
         )}
       </Box>

@@ -74,9 +74,21 @@ const BookingReview: React.FC<BookingReviewProps> = ({
   };
 
   const handleReviewBooking = async () => {
+    if (
+      !ratings.location_rating ||
+      !ratings.price_rating ||
+      !ratings.service_rating ||
+      !ratings.cleanliness_rating ||
+      !ratings.amenities_rating ||
+      !ratings.comment
+    ) {
+      // Nếu một trong các trường không được điền, hiển thị cảnh báo và không thực hiện hành động gửi đánh giá
+      alert("Vui lòng điền đầy đủ thông tin đánh giá trước khi gửi.");
+      return;
+    }
+
     setOpenModalReview(false);
     try {
-      console.log("ratings ", ratings);
       const response = await postRequest(API.REVIEW.CREATE_REVIEW, {
         booking_id: Number(booking_id),
         customer_id: 525,
@@ -144,7 +156,6 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                 variant="outlined"
                 value={ratings.comment}
                 onChange={handleCommentChange}
-                sx={{ mt: 2 }}
               />
             </Grid>
           </Grid>

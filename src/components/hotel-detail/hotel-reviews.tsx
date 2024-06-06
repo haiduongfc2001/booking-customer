@@ -9,16 +9,15 @@ import {
   Select,
   MenuItem,
   Avatar,
-  Button,
 } from "@mui/material";
 import { Line, Circle } from "rc-progress";
 import ratingCategory from "@/utils/rating-category";
-import { ratingData, sortOptions } from "../../utils/data";
+import { sortOptions } from "../../utils/data";
 import { getInitials } from "@/utils/get-initials";
-import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-import { formatDate } from "@/utils/format-date";
 import BedIcon from "@mui/icons-material/Bed";
-import { RATING_CATEGORIES } from "@/constant/constants";
+import { STATUS_CODE } from "@/constant/constants";
+import { getRequest } from "@/services/api-instance";
+import dayjs from "dayjs";
 
 interface IReplyReview {
   content: string;
@@ -39,27 +38,53 @@ interface IHotelReview {
   reply: IReplyReview | null;
 }
 
-interface ICountByRatingLevel {
-  value: string;
-  name: string;
-  count: number;
+interface RatingLevels {
+  FANTASTIC: number;
+  VERY_GOOD: number;
+  SATISFYING: number;
+  AVERAGE: number;
+  POOR: number;
+}
+
+interface HotelReviewsData {
+  // reviews: IHotelReview[];
+  // averageRatings: number;
+  // totalReviews: number;
+  // countByRatingLevel: RatingLevels;
+  // name?: string;
+  // images?: { url: string }[];
+  [key: string]: any;
 }
 
 interface IHotelReviews {
-  hotelData: { [key: string]: any };
-  numericRating: number;
-  percentRating: number;
-  countByRatingLevel: ICountByRatingLevel[];
+  hotelId: number;
+  reviewRef: React.RefObject<HTMLDivElement>;
 }
 
-const HotelReviews: FC<IHotelReviews> = ({
-  hotelData,
-  numericRating,
-  percentRating,
-  countByRatingLevel,
-}) => {
-  const ratings = countByRatingLevel.map((item) => item.count);
-  const totalReviews = ratings?.reduce((total, rating) => total + rating, 0);
+const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [hotelReviews, setHotelReviews] =
+    React.useState<HotelReviewsData | null>(null);
+
+  React.useEffect(() => {
+    const fetchHotelReviews = async () => {
+      setIsLoading(true);
+
+      try {
+        const response = await getRequest(`/review/getHotelReviews/${hotelId}`);
+
+        if (response && response.status === STATUS_CODE.OK) {
+          setHotelReviews(response.data);
+        }
+      } catch (error: any) {
+        console.error(error.response?.data?.message || error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHotelReviews();
+  }, [hotelId]);
 
   const [sortOption, setSortOption] = React.useState("highest_rating");
 
@@ -67,123 +92,160 @@ const HotelReviews: FC<IHotelReviews> = ({
     setSortOption(event.target.value as string);
   };
 
+  if (isLoading) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  if (!hotelReviews) {
+    return <Typography>No reviews found.</Typography>;
+  }
+
+  const ratingData = (averageRatings: { [key: string]: any }) => {
+    return [
+      {
+        id: 1,
+        criteria: "Vị trí",
+        rating: averageRatings?.location || 0,
+      },
+      {
+        id: 2,
+        criteria: "Giá cả",
+        rating: averageRatings?.price || 0,
+      },
+      {
+        id: 3,
+        criteria: "Phục vụ",
+        rating: averageRatings?.service || 0,
+      },
+      {
+        id: 4,
+        criteria: "Vệ sinh",
+        rating: averageRatings?.cleanliness || 0,
+      },
+      {
+        id: 5,
+        criteria: "Tiện nghi",
+        rating: averageRatings?.amenities || 0,
+      },
+    ];
+  };
+
   return (
     <>
-      <Box sx={{ flex: "1" }}>
+      {/* <Box sx={{ flex: "1" }}> */}
+      <Box sx={{ width: "100%", background: "background.paper", py: 3 }}>
+        {/* <Grid
+            container
+            spacing={2}
+            sx={{ width: "100%", background: "background.paper", py: 3 }}
+          >
+            <Grid item xs={12} lg={7}> */}
         <Box
+          ref={reviewRef}
           sx={{
-            width: "100%",
-            background: "background.paper",
-            py: 3,
+            m: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <Box
+          <Typography
             sx={{
-              m: "0 auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+              fontSize: "20px",
+              fontWeight: 600,
+              lineHeight: "23px",
+              m: "0 !important",
             }}
           >
-            <Typography
-              sx={{
-                fontSize: "20px",
-                fontWeight: 600,
-                lineHeight: "23px",
-                m: "0 !important",
-              }}
-            >
-              Đánh giá
-            </Typography>
-          </Box>
+            Đánh giá
+          </Typography>
+        </Box>
+        {/* </Grid>
+            <Grid item xs={12} lg={5}> */}
+        <Box sx={{ width: "100%", m: 0 }}>
           <Box
             sx={{
-              width: "100%",
-              m: 0,
+              border: "1px solid #EDF2F7",
+              p: "8px 24px 16px 24px",
+              fontSize: "14px",
+              boxShadow: "0px 1px 1px rgba(0, 0, 0, 0.05)",
+              mt: 2,
+              lineHeight: "17px",
+              borderRadius: 1,
+              bgcolor: "primary.light",
             }}
           >
-            <Box
-              sx={{
-                border: "1px solid #EDF2F7",
-                p: "8px 24px 16px 24px",
-                fontSize: "14px",
-                boxShadow: "0px 1px 1px rgba(0, 0, 0, 0.05)",
-                mt: 2,
-                lineHeight: "17px",
-                borderRadius: 1,
-                bgcolor: "primary.light",
-              }}
-            >
-              <Box display="flex" justifyContent="space-between" mt={2}>
+            <Box display="flex" justifyContent="space-between" mt={2}>
+              <Box sx={{ width: 160, height: 160, position: "relative" }}>
+                <Circle
+                  percent={(hotelReviews?.averageRatings?.overall / 10) * 100}
+                  strokeWidth={4}
+                  strokeColor="#6366F1"
+                  trailWidth={4}
+                  trailColor="#e2e8f0"
+                  style={{ width: 160, height: 160 }}
+                />
                 <Box
                   sx={{
-                    width: 160,
-                    height: 160,
-                    position: "relative",
-                  }}
-                >
-                  <Circle
-                    percent={percentRating}
-                    strokeWidth={4}
-                    strokeColor="#6366F1"
-                    trailWidth={4}
-                    trailColor="#e2e8f0"
-                    style={{
-                      width: 160,
-                      height: 160,
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      top: "50%",
-                      left: "50%",
-                      display: "flex",
-                      position: "absolute",
-                      transform: "translate(-50%, -50%)",
-                      textAlign: "center",
-                      alignItems: "center",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Box
-                      component="span"
-                      sx={{
-                        color: "primary.main",
-                        fontSize: "30px",
-                        fontWeight: "600",
-                        lineHeight: "42px",
-                      }}
-                    >
-                      {numericRating}
-                    </Box>
-                    <Box
-                      component="span"
-                      sx={{
-                        fontWeight: "400",
-                      }}
-                    >
-                      {ratingCategory(numericRating)}
-                    </Box>
-                  </Box>
-                </Box>
-                <Box
-                  sx={{
+                    top: "50%",
+                    left: "50%",
                     display: "flex",
+                    position: "absolute",
+                    transform: "translate(-50%, -50%)",
+                    textAlign: "center",
+                    alignItems: "center",
                     flexDirection: "column",
                     justifyContent: "center",
-                    mr: 8,
-                    pr: 8,
-                    borderRight: "1px solid gray",
                   }}
                 >
-                  {countByRatingLevel.map((ratingLevel) => {
+                  <Box
+                    component="span"
+                    sx={{
+                      color: "primary.main",
+                      fontSize: "30px",
+                      fontWeight: "600",
+                      lineHeight: "42px",
+                    }}
+                  >
+                    {hotelReviews?.averageRatings?.overall}
+                  </Box>
+                  <Box component="span" sx={{ fontWeight: "400" }}>
+                    {ratingCategory(hotelReviews?.averageRatings?.overall)}
+                  </Box>
+                </Box>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  mr: 8,
+                  pr: 8,
+                  borderRight: "1px solid gray",
+                }}
+              >
+                {Object.keys(hotelReviews?.countByRatingLevel || {}).map(
+                  (key) => {
+                    const ratingLevel =
+                      hotelReviews?.countByRatingLevel[
+                        key as keyof RatingLevels
+                      ] || 0;
                     const ratingLevelPercent =
-                      (ratingLevel.count / totalReviews) * 100;
+                      (ratingLevel / (hotelReviews?.totalReviews || 1)) * 100;
+
+                    const ratingNames: {
+                      [key in keyof RatingLevels]: string;
+                    } = {
+                      FANTASTIC: "Tuyệt vời",
+                      VERY_GOOD: "Rất tốt",
+                      SATISFYING: "Tốt",
+                      AVERAGE: "Trung bình",
+                      POOR: "Kém",
+                    };
 
                     return (
                       <Box
-                        key={ratingLevel.value}
+                        key={key}
                         sx={{
                           display: "flex",
                           alignItems: "center",
@@ -192,12 +254,9 @@ const HotelReviews: FC<IHotelReviews> = ({
                       >
                         <Box
                           component="span"
-                          sx={{
-                            width: "100px",
-                            mr: "10px",
-                          }}
+                          sx={{ width: "100px", mr: "10px" }}
                         >
-                          {ratingLevel.name}
+                          {ratingNames[key as keyof RatingLevels]}
                         </Box>
                         <Box width={200}>
                           <Line
@@ -208,77 +267,72 @@ const HotelReviews: FC<IHotelReviews> = ({
                             trailColor="#e2e8f0"
                             style={{
                               width: 200,
+                              border: "1px solid #777777",
+                              borderRadius: "4px",
                             }}
                           />
                         </Box>
                         <Box
                           component="span"
-                          sx={{
-                            textAlign: "right",
-                            ml: "10px",
-                          }}
+                          sx={{ textAlign: "right", ml: "10px" }}
                         >
-                          {ratingLevel.count}
+                          {ratingLevel}
                         </Box>
                       </Box>
                     );
-                  })}
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    mr: 8,
-                  }}
-                >
-                  {ratingData.map((rating) => (
-                    <Box
-                      key={rating.id}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        mb: "10px",
-                      }}
-                    >
-                      <Box
-                        component="span"
-                        sx={{
-                          width: "70px",
-                          mr: "10px",
-                        }}
-                      >
-                        {rating.criteria}
-                      </Box>
-                      <Box width={200}>
-                        <Line
-                          percent={parseFloat(rating.rating) * 10}
-                          strokeWidth={4}
-                          strokeColor="#718096"
-                          trailWidth={4}
-                          trailColor="#e2e8f0"
-                          style={{
-                            width: 200,
-                          }}
-                        />
-                      </Box>
-                      <Box
-                        component="span"
-                        sx={{
-                          textAlign: "right",
-                          ml: "10px",
-                        }}
-                      >
-                        {rating.rating}
-                      </Box>
+                  }
+                )}
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  mr: 8,
+                }}
+              >
+                {ratingData(hotelReviews?.averageRatings).map((rating) => (
+                  <Box
+                    key={rating.id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mb: "10px",
+                    }}
+                  >
+                    <Box component="span" sx={{ width: "70px", mr: "10px" }}>
+                      {rating.criteria}
                     </Box>
-                  ))}
-                </Box>
+                    <Box width={200}>
+                      <Line
+                        percent={parseFloat(rating.rating) * 10}
+                        strokeWidth={4}
+                        strokeColor="#718096"
+                        trailWidth={4}
+                        trailColor="#ffffff"
+                        style={{
+                          width: 200,
+                          border: "1px solid #666666",
+                          borderRadius: "4px",
+                        }}
+                      />
+                    </Box>
+                    <Box
+                      component="span"
+                      sx={{ textAlign: "right", ml: "10px" }}
+                    >
+                      {rating.rating}
+                    </Box>
+                  </Box>
+                ))}
               </Box>
             </Box>
           </Box>
         </Box>
+        {/* </Grid>
+          </Grid> */}
       </Box>
+      {/* </Box> */}
 
       <Box sx={{ width: "100%" }}>
         <Grid container spacing={3} alignItems="center" justifyContent="center">
@@ -299,11 +353,9 @@ const HotelReviews: FC<IHotelReviews> = ({
               <Select
                 autoWidth
                 labelId="select-option-label"
-                id="sselect-option"
+                id="select-option"
                 defaultValue="highest_rating"
-                sx={{
-                  bgcolor: "background.paper",
-                }}
+                sx={{ bgcolor: "background.paper" }}
                 value={sortOption}
                 onChange={handleSortOptionChange}
               >
@@ -316,263 +368,97 @@ const HotelReviews: FC<IHotelReviews> = ({
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sx={{ pt: "0px !important" }}>
-            {hotelData?.reviews?.map((review: IHotelReview) => (
-              <Grid
-                container
-                key={review.id}
-                spacing={2}
+          <Grid item xs={12} sx={{ px: 3 }}>
+            {hotelReviews?.reviews?.map((review: { [key: string]: any }) => (
+              <Box
+                key={review?.id}
                 sx={{
-                  mt: 2,
-                  ml: 1,
-                  borderBottom: "2px solid",
-                  borderBottomColor: "primary.light",
-                  pb: "12px",
-                  "&>.MuiGrid-item": {
-                    pt: "0px !important",
-                  },
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                  bgcolor: "background.paper",
+                  mb: 3,
+                  p: 3,
                 }}
               >
-                <Grid
-                  item
-                  xs={12}
-                  md={3}
-                  sx={{
-                    display: {
-                      xs: "flex",
-                      md: "block",
-                    },
-                    mb: 2,
-                  }}
-                >
-                  <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="flex-start"
-                  >
-                    <Avatar
-                      src={review?.avatar ? review.avatar : ""}
-                      sx={{
-                        bgcolor: "primary.light",
-                        color: "primary.main",
-                        width: 64,
-                        height: 64,
-                        border: "2px solid",
-                        borderColor: "primary.main",
-                      }}
-                    >
-                      {getInitials(review?.username)}
-                    </Avatar>
-                    <Box sx={{ ml: "12px" }}>
-                      <Typography variant="subtitle1">
-                        {review.username}
-                      </Typography>
-                      <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Box
-                          sx={{
-                            color: "#4A5568",
-                            display: "flex",
-                            fontSize: "12px",
-                            alignItems: "center",
-                            lineHeight: "14px",
-                            pt: "8px",
-                          }}
-                        >
-                          <BorderColorOutlinedIcon fontSize="small" />
-                          <Typography sx={{ ml: 1 }}>
-                            {formatDate(new Date(review.publishedDate))}
-                          </Typography>
-                        </Box>
-                        {review.roomName && (
-                          <Box
-                            sx={{
-                              color: "#4A5568",
-                              display: "flex",
-                              fontSize: "12px",
-                              alignItems: "center",
-                              lineHeight: "14px",
-                              pt: "8px",
-                            }}
-                          >
-                            <BedIcon fontSize="small" />
-                            <Typography
-                              sx={{
-                                ml: 1,
-                                overflow: "hidden",
-                                display: "-webkit-box",
-                                WebkitBoxOrient: "vertical",
-                                WebkitLineClamp: 1,
-                                maxWidth: "100%",
-                                textOverflow: "ellipsis",
-                                lineHeight: 1.5,
-                                maxHeight: "1.5em",
-                              }}
-                            >
-                              {review.roomName}
-                            </Typography>
-                          </Box>
-                        )}
-                      </Box>
-                    </Box>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} md={9}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontSize: "16px",
-                        fontWeight: 600,
-                        lineHeight: "20px",
-                      }}
-                    >
-                      {review.title}
-                    </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        mt: 0.5,
-                      }}
-                    >
-                      <Typography
-                        variant="body1"
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={3}>
+                    <Box display="flex" alignItems="center" mb={2}>
+                      <Avatar
+                        src={review?.customer.avatar}
+                        alt={review?.customer.full_name ?? ""}
                         sx={{
-                          mr: 0.5,
-                          color: "neutral.50",
+                          color: "primary.main",
+                          width: 64,
+                          height: 64,
                           display: "flex",
-                          p: "2px 6px",
-                          fontSize: "12px",
-                          background: "#6366F1",
-                          alignItems: "center",
+                          fontSize: 24,
+                          bgcolor: "primary.light",
                           fontWeight: 600,
-                          lineHeight: "14px",
-                          borderRadius: "4px",
-                          justifyContent: "center",
+                          lineHeight: "28px",
+                          mr: 2,
                         }}
                       >
-                        {review.rating}
-                      </Typography>
-                      &nbsp;
-                      {review.rating >= 9 &&
-                        review.rating <= 10 &&
-                        RATING_CATEGORIES.AMAZING}
-                      {review.rating >= 8 &&
-                        review.rating < 9 &&
-                        RATING_CATEGORIES.VERY_GOOD}
-                      {review.rating >= 7 &&
-                        review.rating < 8 &&
-                        RATING_CATEGORIES.GOOD}
-                      {review.rating >= 6 &&
-                        review.rating < 7 &&
-                        RATING_CATEGORIES.SATISFIED}
-                      {review.rating >= 1 &&
-                        review.rating < 6 &&
-                        RATING_CATEGORIES.UNSATISFIED}
-                      {review.rating < 1 ||
-                        (review.rating > 10 && "Không hợp lệ")}
+                        {review?.customer.full_name
+                          ? getInitials(review?.customer.full_name)
+                          : ""}
+                      </Avatar>
+                      <Box display="flex" flexDirection="column">
+                        <Typography variant="h6" component="div">
+                          {review?.customer.full_name ?? "Ẩn danh"}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {dayjs(review?.created_at).format("DD/MM/YYYY")}
+                        </Typography>
+                        <Box display="flex" alignItems="center" mt={1}>
+                          <BedIcon sx={{ mr: 1, color: "text.secondary" }} />
+                          <Typography variant="body2" color="textSecondary">
+                            {review?.roomType?.name}
+                          </Typography>
+                        </Box>
+                      </Box>
                     </Box>
-                    <Box
-                      sx={{
-                        fontSize: "14px",
-                        mt: 1,
-                        wordBreak: "break-word",
-                        fontWeight: 400,
-                        lineHeight: "24px",
-                      }}
-                    >
-                      {review.content}
-                    </Box>
-                    <Box sx={{ m: " 0 -6px", pt: 1 }} />
-
-                    {review.reply && (
+                  </Grid>
+                  <Grid item xs={12} md={9}>
+                    <Box display="flex" alignItems="flex-start" mt={1}>
                       <Box
                         sx={{
                           display: "flex",
-                          p: "18px",
-                          position: "relative",
-                          borderRadius: 1,
-                          bgcolor: "primary.light",
+                          mt: "4px",
+                          alignItems: "center",
                         }}
                       >
-                        <Box
+                        <Typography
+                          variant="body1"
                           sx={{
-                            top: "-7px",
-                            left: "26px",
-                            width: "14px",
-                            height: "14px",
-                            position: "absolute",
-                            transform: "rotate(45deg)",
-                            bgcolor: "primary.light",
-                            borderRadius: 1,
+                            color: "#ffffff",
+                            display: "flex",
+                            padding: "4px 8px",
+                            fontSize: "14px",
+                            bgcolor: "primary.main",
+                            alignItems: "center",
+                            fontWeight: 600,
+                            borderRadius: "4px",
+                            justifyContent: "center",
                           }}
-                        />
-                        <Avatar
-                          src={hotelData?.images[0]?.url}
-                          sx={{
-                            width: 40,
-                            height: 40,
-                            mr: 1.5,
-                          }}
-                        />
-                        <Box display="flex" flexDirection="column">
-                          <Box component="span" fontWeight={600}>
-                            {hotelData?.name}
-                          </Box>
-                          <Box
-                            component="span"
-                            sx={{
-                              color: "rgb(74, 85, 104)",
-                              p: "4px 0px 12px",
-                              fontSize: "12px",
-                            }}
-                          >
-                            {formatDate(review?.reply?.createdAt)}
-                          </Box>
-                          <Box
-                            sx={{
-                              fontSize: "14px",
-                              wordBreak: "break-word",
-                              lineHeight: "22px",
-                              fontWeight: 400,
-                            }}
-                          >
-                            {review?.reply?.content
-                              .split("\n")
-                              .map((line, index) => (
-                                <React.Fragment key={index}>
-                                  {line}
-                                  <br />
-                                </React.Fragment>
-                              ))}
-                          </Box>
-                        </Box>
+                        >
+                          {review?.averageRating}
+                        </Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ ml: 1, fontWeight: 600 }}
+                        >
+                          {ratingCategory(review?.averageRating)}
+                        </Typography>
                       </Box>
-                    )}
-                  </Box>
+                    </Box>
+                    <Typography variant="body1" gutterBottom mt={2}>
+                      {review?.comment}
+                    </Typography>
+                  </Grid>
                 </Grid>
-              </Grid>
-            ))}
-
-            {hotelData?.reviews?.length > 10 && (
-              <Box
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  pt: "12px",
-                  justifyContent: "center",
-                }}
-              >
-                <Button variant="outlined" color="primary" size="small">
-                  Xem tất cả đánh giá
-                </Button>
               </Box>
-            )}
+            ))}
           </Grid>
         </Grid>
       </Box>

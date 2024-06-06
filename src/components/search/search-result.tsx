@@ -33,8 +33,8 @@ interface IHotel {
 
 const SearchResult: FC<SearchResultProps> = ({
   location = "",
-  checkIn = dayjs(),
-  checkOut = dayjs().add(1, "day"),
+  checkIn = dayjs().add(5, "day"),
+  checkOut = dayjs().add(6, "day"),
   numAdults = 1,
   numChildren = 0,
   childrenAges = [],

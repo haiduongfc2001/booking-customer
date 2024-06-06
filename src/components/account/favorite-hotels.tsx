@@ -48,8 +48,8 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
 
   const isHotelLiked = (hotel_id: number) => likedHotels.includes(hotel_id);
 
-  const formattedCheckIn = dayjs().format("YYYY-MM-DD");
-  const formattedCheckOut = dayjs().add(1).format("YYYY-MM-DD");
+  const formattedCheckIn = dayjs().add(5, "day").format("YYYY-MM-DD");
+  const formattedCheckOut = dayjs().add(6, "day").format("YYYY-MM-DD");
 
   const getCityFromAddress = (address: string): string => {
     const addressArray = address?.split(",");

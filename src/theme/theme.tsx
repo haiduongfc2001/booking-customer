@@ -247,11 +247,11 @@ const themeOptions: ThemeOptionsOld = {
           [`&.${filledInputClasses.focused}`]: {
             backgroundColor: "transparent",
             borderColor: palette?.primary?.main,
-            boxShadow: `${palette?.primary?.main} 0 0 0 2px`,
+            // boxShadow: `${palette?.primary?.main} 0 0 0 2px`,
           },
           [`&.${filledInputClasses.error}`]: {
             borderColor: palette?.error?.main,
-            boxShadow: `${palette?.error?.main} 0 0 0 2px`,
+            // boxShadow: `${palette?.error?.main} 0 0 0 2px`,
           },
         },
         input: {
@@ -274,13 +274,13 @@ const themeOptions: ThemeOptionsOld = {
             backgroundColor: "transparent",
             [`& .${outlinedInputClasses.notchedOutline}`]: {
               borderColor: palette?.primary?.main,
-              boxShadow: `${palette?.primary?.main} 0 0 0 2px`,
+              // boxShadow: `${palette?.primary?.main} 0 0 0 2px`,
             },
           },
           [`&.${filledInputClasses.error}`]: {
             [`& .${outlinedInputClasses.notchedOutline}`]: {
               borderColor: palette?.error?.main,
-              boxShadow: `${palette?.error?.main} 0 0 0 2px`,
+              // boxShadow: `${palette?.error?.main} 0 0 0 2px`,
             },
           },
         },

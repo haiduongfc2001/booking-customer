@@ -1,7 +1,18 @@
 "use client";
 import { FC } from "react";
 import * as React from "react";
-import { Box, Button, CardMedia, Chip, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CardMedia,
+  Chip,
+  Grid,
+  Typography,
+  FormControl,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+} from "@mui/material";
 import Link from "next/link";
 import dayjs from "dayjs";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
@@ -24,6 +35,25 @@ interface RoomBooking {
 
 type RoomBookingList = RoomBooking[];
 
+const sortOptions = [
+  {
+    code: "newest",
+    textDetail: "Mới nhất",
+  },
+  {
+    code: "oldest",
+    textDetail: "Cũ nhất",
+  },
+  {
+    code: "cancelled",
+    textDetail: "Đã hủy",
+  },
+  {
+    code: "booked",
+    textDetail: "Đã đặt phòng",
+  },
+];
+
 const MyBookings: FC<MyBookingsProps> = () => {
   const router = useRouter();
 
@@ -31,6 +61,7 @@ const MyBookings: FC<MyBookingsProps> = () => {
 
   const initialLoad = React.useRef(true);
   const [myBookings, setMyBookingsData] = React.useState<RoomBookingList>([]);
+  const [sortOption, setSortOption] = React.useState("newest");
 
   const fetchBookings = async () => {
     try {
@@ -54,8 +85,53 @@ const MyBookings: FC<MyBookingsProps> = () => {
     fetchBookings();
   }, []);
 
+  const handleSortOptionChange = (event: SelectChangeEvent) => {
+    setSortOption(event.target.value as string);
+  };
+
   return (
     <Box sx={{ flex: "1" }}>
+      <Grid
+        container
+        spacing={3}
+        alignItems="center"
+        justifyContent="center"
+        mb={2}
+      >
+        <Grid
+          item
+          xs={12}
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            borderBottom: "1px solid",
+            borderBottomColor: "primary.main ",
+            ml: 3,
+            pt: "12px !important",
+          }}
+        >
+          <Typography variant="h6">Sắp xếp&nbsp;&nbsp;</Typography>
+          <FormControl sx={{ m: 1, minWidth: 150 }} size="small">
+            <Select
+              autoWidth
+              labelId="select-option-label"
+              id="select-option"
+              defaultValue="newest"
+              sx={{ bgcolor: "background.paper" }}
+              value={sortOption}
+              onChange={handleSortOptionChange}
+            >
+              {sortOptions?.map((option) => (
+                <MenuItem key={option.code} value={option.code}>
+                  {option.textDetail}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
+
       {myBookings?.length > 0 ? (
         <Grid container spacing={3}>
           {myBookings?.map(

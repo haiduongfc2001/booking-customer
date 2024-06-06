@@ -114,8 +114,8 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
 
     const searchQueryParams = new URLSearchParams({
       location: hotel.province,
-      checkIn: dayjs().format("YYYY-MM-DD"),
-      checkOut: dayjs().add(1, "day").format("YYYY-MM-DD"),
+      checkIn: dayjs().add(5, "day").format("YYYY-MM-DD"),
+      checkOut: dayjs().add(6, "day").format("YYYY-MM-DD"),
       numAdults: "1",
       numRooms: "1",
     }).toString();
