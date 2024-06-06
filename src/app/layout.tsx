@@ -9,6 +9,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import { NavigationEvents } from "@/components/navigation-events";
 import Providers from "@/redux/Provider";
+import AlertModal from "@/modals/alert-modal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,6 +36,7 @@ export default function RootLayout({
               <NavigationEvents />
             </Suspense>
             <Footer />
+            <AlertModal></AlertModal>
           </Providers>
         </body>
       </ThemeProvider>

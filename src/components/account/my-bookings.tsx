@@ -453,11 +453,12 @@ const MyBookings: FC<MyBookingsProps> = () => {
                                 </Box>
                                 <Box
                                   sx={{
-                                    width: "100%",
+                                    // width: "100%",
                                     display: "flex",
                                     justifyContent: "space-between",
                                     alignItems: "center",
                                     mb: { xs: 2, md: 0 },
+                                    width: "auto",
                                   }}
                                 >
                                   <Chip
@@ -466,7 +467,7 @@ const MyBookings: FC<MyBookingsProps> = () => {
                                       booking?.status
                                     )}
                                     sx={{
-                                      width: "auto",
+                                      width: "100%",
                                       fontWeight: 700,
                                     }}
                                   />

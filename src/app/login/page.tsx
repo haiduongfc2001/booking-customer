@@ -17,21 +17,19 @@ import {
 } from "@mui/material";
 import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { API } from "@/constant/constants";
+import { ALERT_TYPE, API } from "@/constant/constants";
 import CustomizedSnackbars from "@/lib/snackbar";
 import { postRequest } from "@/services/api-instance";
 import { updateAccessToken } from "@/services/storage";
+import { useDispatch } from "react-redux";
+import { openAlert } from "@/redux/slices/alert-slice";
 
-const RegisterPage = () => {
+const LoginPage = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [snackbar, setSnackbar] = React.useState<ISnackbarState>({
-    open: false,
-    message: "",
-    severity: "success",
-  });
 
   const handleMouseDownPassword = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -65,55 +63,45 @@ const RegisterPage = () => {
         const res = await postRequest(API.CUSTOMER.LOGIN, { email, password });
 
         if (res?.token) {
+          setIsLoading(true);
           updateAccessToken(res?.token);
-          setSnackbar({
-            open: true,
-            message: res?.message || "Login successful!",
-            severity: "success",
-          });
+          dispatch(
+            openAlert({
+              type: ALERT_TYPE.SUCCESS,
+              message: res?.message || "Logged in successfully!",
+            })
+          );
 
           const timeout = setTimeout(() => {
             router.push("/");
             formik.resetForm();
-          }, 3000);
+          }, 2000);
 
           return () => clearTimeout(timeout);
         } else {
-          setSnackbar({
-            open: true,
-            message: res?.data?.error || "Login Failed!",
-            severity: "error",
-          });
+          dispatch(
+            openAlert({
+              type: ALERT_TYPE.ERROR,
+              message: res?.data?.error || "Login Failed!",
+            })
+          );
         }
       } catch (err: any) {
-        setSnackbar({
-          open: true,
-          message:
-            err.response?.data?.message || "An unexpected error occurred.",
-          severity: "error",
-        });
+        dispatch(
+          openAlert({
+            type: ALERT_TYPE.ERROR,
+            message:
+              err.response?.data?.message || "An unexpected error occurred.",
+          })
+        );
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
         helpers.setSubmitting(false);
       } finally {
-        // setIsLoading(false);
+        setIsLoading(false);
       }
     },
   });
-
-  React.useEffect(() => {
-    if (snackbar.open) {
-      const timeout = setTimeout(() => {
-        setSnackbar({
-          open: false,
-          message: "",
-          severity: "success",
-        });
-      }, 3000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [snackbar.open]);
 
   return (
     <Box
@@ -267,17 +255,8 @@ const RegisterPage = () => {
           </form>
         </Box>
       </Box>
-
-      {snackbar?.open && (
-        <CustomizedSnackbars
-          message={snackbar.message}
-          severity={
-            snackbar.severity as "success" | "error" | "info" | "warning"
-          }
-        />
-      )}
     </Box>
   );
 };
 
-export default RegisterPage;
+export default LoginPage;

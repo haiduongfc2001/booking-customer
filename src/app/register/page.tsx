@@ -21,22 +21,21 @@ import {
 } from "@mui/material";
 import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { API, STATUS_CODE } from "@/constant/constants";
+import { ALERT_TYPE, API, STATUS_CODE } from "@/constant/constants";
 import CircularProgress from "@mui/material/CircularProgress";
 import CustomizedSnackbars from "@/lib/snackbar";
 import { useRouter } from "next/navigation";
 import { postRequest } from "@/services/api-instance";
+import { openAlert } from "@/redux/slices/alert-slice";
+import { useDispatch } from "react-redux";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [showRepeatPassword, setShowRepeatPassword] =
     React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [snackbar, setSnackbar] = React.useState<ISnackbarState>({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+
+  const dispatch = useDispatch();
 
   const router = useRouter();
 
@@ -103,11 +102,13 @@ export default function RegisterPage() {
 
         if (response && response.status === STATUS_CODE.CREATED) {
           formik.resetForm();
-          setSnackbar({
-            open: true,
-            message: response.message || "",
-            severity: "success",
-          });
+
+          dispatch(
+            openAlert({
+              type: ALERT_TYPE.SUCCESS,
+              message: response.message,
+            })
+          );
 
           setTimeout(() => {
             router.push("/account/verify");
@@ -117,30 +118,17 @@ export default function RegisterPage() {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: error.message });
         helpers.setSubmitting(false);
-        setSnackbar({
-          open: true,
-          message: error.response?.data?.message || error.message,
-          severity: "error",
-        });
+        dispatch(
+          openAlert({
+            type: ALERT_TYPE.ERROR,
+            message: error.response?.data?.message || error.message,
+          })
+        );
       } finally {
         setIsLoading(false);
       }
     },
   });
-
-  React.useEffect(() => {
-    if (snackbar.open) {
-      const timeout = setTimeout(() => {
-        setSnackbar({
-          open: false,
-          message: "",
-          severity: "success",
-        });
-      }, 3000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [snackbar.open]);
 
   return (
     <Box
@@ -388,15 +376,6 @@ export default function RegisterPage() {
           </form>
         </Box>
       </Box>
-
-      {snackbar?.open && (
-        <CustomizedSnackbars
-          message={snackbar.message}
-          severity={
-            snackbar.severity as "success" | "error" | "info" | "warning"
-          }
-        />
-      )}
     </Box>
   );
 }

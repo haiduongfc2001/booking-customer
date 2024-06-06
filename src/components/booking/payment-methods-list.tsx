@@ -8,11 +8,11 @@ export const paymentMethodsList: any[] = [
   //   icon: <BankTransferIcon />,
   //   code: "VIETQR",
   // },
-  {
-    name: "Vnpay QR",
-    icon: <QrCodeOutlinedIcon />,
-    code: "VNPAYQR",
-  },
+  // {
+  //   name: "Vnpay QR",
+  //   icon: <QrCodeOutlinedIcon />,
+  //   code: "VNPAYQR",
+  // },
   // {
   //   name: "ATM/Internet Banking",
   //   icon: <CreditCardOutlinedIcon />,

@@ -123,3 +123,25 @@ export const FALLBACK_URL = {
   HOTEL_NO_IMAGE:
     "https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg",
 };
+
+export enum ALERT_TYPE {
+  SUCCESS = "success",
+  ERROR = "error",
+  WARNING = "warning",
+  INFO = "info",
+}
+
+export const AlertTitles: Record<ALERT_TYPE, string> = {
+  [ALERT_TYPE.SUCCESS]: "Success",
+  [ALERT_TYPE.ERROR]: "Error",
+  [ALERT_TYPE.WARNING]: "Warning",
+  [ALERT_TYPE.INFO]: "Info",
+};
+
+export type AlertStatus = ALERT_TYPE;
+export type AlertState = {
+  isOpen?: boolean;
+  title?: string;
+  message: string;
+  type: AlertStatus;
+};
