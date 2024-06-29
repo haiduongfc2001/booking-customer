@@ -26,10 +26,20 @@ import RoomPricing from "@/components/booking/room-pricing";
 import RoomInfo from "@/components/booking/room-info";
 import BookingDetails from "@/components/booking/booking-details";
 import { paymentMethodsList } from "@/components/booking/payment-methods-list";
-import { postRequest } from "@/services/api-instance";
-import { API, PAYMENT_METHODS, STATUS_CODE } from "@/constant/constants";
+import { getRequest, postRequest } from "@/services/api-instance";
+import {
+  ALERT_TYPE,
+  API,
+  PAYMENT_METHODS,
+  STATUS_CODE,
+} from "@/constant/constants";
 import { CountdownTimer } from "@/components/booking/countdown-timer";
 import { renderBeds } from "@/utils/render-beds";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useDispatch } from "react-redux";
+import { openAlert } from "@/redux/slices/alert-slice";
+import { AnyNsRecord } from "dns";
 
 const addSpecialRequestList: string[] = [
   "Phòng không hút thuốc",
@@ -54,6 +64,11 @@ export default function Booking(props: any) {
   const [error, setError] = React.useState<string | null>(null);
   const [bookingData, setBookingData] = React.useState<any>({});
   const [hotelData, setHotelData] = React.useState<any>({});
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+
+  const customer_id = 525;
+
+  const dispatch = useDispatch();
 
   const initialLoad = React.useRef(true);
 
@@ -67,7 +82,7 @@ export default function Booking(props: any) {
 
   const createBooking = async () => {
     const bookingBody = {
-      customer_id: 525,
+      customer_id,
       check_in: checkIn,
       check_out: checkOut,
       num_rooms: Number(numRooms),
@@ -134,11 +149,73 @@ export default function Booking(props: any) {
     numRooms: String(numRooms),
   }).toString();
 
+  const formik = useFormik({
+    initialValues: {
+      email: bookingData?.customer?.email,
+      full_name: bookingData?.customer?.full_name,
+      phone: bookingData?.customer?.phone,
+      submit: null,
+    },
+    validationSchema: Yup.object({
+      email: Yup.string()
+        .email("Vui lòng nhập địa chỉ email hợp lệ!")
+        .max(255)
+        .required("Vui lòng nhập địa chỉ email!"),
+      full_name: Yup.string().max(30).required("Vui lòng nhập họ và tên!"),
+      phone: Yup.string()
+        .matches(/^\d{10}$/, "Số điện thoại chỉ gồm 10 số!")
+        .required("Vui lòng nhập số điện thoại!"),
+    }),
+    onSubmit: async (values, helpers) => {
+      try {
+        setIsLoading(true);
+
+        const { email, full_name, phone } = values;
+
+        const res = await postRequest(
+          `/customer/${customer_id}/updateCustomer`,
+          { email, full_name, phone }
+        );
+
+        if (res?.status === STATUS_CODE.OK) {
+          // handle success case
+          helpers.setStatus({ success: true });
+        } else {
+          // handle error case
+          dispatch(
+            openAlert({
+              type: ALERT_TYPE.ERROR,
+              message: res.data.message || "Cập nhật thất bại",
+            })
+          );
+          helpers.setErrors({
+            submit: res.data.message || "Cập nhật thất bại",
+          });
+        }
+      } catch (err: any) {
+        dispatch(
+          openAlert({
+            type: ALERT_TYPE.ERROR,
+            message:
+              err.response?.data?.message || "Dữ liệu người dùng không hợp lệ",
+          })
+        );
+        helpers.setStatus({ success: false });
+        helpers.setErrors({ submit: err.message });
+      } finally {
+        setIsLoading(false);
+        helpers.setSubmitting(false);
+      }
+    },
+  });
+
   const handleBooking = async () => {
     if (!selectedPaymentMethod) {
       alert("Vui lòng chọn phương thức thanh toán!");
       return;
     }
+
+    await formik.handleSubmit();
 
     const amount = bookingData?.cost?.final_price;
     const description = `Payment for booking at ${hotelData?.name} from ${checkIn} to ${checkOut}. 
@@ -203,8 +280,12 @@ export default function Booking(props: any) {
             <Grid item xs={12} md={7}>
               <BookingDetails booking={bookingData} numNights={numNights} />
 
+              {/* <form noValidate onSubmit={formik.handleSubmit}> */}
               <Box
                 sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}
+                component="form"
+                noValidate
+                autoComplete="off"
               >
                 <Typography variant="h6">Thông tin liên hệ</Typography>
                 <Grid container spacing={2} my={1}>
@@ -222,26 +303,39 @@ export default function Booking(props: any) {
                           bgcolor: "background.paper",
                         },
                       }}
+                      onBlur={formik.handleBlur}
+                      onChange={formik.handleChange}
                       value={bookingData?.customer?.full_name}
-                      // onChange={formik.handleChange}
+                      // error={
+                      //   !!(formik.touched.full_name && formik.errors.full_name)
+                      // }
+                      // helperText={
+                      //   formik.touched.full_name && formik.errors.full_name
+                      // }
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
                       required
-                      disabled
-                      id="customer-email"
                       label="Email"
-                      variant="filled"
+                      name="email"
+                      type="text"
+                      // placeholder="Nhập số điện thoại của bạn"
                       size="small"
                       sx={{
                         "& .MuiInputBase-input": {
                           bgcolor: "background.paper",
                         },
                       }}
-                      defaultValue={bookingData?.customer?.email}
-                      // onChange={formik.handleChange}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      onBlur={formik.handleBlur}
+                      onChange={formik.handleChange}
+                      value={bookingData?.customer?.email}
+                      // error={!!(formik.touched.email && formik.errors.email)}
+                      // helperText={formik.touched.email && formik.errors.email}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -258,12 +352,21 @@ export default function Booking(props: any) {
                           bgcolor: "background.paper",
                         },
                       }}
-                      value={bookingData?.customer?.phone}
-                      // onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      onChange={formik.handleChange}
+                      value={formik.values.phone}
+                      // error={!!(formik.touched.phone && formik.errors.phone)}
+                      // helperText={formik.touched.phone && formik.errors.phone}
                     />
                   </Grid>
                 </Grid>
               </Box>
+              {formik.errors.submit && (
+                <Typography color="error" sx={{ mt: 3 }} variant="body2">
+                  {formik.errors.submit}
+                </Typography>
+              )}
+              {/* </form> */}
 
               <Box
                 sx={{ bgcolor: "neutral.200", p: 2, mb: 2, borderRadius: 1 }}

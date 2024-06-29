@@ -23,7 +23,6 @@ import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { ALERT_TYPE, API, STATUS_CODE } from "@/constant/constants";
 import CircularProgress from "@mui/material/CircularProgress";
-import CustomizedSnackbars from "@/lib/snackbar";
 import { useRouter } from "next/navigation";
 import { postRequest } from "@/services/api-instance";
 import { openAlert } from "@/redux/slices/alert-slice";
@@ -71,7 +70,7 @@ export default function RegisterPage() {
         .email("Vui lòng nhập địa chỉ email hợp lệ!")
         .max(255)
         .required("Vui lòng nhập địa chỉ email!"),
-      full_name: Yup.string().max(255).required("Vui lòng nhập họ và tên!"),
+      full_name: Yup.string().max(30).required("Vui lòng nhập họ và tên!"),
       gender: Yup.mixed()
         .oneOf(["MALE", "FEMALE", "OTHER"])
         .required("Vui lòng nhập giới tính của bạn!"),

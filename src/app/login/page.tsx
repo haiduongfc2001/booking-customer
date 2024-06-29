@@ -18,7 +18,6 @@ import {
 import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { ALERT_TYPE, API } from "@/constant/constants";
-import CustomizedSnackbars from "@/lib/snackbar";
 import { postRequest } from "@/services/api-instance";
 import { updateAccessToken } from "@/services/storage";
 import { useDispatch } from "react-redux";

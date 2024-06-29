@@ -147,7 +147,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
                 <DialogTitle id="alert-dialog-title">
                   <CardMedia
                     component="img"
-                    src={"/images/Alarm_Clock_Animation_High_Res2.png"}
+                    src={"/images/alarm-clock.png"}
                     alt={"bookin-time-is-up"}
                     sx={{
                       height: "250px",

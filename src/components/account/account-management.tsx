@@ -38,7 +38,7 @@ const AccountManagement: FC<IAccountManagement> = () => {
         .email("Vui lòng nhập địa chỉ email hợp lệ!")
         .max(255)
         .required("Vui lòng nhập địa chỉ email!"),
-      full_name: Yup.string().max(255).required("Vui lòng nhập họ và tên!"),
+      full_name: Yup.string().max(30).required("Vui lòng nhập họ và tên!"),
       gender: Yup.mixed()
         .oneOf(["MALE", "FEMALE", "OTHER"])
         .required("Vui lòng nhập giới tính của bạn!"),
