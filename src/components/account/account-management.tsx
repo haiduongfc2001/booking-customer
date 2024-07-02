@@ -22,15 +22,57 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import CustomizedBadges from "@/lib/badge";
 import CameraAltOutlinedIcon from "@mui/icons-material/CameraAltOutlined";
+import { AppDispatch, RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
+import { getRequest } from "@/services/api-instance";
+import { GENDER, STATUS_CODE } from "@/constant/constants";
 
 interface IAccountManagement {}
 
 const AccountManagement: FC<IAccountManagement> = () => {
+  const [customerData, setCustomerData] = React.useState({
+    email: "",
+    full_name: "",
+    gender: "",
+    phone: "",
+    avatar: "",
+  });
+
+  const dispatch: AppDispatch = useDispatch<AppDispatch>();
+
+  const customer_id = useSelector((state: RootState) => state.auth.customer_id);
+
+  React.useEffect(() => {
+    const fetchCustomer = async () => {
+      if (!customer_id) return;
+
+      dispatch(openLoadingApi());
+
+      try {
+        const response = await getRequest(
+          `/customer/${customer_id}/getCustomerById`
+        );
+
+        if (response && response.status === STATUS_CODE.OK) {
+          setCustomerData(response.data);
+        }
+      } catch (error: any) {
+        console.error(error.response?.data?.message || error.message);
+      } finally {
+        dispatch(closeLoadingApi());
+      }
+    };
+
+    fetchCustomer();
+  }, [customer_id, dispatch]);
+
   const formik = useFormik({
     initialValues: {
-      email: userInfo.email,
-      full_name: userInfo.name,
-      gender: "MALE",
+      email: customerData?.email,
+      full_name: customerData?.full_name,
+      gender: customerData?.gender,
+      phone: customerData?.phone,
       submit: null,
     },
     validationSchema: Yup.object({
@@ -39,8 +81,9 @@ const AccountManagement: FC<IAccountManagement> = () => {
         .max(255)
         .required("Vui lòng nhập địa chỉ email!"),
       full_name: Yup.string().max(30).required("Vui lòng nhập họ và tên!"),
+      phone: Yup.string().max(30).required("Vui lòng nhập số điện thoại!"),
       gender: Yup.mixed()
-        .oneOf(["MALE", "FEMALE", "OTHER"])
+        .oneOf([GENDER.MALE, GENDER.FEMALE, GENDER.OTHER])
         .required("Vui lòng nhập giới tính của bạn!"),
     }),
     onSubmit: async (values, helpers) => {
@@ -145,7 +188,7 @@ const AccountManagement: FC<IAccountManagement> = () => {
           >
             <Avatar
               src={selectedImage || userInfo?.avatar || ""}
-              alt={userInfo.email}
+              alt={customerData?.email}
               sx={{
                 bgcolor: "primary.light",
                 color: "primary.main",
@@ -188,6 +231,9 @@ const AccountManagement: FC<IAccountManagement> = () => {
                 type="email"
                 placeholder="Nhập email của bạn"
                 size="small"
+                InputProps={{
+                  readOnly: true,
+                }}
                 onBlur={formik.handleBlur}
                 onChange={formik.handleChange}
                 value={formik.values.email}
@@ -226,17 +272,17 @@ const AccountManagement: FC<IAccountManagement> = () => {
                     onChange={formik.handleChange}
                   >
                     <FormControlLabel
-                      value="MALE"
+                      value={GENDER.MALE}
                       control={<Radio />}
                       label="Nam"
                     />
                     <FormControlLabel
-                      value="FEMALE"
+                      value={GENDER.FEMALE}
                       control={<Radio />}
                       label="Nữ"
                     />
                     <FormControlLabel
-                      value="OTHER"
+                      value={GENDER.OTHER}
                       control={<Radio />}
                       label="Khác"
                     />

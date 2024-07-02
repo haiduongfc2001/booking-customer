@@ -9,6 +9,8 @@ import {
   Select,
   MenuItem,
   Avatar,
+  Card,
+  CardContent,
 } from "@mui/material";
 import { Line, Circle } from "rc-progress";
 import ratingCategory from "@/utils/rating-category";
@@ -18,6 +20,9 @@ import BedIcon from "@mui/icons-material/Bed";
 import { STATUS_CODE } from "@/constant/constants";
 import { getRequest } from "@/services/api-instance";
 import dayjs from "dayjs";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 
 interface IReplyReview {
   content: string;
@@ -62,13 +67,14 @@ interface IHotelReviews {
 }
 
 const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [hotelReviews, setHotelReviews] =
     React.useState<HotelReviewsData | null>(null);
 
+  const dispatch: AppDispatch = useDispatch<AppDispatch>();
+
   React.useEffect(() => {
     const fetchHotelReviews = async () => {
-      setIsLoading(true);
+      dispatch(openLoadingApi());
 
       try {
         const response = await getRequest(`/review/getHotelReviews/${hotelId}`);
@@ -79,7 +85,7 @@ const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
       } catch (error: any) {
         console.error(error.response?.data?.message || error.message);
       } finally {
-        setIsLoading(false);
+        dispatch(closeLoadingApi());
       }
     };
 
@@ -91,10 +97,6 @@ const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
   const handleSortOptionChange = (event: SelectChangeEvent) => {
     setSortOption(event.target.value as string);
   };
-
-  if (isLoading) {
-    return <Typography>Loading...</Typography>;
-  }
 
   if (!hotelReviews) {
     return <Typography>No reviews found.</Typography>;

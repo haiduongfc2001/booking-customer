@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { ALERT_TYPE, API, STATUS_CODE } from "@/constant/constants";
+import { ALERT_TYPE, API, GENDER, STATUS_CODE } from "@/constant/constants";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useRouter } from "next/navigation";
 import { postRequest } from "@/services/api-instance";
@@ -72,7 +72,7 @@ export default function RegisterPage() {
         .required("Vui lòng nhập địa chỉ email!"),
       full_name: Yup.string().max(30).required("Vui lòng nhập họ và tên!"),
       gender: Yup.mixed()
-        .oneOf(["MALE", "FEMALE", "OTHER"])
+        .oneOf([GENDER.MALE, GENDER.FEMALE, GENDER.OTHER])
         .required("Vui lòng nhập giới tính của bạn!"),
       password: Yup.string()
         .min(6, "Mật khẩu phải có ít nhất 6 ký tự!")
@@ -229,17 +229,17 @@ export default function RegisterPage() {
                     onChange={formik.handleChange}
                   >
                     <FormControlLabel
-                      value="MALE"
+                      value={GENDER.MALE}
                       control={<Radio />}
                       label="Nam"
                     />
                     <FormControlLabel
-                      value="FEMALE"
+                      value={GENDER.FEMALE}
                       control={<Radio />}
                       label="Nữ"
                     />
                     <FormControlLabel
-                      value="OTHER"
+                      value={GENDER.OTHER}
                       control={<Radio />}
                       label="Khác"
                     />

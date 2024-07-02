@@ -10,6 +10,7 @@ import { Suspense } from "react";
 import { NavigationEvents } from "@/components/navigation-events";
 import Providers from "@/redux/Provider";
 import AlertModal from "@/modals/alert-modal";
+import Loading from "@/components/loading/loading";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +31,7 @@ export default function RootLayout({
         <CssBaseline />
         <body className={inter.className}>
           <Providers>
+            <Loading></Loading>
             <Header />
             {children}
             <Suspense fallback={null}>

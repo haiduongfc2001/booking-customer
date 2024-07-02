@@ -5,6 +5,7 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
+import { GENDER } from "@/constant/constants";
 
 const BpIcon = styled("span")(({ theme }) => ({
   borderRadius: "50%",
@@ -73,9 +74,21 @@ export default function CustomizedRadios() {
         aria-labelledby="demo-customized-radios"
         name="customized-radios"
       >
-        <FormControlLabel value="FEMALE" control={<BpRadio />} label="FeMALE" />
-        <FormControlLabel value="MALE" control={<BpRadio />} label="Male" />
-        <FormControlLabel value="OTHER" control={<BpRadio />} label="Other" />
+        <FormControlLabel
+          value={GENDER.FEMALE}
+          control={<BpRadio />}
+          label="Female"
+        />
+        <FormControlLabel
+          value={GENDER.MALE}
+          control={<BpRadio />}
+          label="Male"
+        />
+        <FormControlLabel
+          value={GENDER.OTHER}
+          control={<BpRadio />}
+          label="Other"
+        />
         <FormControlLabel
           value="disabled"
           disabled

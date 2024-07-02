@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Card } from "@mui/material";
 import SearchHotel from "@/components/search/search-hotel";
 import dayjs from "dayjs";
 import SearchResult from "@/components/search/search-result";
@@ -10,6 +10,9 @@ import AmenitiesFilter from "@/components/search/filter/amenities-filter";
 import RoomTypeFilter from "@/components/search/filter/room-type-filter";
 import RatingFilter from "@/components/search/filter/rating-filter";
 import { postRequest } from "@/services/api-instance";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 
 export default function Search(props: any) {
   const [priceRange, setPriceRange] = React.useState<number[]>([
@@ -22,8 +25,9 @@ export default function Search(props: any) {
   const [selectedRoomType, setSelectedRoomType] = React.useState<string[]>([]);
   const [selectedMinRating, setSelectedMinRating] = React.useState<string>("");
   const [hotelSearchResults, setHotelSearchResults] = React.useState<any>();
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  const dispatch: AppDispatch = useDispatch<AppDispatch>();
 
   const {
     location = "",
@@ -41,7 +45,7 @@ export default function Search(props: any) {
 
   React.useEffect(() => {
     const fetchHotels = async () => {
-      setIsLoading(true);
+      dispatch(openLoadingApi());
       setError(null);
 
       const body = {
@@ -70,7 +74,7 @@ export default function Search(props: any) {
         console.error(error.response?.data?.message || error.message);
         setError(error.message);
       } finally {
-        setIsLoading(false);
+        dispatch(closeLoadingApi());
       }
     };
 
@@ -192,10 +196,18 @@ export default function Search(props: any) {
         </Box>
 
         {/* Main section for hotel display */}
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : error ? (
-          <div>{error}</div>
+        {error ? (
+          <Card
+            sx={{
+              backgroundColor: "#ffebee",
+              color: "#b71c1c",
+              padding: "10px",
+              borderRadius: "4px",
+              marginTop: "10px",
+            }}
+          >
+            {error}
+          </Card>
         ) : hotelSearchResults?.items?.length > 0 ? (
           <SearchResult
             location={location}

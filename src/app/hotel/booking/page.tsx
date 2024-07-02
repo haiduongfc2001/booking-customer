@@ -37,9 +37,10 @@ import { CountdownTimer } from "@/components/booking/countdown-timer";
 import { renderBeds } from "@/utils/render-beds";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useDispatch } from "react-redux";
 import { openAlert } from "@/redux/slices/alert-slice";
-import { AnyNsRecord } from "dns";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 
 const addSpecialRequestList: string[] = [
   "Phòng không hút thuốc",
@@ -64,11 +65,9 @@ export default function Booking(props: any) {
   const [error, setError] = React.useState<string | null>(null);
   const [bookingData, setBookingData] = React.useState<any>({});
   const [hotelData, setHotelData] = React.useState<any>({});
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-  const customer_id = 525;
-
-  const dispatch = useDispatch();
+  const customer_id = useSelector((state: RootState) => state.auth.customer_id);
+  const dispatch: AppDispatch = useDispatch<AppDispatch>();
 
   const initialLoad = React.useRef(true);
 
@@ -168,7 +167,7 @@ export default function Booking(props: any) {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        setIsLoading(true);
+        dispatch(openLoadingApi());
 
         const { email, full_name, phone } = values;
 
@@ -203,7 +202,7 @@ export default function Booking(props: any) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
       } finally {
-        setIsLoading(false);
+        dispatch(closeLoadingApi());
         helpers.setSubmitting(false);
       }
     },

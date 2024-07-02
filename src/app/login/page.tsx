@@ -17,15 +17,17 @@ import {
 } from "@mui/material";
 import React from "react";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { ALERT_TYPE, API } from "@/constant/constants";
+import { ALERT_TYPE, API, STATUS_CODE } from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
 import { updateAccessToken } from "@/services/storage";
 import { useDispatch } from "react-redux";
 import { openAlert } from "@/redux/slices/alert-slice";
+import { login } from "@/redux/slices/auth-slice";
+import { AppDispatch } from "@/redux/store";
 
 const LoginPage = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch<AppDispatch>();
 
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -61,8 +63,8 @@ const LoginPage = () => {
 
         const res = await postRequest(API.CUSTOMER.LOGIN, { email, password });
 
-        if (res?.token) {
-          setIsLoading(true);
+        if (res?.status === STATUS_CODE.OK && res?.token && res.customer) {
+          dispatch(login({ email, customer_id: res.customer?.id }));
           updateAccessToken(res?.token);
           dispatch(
             openAlert({

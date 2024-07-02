@@ -145,3 +145,9 @@ export type AlertState = {
   message: string;
   type: AlertStatus;
 };
+
+export enum GENDER {
+  MALE = "MALE",
+  FEMALE = "FEMALE",
+  OTHER = "OTHER",
+}

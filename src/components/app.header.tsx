@@ -5,19 +5,20 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Badge from "@mui/material/Badge";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
-import MailIcon from "@mui/icons-material/Mail";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import HotelIcon from "@mui/icons-material/Hotel";
-import { Avatar, Tooltip } from "@mui/material";
+import { Avatar, Button, Tooltip } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import HotelIcon from "@mui/icons-material/Hotel";
+import { logout } from "@/redux/slices/auth-slice";
+import { AppDispatch, RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
 
-const pages = ["Products", "Pricing", "Blog"];
+const pages = ["Đơn đặt phòng", "Khách sạn yêu thích", "Tài khoản"];
 
 export default function Header() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -31,8 +32,13 @@ export default function Header() {
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
+  const dispatch: AppDispatch = useDispatch<AppDispatch>();
+  const email = useSelector((state: RootState) => state.auth.email);
+
+  console.log(useSelector((state: RootState) => state.auth));
+
   const settings = [
-    { label: "Hồ sơ", action: () => handleProfileAction("Hồ sơ") },
+    // { label: "Hồ sơ", action: () => handleProfileAction("Hồ sơ") },
     { label: "Tài khoản", action: () => handleProfileAction("Tài khoản") },
     { label: "Đăng xuất", action: () => handleLogoutAction() },
   ];
@@ -63,6 +69,7 @@ export default function Header() {
   };
 
   const handleLogoutAction = () => {
+    dispatch(logout());
     router.push("/login");
   };
 
@@ -113,25 +120,25 @@ export default function Header() {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Tin nhắn</p>
-      </MenuItem>
-      <MenuItem>
+      <MenuItem onClick={() => router.push("/account/my-booking")}>
         <IconButton
           size="large"
           aria-label="show 17 new notifications"
           color="inherit"
         >
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
-          </Badge>
+          <ShoppingCartIcon />
         </IconButton>
-        <p>Thông báo</p>
+        <p>Đơn đặt phòng</p>
+      </MenuItem>
+      <MenuItem onClick={() => router.push("/account/favorite-hotel")}>
+        <IconButton
+          size="large"
+          aria-label="show 17 new notifications"
+          color="inherit"
+        >
+          <HotelIcon />
+        </IconButton>
+        <p>Khách sạn yêu thích</p>
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
@@ -219,8 +226,14 @@ export default function Header() {
             </Box>
           </Link>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton
+          <Box
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            {/* <IconButton
               size="large"
               aria-label="show 4 new mails"
               color="inherit"
@@ -237,22 +250,67 @@ export default function Header() {
               <Badge badgeContent={17} color="error">
                 <NotificationsIcon />
               </Badge>
-            </IconButton>
+            </IconButton> */}
+            <Button
+              variant="text"
+              color="primary"
+              size="medium"
+              sx={{
+                width: "fit-content",
+                height: "fit-content",
+              }}
+              onClick={() => router.push("/account/my-booking")}
+            >
+              Đơn đặt phòng
+            </Button>
+            <Button
+              variant="text"
+              color="primary"
+              size="medium"
+              sx={{
+                width: "fit-content",
+                height: "fit-content",
+              }}
+              onClick={() => router.push("/account/favorite-hotel")}
+            >
+              Khách sạn yêu thích
+            </Button>
+
             <Tooltip title="Cài đặt tài khoản">
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="account of current user"
-                aria-controls={menuId}
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
-                <Avatar
-                  alt="DHD"
-                  src="https://mui.com/static/images/avatar/2.jpg"
-                />
-              </IconButton>
+              <>
+                <Button
+                  variant="text"
+                  size="medium"
+                  sx={{
+                    width: "fit-content",
+                    height: "fit-content",
+                    color: "neutral.900",
+                  }}
+                  onClick={() => router.push("/account")}
+                >
+                  {email}
+                </Button>
+                <IconButton
+                  size="large"
+                  edge="end"
+                  aria-label="account of current user"
+                  aria-controls={menuId}
+                  aria-haspopup="true"
+                  onClick={handleProfileMenuOpen}
+                  color="inherit"
+                  sx={{
+                    "&:hover": {
+                      bgcolor: "action.hover",
+                    },
+                  }}
+                >
+                  <Avatar
+                    alt="DHD"
+                    src="https://mui.com/static/images/avatar/2.jpg"
+                    sx={{ width: 40, height: 40 }}
+                  />
+                </IconButton>
+              </>
             </Tooltip>
           </Box>
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
