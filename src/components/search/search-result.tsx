@@ -14,7 +14,11 @@ import formatCurrency from "@/utils/format-currency";
 import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { FALLBACK_URL } from "@/constant/constants";
+import { ALERT_TYPE, FALLBACK_URL } from "@/constant/constants";
+import { postRequest } from "@/services/api-instance";
+import { useDispatch, useSelector } from "react-redux";
+import { openAlert } from "@/redux/slices/alert-slice";
+import { RootState } from "@/redux/store";
 
 interface SearchResultProps {
   location: string;
@@ -25,6 +29,7 @@ interface SearchResultProps {
   childrenAges: any[];
   numRooms: number;
   hotelSearchResults: { [key: string]: any };
+  customer_id: number | null;
 }
 
 interface IHotel {
@@ -40,9 +45,12 @@ const SearchResult: FC<SearchResultProps> = ({
   childrenAges = [],
   numRooms = 1,
   hotelSearchResults = {},
+  customer_id = null,
 }) => {
   const router = useRouter();
   const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const dispatch = useDispatch();
 
   const handleNavigate = (hotel_id: number) => {
     const formattedCheckIn = checkIn.format("YYYY-MM-DD");
@@ -69,17 +77,67 @@ const SearchResult: FC<SearchResultProps> = ({
     setLikedHotels(initialLikedHotels);
   }, []);
 
-  const toggleLike = (hotel_id: number) => {
-    if (likedHotels.includes(hotel_id)) {
-      // Unlike hotel
-      console.log("Remove hotel favorite: ", hotel_id);
-      setLikedHotels((prevLikedHotels) =>
-        prevLikedHotels.filter((id) => id !== hotel_id)
+  const addFavoriteHotel = async (hotelId: number) => {
+    try {
+      const response = await postRequest(`/customer/addFavoriteHotel`, {
+        customer_id,
+        hotel_id: hotelId,
+      });
+      if (response?.status === 201) {
+        setLikedHotels((prevLikedHotels) => [...prevLikedHotels, hotelId]);
+      }
+    } catch (error: any) {
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.ERROR,
+          message:
+            error.response?.data?.message || "Đã xảy ra lỗi không mong muốn.",
+        })
       );
+    }
+  };
+
+  const removeFavoriteHotel = async (hotelId: number) => {
+    try {
+      const response = await postRequest(`/customer/removeFavoriteHotel`, {
+        customer_id,
+        hotel_id: hotelId,
+      });
+      if (response?.status === 200) {
+        setLikedHotels((prevLikedHotels) =>
+          prevLikedHotels.filter((id) => id !== hotelId)
+        );
+      }
+    } catch (error: any) {
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.ERROR,
+          message:
+            error.response?.data?.message || "Đã xảy ra lỗi không mong muốn.",
+        })
+      );
+    }
+  };
+
+  const toggleLike = (hotelId: number) => {
+    if (!isLoggedIn && !customer_id) {
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.WARNING,
+          message: "Vui lòng đăng nhập để thêm yêu thích.",
+        })
+      );
+      return;
+    }
+
+    if (likedHotels.includes(hotelId)) {
+      setLikedHotels((prevLikedHotels) =>
+        prevLikedHotels.filter((id) => id !== hotelId)
+      );
+      removeFavoriteHotel(hotelId);
     } else {
-      // Like hotel
-      console.log("Add hotel favorite: ", hotel_id);
-      setLikedHotels((prevLikedHotels) => [...prevLikedHotels, hotel_id]);
+      setLikedHotels((prevLikedHotels) => [...prevLikedHotels, hotelId]);
+      addFavoriteHotel(hotelId);
     }
   };
 

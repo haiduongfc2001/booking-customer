@@ -92,7 +92,7 @@ const LoginPage = () => {
           openAlert({
             type: ALERT_TYPE.ERROR,
             message:
-              err.response?.data?.message || "An unexpected error occurred.",
+              err.response?.data?.message || "Đã xảy ra lỗi không mong muốn.",
           })
         );
         helpers.setStatus({ success: false });

@@ -10,61 +10,119 @@ import {
   Typography,
 } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { favoriteHotels } from "@/utils/data";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 import ratingCategory from "@/utils/rating-category";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import Link from "next/link";
 import dayjs from "dayjs";
 import NoHotels from "./no-hotels";
-import { FALLBACK_URL } from "@/constant/constants";
+import { ALERT_TYPE, FALLBACK_URL, STATUS_CODE } from "@/constant/constants";
+import { useDispatch, useSelector } from "react-redux";
+import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
+import { getRequest, postRequest } from "@/services/api-instance";
+import { RootState } from "@/redux/store";
+import { openAlert } from "@/redux/slices/alert-slice";
 
 interface FavoriteHotelsProps {}
 
 const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
-  const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
+  const [likedHotels, setLikedHotels] = React.useState<
+    { [key: string]: any }[]
+  >([]);
 
-  React.useEffect(() => {
-    // Lọc ra danh sách các hotel đã được yêu thích ban đầu
-    const initialLikedHotels = favoriteHotels
-      .filter((hotel) => hotel?.is_favorite_hotel)
-      .map((hotel) => hotel?.hotel_id);
-    setLikedHotels(initialLikedHotels);
-  }, []);
+  // const customer_id = useSelector((state: RootState) => state.auth.customer_id);
+  const customer_id = 525;
+  const dispatch = useDispatch();
+  const initialLoad = React.useRef(true);
 
-  const toggleLike = (hotel_id: number) => {
-    if (likedHotels.includes(hotel_id)) {
-      // Unlike hotel
-      console.log("Remove hotel favorite: ", hotel_id);
-      setLikedHotels((prevLikedHotels) =>
-        prevLikedHotels.filter((id) => id !== hotel_id)
+  const fetchFavoriteHotels = async () => {
+    if (!customer_id) return;
+
+    dispatch(openLoadingApi());
+
+    try {
+      const response = await getRequest(
+        `/customer/${customer_id}/getFavoriteHotelsByCustomerId`
       );
-    } else {
-      // Like hotel
-      console.log("Add hotel favorite: ", hotel_id);
-      setLikedHotels((prevLikedHotels) => [...prevLikedHotels, hotel_id]);
+
+      if (response?.status === STATUS_CODE.OK) {
+        setLikedHotels(response.data);
+      }
+    } catch (error: any) {
+      console.error(error.response?.data?.message || error.message);
+    } finally {
+      dispatch(closeLoadingApi());
     }
   };
 
-  const isHotelLiked = (hotel_id: number) => likedHotels.includes(hotel_id);
+  React.useEffect(() => {
+    if (initialLoad.current) {
+      initialLoad.current = false;
+      return;
+    }
+    fetchFavoriteHotels();
+  }, [customer_id]);
+
+  const addFavoriteHotel = async (hotelId: number) => {
+    try {
+      const response = await postRequest(`/customer/addFavoriteHotel`, {
+        customer_id,
+        hotel_id: hotelId,
+      });
+      if (response?.status === STATUS_CODE.CREATED) {
+        fetchFavoriteHotels();
+      }
+    } catch (error: any) {
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.ERROR,
+          message:
+            error.response?.data?.message || "Đã xảy ra lỗi không mong muốn.",
+        })
+      );
+    }
+  };
+
+  const removeFavoriteHotel = async (hotelId: number) => {
+    try {
+      const response = await postRequest(`/customer/removeFavoriteHotel`, {
+        customer_id,
+        hotel_id: hotelId,
+      });
+      if (response?.status === STATUS_CODE.OK) {
+        fetchFavoriteHotels();
+      }
+    } catch (error: any) {
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.ERROR,
+          message:
+            error.response?.data?.message || "Đã xảy ra lỗi không mong muốn.",
+        })
+      );
+    }
+  };
+
+  const toggleLike = (hotelId: number) => {
+    if (isHotelLiked(hotelId)) {
+      removeFavoriteHotel(hotelId);
+    } else {
+      addFavoriteHotel(hotelId);
+    }
+  };
+
+  const isHotelLiked = (id: number) =>
+    likedHotels.some((hotel) => hotel.id === id);
 
   const formattedCheckIn = dayjs().add(5, "day").format("YYYY-MM-DD");
   const formattedCheckOut = dayjs().add(6, "day").format("YYYY-MM-DD");
 
-  const getCityFromAddress = (address: string): string => {
-    const addressArray = address?.split(",");
-    // Tách thành phố/tỉnh từ địa chỉ
-    const city = addressArray[addressArray?.length - 1]?.trim();
-
-    return city || "Hà Nội"; // Nếu không tìm thấy tỉnh/thành phố thì trả về "Hà Nội" mặc định
-  };
-
   return (
     <Box sx={{ flex: "1" }}>
-      {favoriteHotels.length > 0 ? (
+      {likedHotels.length > 0 ? (
         <Grid container spacing={3}>
-          {favoriteHotels?.map((hotel) => (
-            <Grid item xs={12} key={hotel?.hotel_id}>
+          {likedHotels?.map((hotel) => (
+            <Grid item xs={12} key={hotel?.id}>
               <Box
                 sx={{
                   color: "neutral.900",
@@ -102,8 +160,8 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
                   >
                     <CardMedia
                       component="img"
-                      src={hotel?.hotel_avatar || FALLBACK_URL.HOTEL_NO_IMAGE}
-                      alt={hotel?.hotel_name}
+                      src={hotel?.avatar || FALLBACK_URL.HOTEL_NO_IMAGE}
+                      alt={hotel?.name}
                       sx={{
                         width: "100%",
                         height: "214px",
@@ -133,13 +191,11 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
                           justifyContent: "inherit",
                         },
                       }}
-                      onClick={() => toggleLike(hotel?.hotel_id)}
+                      onClick={() => toggleLike(hotel?.id)}
                     >
                       <FavoriteIcon
                         sx={{
-                          fill: isHotelLiked(hotel?.hotel_id)
-                            ? "red"
-                            : "neutral.900",
+                          fill: isHotelLiked(hotel?.id) ? "red" : "neutral.900",
                           stroke: "#ffffff",
                         }}
                       />
@@ -163,7 +219,7 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
                       >
                         {(() => {
                           const searchQueryParams = new URLSearchParams({
-                            location: getCityFromAddress(hotel?.hotel_address),
+                            location: hotel?.city,
                             checkIn: formattedCheckIn,
                             checkOut: formattedCheckOut,
                             numAdults: "1",
@@ -172,9 +228,9 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
 
                           return (
                             <Link
-                              href={`/hotel/${hotel?.hotel_id}?${searchQueryParams}`}
+                              href={`/hotel/${hotel?.id}?${searchQueryParams}`}
                             >
-                              {hotel?.hotel_name}
+                              {hotel?.name}
                             </Link>
                           );
                         })()}
@@ -201,9 +257,9 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
                           }}
                         >
                           <RateReviewIcon />
-                          &nbsp;{hotel?.hotel_rating}
+                          &nbsp;{hotel?.rating}
                         </IconButton>
-                        {ratingCategory(hotel?.hotel_rating)}
+                        {ratingCategory(hotel?.rating)}
                         <Box
                           component="span"
                           sx={{
@@ -226,7 +282,7 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
                             textOverflow: "ellipsis",
                           }}
                         >
-                          {getCityFromAddress(hotel?.hotel_address)}
+                          {hotel?.address}
                         </Typography>
                       </Stack>
                     </Box>

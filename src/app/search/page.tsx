@@ -10,9 +10,10 @@ import AmenitiesFilter from "@/components/search/filter/amenities-filter";
 import RoomTypeFilter from "@/components/search/filter/room-type-filter";
 import RatingFilter from "@/components/search/filter/rating-filter";
 import { postRequest } from "@/services/api-instance";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
+import { RootState } from "@/redux/store";
 
 export default function Search(props: any) {
   const [priceRange, setPriceRange] = React.useState<number[]>([
@@ -26,6 +27,9 @@ export default function Search(props: any) {
   const [selectedMinRating, setSelectedMinRating] = React.useState<string>("");
   const [hotelSearchResults, setHotelSearchResults] = React.useState<any>();
   const [error, setError] = React.useState<string | null>(null);
+
+  const customer_id = useSelector((state: RootState) => state.auth.customer_id);
+  // const customer_id = 525;
 
   const dispatch: AppDispatch = useDispatch<AppDispatch>();
 
@@ -62,6 +66,7 @@ export default function Search(props: any) {
           room_type: selectedRoomType,
           min_rating: selectedMinRating,
         },
+        customer_id,
       };
 
       try {
@@ -218,6 +223,7 @@ export default function Search(props: any) {
             childrenAges={childrenAgesArray}
             numRooms={numRooms}
             hotelSearchResults={hotelSearchResults}
+            customer_id={customer_id}
           />
         ) : (
           <div>Không có khách sạn nào thỏa mãn yêu cầu của quý khách!</div>
