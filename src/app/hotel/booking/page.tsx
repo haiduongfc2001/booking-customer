@@ -38,8 +38,8 @@ import { renderBeds } from "@/utils/render-beds";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { openAlert } from "@/redux/slices/alert-slice";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/redux/store";
+import { useAppDispatch, useAppSelector } from "@/redux/store/store";
+import { AppDispatch, RootState } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 
 const addSpecialRequestList: string[] = [
@@ -66,8 +66,10 @@ export default function Booking(props: any) {
   const [bookingData, setBookingData] = React.useState<any>({});
   const [hotelData, setHotelData] = React.useState<any>({});
 
-  const customer_id = useSelector((state: RootState) => state.auth.customer_id);
-  const dispatch: AppDispatch = useDispatch<AppDispatch>();
+  const customer_id = useAppSelector(
+    (state: RootState) => state.auth.customer_id
+  );
+  const dispatch: AppDispatch = useAppDispatch();
 
   const initialLoad = React.useRef(true);
 

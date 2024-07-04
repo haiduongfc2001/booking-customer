@@ -17,10 +17,10 @@ import Link from "next/link";
 import dayjs from "dayjs";
 import NoHotels from "./no-hotels";
 import { ALERT_TYPE, FALLBACK_URL, STATUS_CODE } from "@/constant/constants";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 import { getRequest, postRequest } from "@/services/api-instance";
-import { RootState } from "@/redux/store";
+import { RootState } from "@/redux/store/store";
 import { openAlert } from "@/redux/slices/alert-slice";
 
 interface FavoriteHotelsProps {}
@@ -30,9 +30,9 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
     { [key: string]: any }[]
   >([]);
 
-  // const customer_id = useSelector((state: RootState) => state.auth.customer_id);
+  // const customer_id = useAppSelector((state: RootState) => state.auth.customer_id);
   const customer_id = 525;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const initialLoad = React.useRef(true);
 
   const fetchFavoriteHotels = async () => {

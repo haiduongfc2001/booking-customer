@@ -26,7 +26,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useRouter } from "next/navigation";
 import { postRequest } from "@/services/api-instance";
 import { openAlert } from "@/redux/slices/alert-slice";
-import { useDispatch } from "react-redux";
+import { useAppDispatch } from "@/redux/store/store";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -34,7 +34,7 @@ export default function RegisterPage() {
     React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const router = useRouter();
 

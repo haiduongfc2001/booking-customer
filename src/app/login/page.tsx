@@ -20,14 +20,14 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { ALERT_TYPE, API, STATUS_CODE } from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
 import { updateAccessToken } from "@/services/storage";
-import { useDispatch } from "react-redux";
+import { useAppDispatch } from "@/redux/store/store";
 import { openAlert } from "@/redux/slices/alert-slice";
 import { login } from "@/redux/slices/auth-slice";
-import { AppDispatch } from "@/redux/store";
+import { AppDispatch } from "@/redux/store/store";
 
 const LoginPage = () => {
   const router = useRouter();
-  const dispatch: AppDispatch = useDispatch<AppDispatch>();
+  const dispatch: AppDispatch = useAppDispatch();
 
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -72,13 +72,8 @@ const LoginPage = () => {
               message: res?.message || "Logged in successfully!",
             })
           );
-
-          const timeout = setTimeout(() => {
-            router.push("/");
-            formik.resetForm();
-          }, 2000);
-
-          return () => clearTimeout(timeout);
+          router.push("/");
+          formik.resetForm();
         } else {
           dispatch(
             openAlert({

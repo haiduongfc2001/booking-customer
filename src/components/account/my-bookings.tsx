@@ -26,8 +26,8 @@ import formatCurrency from "@/utils/format-currency";
 import { getBookingStatusColor } from "@/utils/get-status-color";
 import { useRouter } from "next/navigation";
 import { formatDateLocaleVi } from "@/utils/format-date";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useAppSelector } from "@/redux/store/store";
+import { RootState } from "@/redux/store/store";
 
 interface MyBookingsProps {}
 
@@ -59,7 +59,9 @@ const sortOptions = [
 const MyBookings: FC<MyBookingsProps> = () => {
   const router = useRouter();
 
-  const customer_id = useSelector((state: RootState) => state.auth.customer_id);
+  const customer_id = useAppSelector(
+    (state: RootState) => state.auth.customer_id
+  );
 
   const initialLoad = React.useRef(true);
   const [myBookings, setMyBookingsData] = React.useState<RoomBookingList>([]);

@@ -1,13 +1,13 @@
 "use client";
-import { RootState } from "@/redux/store";
+import { RootState } from "@/redux/store/store";
 import { loading } from "@/theme/colors";
 import React, { useEffect, useState } from "react";
 import ReactLoading from "react-loading";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "@/redux/store/store";
 
 const Loading: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const data = useSelector((state: RootState) => state.loading.data);
+  const data = useAppSelector((state: RootState) => state.loading.data);
 
   useEffect(() => {
     if (data.isLoading !== null) {

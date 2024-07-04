@@ -1,16 +1,16 @@
 "use client";
 import { closeAlert } from "@/redux/slices/alert-slice";
-import { RootState } from "@/redux/store";
+import { RootState } from "@/redux/store/store";
 import { success, info, warning, error } from "@/theme/colors";
 import { Alert, Snackbar } from "@mui/material";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 
 type Severity = "error" | "success" | "info" | "warning" | undefined;
 
 const AlertModal = () => {
-  const dispatch = useDispatch();
-  const alertData = useSelector((state: RootState) => state.alert);
+  const dispatch = useAppDispatch();
+  const alertData = useAppSelector((state: RootState) => state.alert);
 
   const handleCloseAlert = (
     event?: React.SyntheticEvent | Event,

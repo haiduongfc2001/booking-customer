@@ -22,8 +22,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import CustomizedBadges from "@/lib/badge";
 import CameraAltOutlinedIcon from "@mui/icons-material/CameraAltOutlined";
-import { AppDispatch, RootState } from "@/redux/store";
-import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store/store";
+import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 import { getRequest } from "@/services/api-instance";
 import { GENDER, STATUS_CODE } from "@/constant/constants";
@@ -39,9 +39,11 @@ const AccountManagement: FC<IAccountManagement> = () => {
     avatar: "",
   });
 
-  const dispatch: AppDispatch = useDispatch<AppDispatch>();
+  const dispatch: AppDispatch = useAppDispatch();
 
-  const customer_id = useSelector((state: RootState) => state.auth.customer_id);
+  const customer_id = useAppSelector(
+    (state: RootState) => state.auth.customer_id
+  );
 
   React.useEffect(() => {
     const fetchCustomer = async () => {

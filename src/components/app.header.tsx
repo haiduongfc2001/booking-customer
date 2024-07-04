@@ -15,8 +15,8 @@ import { useRouter } from "next/navigation";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import HotelIcon from "@mui/icons-material/Hotel";
 import { logout } from "@/redux/slices/auth-slice";
-import { AppDispatch, RootState } from "@/redux/store";
-import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store/store";
+import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 
 const pages = ["Đơn đặt phòng", "Khách sạn yêu thích", "Tài khoản"];
 
@@ -32,10 +32,10 @@ export default function Header() {
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-  const dispatch: AppDispatch = useDispatch<AppDispatch>();
-  const email = useSelector((state: RootState) => state.auth.email);
+  const dispatch: AppDispatch = useAppDispatch();
+  const email = useAppSelector((state: RootState) => state.auth.email);
 
-  console.log(useSelector((state: RootState) => state.auth));
+  console.log(useAppSelector((state: RootState) => state.auth));
 
   const settings = [
     // { label: "Hồ sơ", action: () => handleProfileAction("Hồ sơ") },

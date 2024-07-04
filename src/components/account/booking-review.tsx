@@ -16,8 +16,8 @@ import {
 import { TransitionProps } from "@mui/material/transitions";
 import { API, STATUS_CODE } from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useAppSelector } from "@/redux/store/store";
+import { RootState } from "@/redux/store/store";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -55,7 +55,9 @@ const BookingReview: React.FC<BookingReviewProps> = ({
 }) => {
   const [ratings, setRatings] = useState(initialRatings);
 
-  const customer_id = useSelector((state: RootState) => state.auth.customer_id);
+  const customer_id = useAppSelector(
+    (state: RootState) => state.auth.customer_id
+  );
 
   const handleCloseModalReview = () => {
     setOpenModalReview(false);

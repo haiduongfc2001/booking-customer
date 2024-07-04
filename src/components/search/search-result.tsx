@@ -16,9 +16,9 @@ import dayjs, { Dayjs } from "dayjs";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { ALERT_TYPE, FALLBACK_URL } from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { openAlert } from "@/redux/slices/alert-slice";
-import { RootState } from "@/redux/store";
+import { RootState } from "@/redux/store/store";
 
 interface SearchResultProps {
   location: string;
@@ -29,7 +29,7 @@ interface SearchResultProps {
   childrenAges: any[];
   numRooms: number;
   hotelSearchResults: { [key: string]: any };
-  customer_id: number | null;
+  customer_id: string | number | null;
 }
 
 interface IHotel {
@@ -49,8 +49,10 @@ const SearchResult: FC<SearchResultProps> = ({
 }) => {
   const router = useRouter();
   const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
-  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
-  const dispatch = useDispatch();
+  const isLoggedIn = useAppSelector(
+    (state: RootState) => state.auth.isLoggedIn
+  );
+  const dispatch = useAppDispatch();
 
   const handleNavigate = (hotel_id: number) => {
     const formattedCheckIn = checkIn.format("YYYY-MM-DD");

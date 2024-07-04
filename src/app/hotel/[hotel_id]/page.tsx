@@ -29,8 +29,7 @@ import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
 import { API, STATUS_CODE } from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
 import SkeletonComponent from "@/components/layout/loading-skeleton";
-import { AppDispatch } from "@/redux/store";
-import { useDispatch } from "react-redux";
+import { AppDispatch, useAppDispatch } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 
 export default function HotelDetail(props: any) {
@@ -43,7 +42,7 @@ export default function HotelDetail(props: any) {
 
   const theme = useTheme();
   const isMd = useMediaQuery(theme.breakpoints.only("md"));
-  const dispatch: AppDispatch = useDispatch<AppDispatch>();
+  const dispatch: AppDispatch = useAppDispatch();
 
   const searchQueryParams = new URLSearchParams({
     location,

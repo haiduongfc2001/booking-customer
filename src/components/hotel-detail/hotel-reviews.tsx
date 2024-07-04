@@ -20,8 +20,8 @@ import BedIcon from "@mui/icons-material/Bed";
 import { STATUS_CODE } from "@/constant/constants";
 import { getRequest } from "@/services/api-instance";
 import dayjs from "dayjs";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
+import { useAppDispatch } from "@/redux/store/store";
+import { AppDispatch } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 
 interface IReplyReview {
@@ -70,7 +70,7 @@ const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
   const [hotelReviews, setHotelReviews] =
     React.useState<HotelReviewsData | null>(null);
 
-  const dispatch: AppDispatch = useDispatch<AppDispatch>();
+  const dispatch: AppDispatch = useAppDispatch();
 
   React.useEffect(() => {
     const fetchHotelReviews = async () => {
