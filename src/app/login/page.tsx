@@ -64,7 +64,13 @@ const LoginPage = () => {
         const res = await postRequest(API.CUSTOMER.LOGIN, { email, password });
 
         if (res?.status === STATUS_CODE.OK && res?.token && res.customer) {
-          dispatch(login({ email, customer_id: res.customer?.id }));
+          dispatch(
+            login({
+              email,
+              customer_id: res.customer?.id,
+              avatar: res.customer?.avatar,
+            })
+          );
           updateAccessToken(res?.token);
           dispatch(
             openAlert({

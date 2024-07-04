@@ -1,5 +1,5 @@
 "use client";
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import {
   Avatar,
   Button,
@@ -25,8 +25,9 @@ import CameraAltOutlinedIcon from "@mui/icons-material/CameraAltOutlined";
 import { AppDispatch, RootState } from "@/redux/store/store";
 import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
-import { getRequest } from "@/services/api-instance";
-import { GENDER, STATUS_CODE } from "@/constant/constants";
+import { getRequest, patchRequest } from "@/services/api-instance";
+import { ALERT_TYPE, API, GENDER, STATUS_CODE } from "@/constant/constants";
+import { openAlert } from "@/redux/slices/alert-slice";
 
 interface IAccountManagement {}
 
@@ -45,57 +46,114 @@ const AccountManagement: FC<IAccountManagement> = () => {
     (state: RootState) => state.auth.customer_id
   );
 
-  React.useEffect(() => {
-    const fetchCustomer = async () => {
-      if (!customer_id) return;
+  const fetchCustomer = React.useCallback(async () => {
+    if (!customer_id) return;
 
-      dispatch(openLoadingApi());
+    dispatch(openLoadingApi());
 
-      try {
-        const response = await getRequest(
-          `/customer/${customer_id}/getCustomerById`
-        );
+    try {
+      const response = await getRequest(
+        `/customer/${customer_id}/getCustomerById`
+      );
 
-        if (response && response.status === STATUS_CODE.OK) {
-          setCustomerData(response.data);
-        }
-      } catch (error: any) {
-        console.error(error.response?.data?.message || error.message);
-      } finally {
-        dispatch(closeLoadingApi());
+      if (response && response.status === STATUS_CODE.OK) {
+        setCustomerData(response.data);
       }
-    };
-
-    fetchCustomer();
+    } catch (error: any) {
+      console.error(error.response?.data?.message || error.message);
+    } finally {
+      dispatch(closeLoadingApi());
+    }
   }, [customer_id, dispatch]);
 
-  const formik = useFormik({
-    initialValues: {
-      email: customerData?.email,
-      full_name: customerData?.full_name,
-      gender: customerData?.gender,
-      phone: customerData?.phone,
+  useEffect(() => {
+    fetchCustomer();
+  }, [customer_id, fetchCustomer]);
+
+  const initialValues = useMemo(
+    () => ({
+      email: customerData?.email || "",
+      full_name: customerData?.full_name || "",
+      gender: customerData?.gender || "",
+      phone: customerData?.phone || "",
+      avatar: customerData?.avatar || "",
       submit: null,
-    },
+    }),
+    [
+      customerData?.email,
+      customerData?.full_name,
+      customerData?.gender,
+      customerData?.phone,
+      customerData?.avatar,
+    ]
+  );
+
+  const formik = useFormik({
+    initialValues,
+    enableReinitialize: true,
     validationSchema: Yup.object({
       email: Yup.string()
         .email("Vui lòng nhập địa chỉ email hợp lệ!")
         .max(255)
         .required("Vui lòng nhập địa chỉ email!"),
       full_name: Yup.string().max(30).required("Vui lòng nhập họ và tên!"),
-      phone: Yup.string().max(30).required("Vui lòng nhập số điện thoại!"),
+      phone: Yup.string()
+        .matches(/^[0-9]{10}$/, "Số điện thoại chỉ gồm 10 số!")
+        .min(10, "Số điện thoại phải dài chính xác 10 ký tự!")
+        .max(10, "Số điện thoại phải dài chính xác 10 ký tự!"),
       gender: Yup.mixed()
         .oneOf([GENDER.MALE, GENDER.FEMALE, GENDER.OTHER])
         .required("Vui lòng nhập giới tính của bạn!"),
     }),
     onSubmit: async (values, helpers) => {
+      dispatch(openLoadingApi());
       try {
-        console.log("Submitted values:", values);
-        alert("Cập nhật thông tin tài khoản thành công!");
+        const { email, full_name, gender } = values;
+
+        const res = await patchRequest(
+          `/customer/${customer_id}/updateCustomer`,
+          {
+            email,
+            full_name,
+            gender,
+          }
+        );
+        if (res?.status === STATUS_CODE.OK) {
+          dispatch(
+            openAlert({
+              type: ALERT_TYPE.SUCCESS,
+              message: res?.message,
+            })
+          );
+
+          await fetchCustomer();
+          helpers.resetForm({
+            values: {
+              ...values,
+              submit: null,
+            },
+          });
+        } else {
+          dispatch(
+            openAlert({
+              type: ALERT_TYPE.ERROR,
+              message: res?.data?.error || "Cập nhật thất bại!",
+            })
+          );
+        }
       } catch (err: any) {
+        dispatch(
+          openAlert({
+            type: ALERT_TYPE.ERROR,
+            message:
+              err.response?.data?.message || "Đã xảy ra lỗi không mong muốn.",
+          })
+        );
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
         helpers.setSubmitting(false);
+      } finally {
+        dispatch(closeLoadingApi());
       }
     },
   });
@@ -115,9 +173,7 @@ const AccountManagement: FC<IAccountManagement> = () => {
       };
       reader.readAsDataURL(selectedFile);
     } else {
-      // Thông báo cho người dùng nếu chọn nhiều hơn hoặc không chọn file
       alert("Vui lòng chỉ chọn duy nhất một ảnh!");
-      // Đặt giá trị của input type="file" về null để cho phép người dùng chọn lại file
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -126,16 +182,12 @@ const AccountManagement: FC<IAccountManagement> = () => {
 
   const handleCancel = () => {
     setSelectedImage(null);
-    // Đặt giá trị của input type="file" về null để cho phép người dùng chọn lại file
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
   const handleUpdate = () => {
-    // Cập nhật ảnh cho userInfo?.avatar
-    // Có thể lưu ảnh vào state của component cha hoặc gửi lên server
-    // Sau khi cập nhật, thông báo cho người dùng
     alert("Cập nhật ảnh thành công");
   };
 
@@ -189,7 +241,7 @@ const AccountManagement: FC<IAccountManagement> = () => {
             }
           >
             <Avatar
-              src={selectedImage || userInfo?.avatar || ""}
+              src={selectedImage || customerData?.avatar || ""}
               alt={customerData?.email}
               sx={{
                 bgcolor: "primary.light",
@@ -198,7 +250,7 @@ const AccountManagement: FC<IAccountManagement> = () => {
                 height: 128,
               }}
             >
-              {getInitials(userInfo?.name)}
+              {getInitials(customerData?.full_name)}
             </Avatar>
           </CustomizedBadges>
 
@@ -210,7 +262,7 @@ const AccountManagement: FC<IAccountManagement> = () => {
                 justifyContent: "center",
                 my: 2,
                 "& > :not(:last-child)": {
-                  marginRight: 1, // Thêm margin-right 4px cho các phần tử không phải là phần tử cuối cùng
+                  marginRight: 1,
                 },
               }}
             >
@@ -242,18 +294,36 @@ const AccountManagement: FC<IAccountManagement> = () => {
                 error={!!(formik.touched.email && formik.errors.email)}
                 helperText={formik.touched.email && formik.errors.email}
               />
-              <TextField
-                fullWidth
-                label="Họ và tên"
-                name="full_name"
-                placeholder="Nhập tên của bạn"
-                size="small"
-                onBlur={formik.handleBlur}
-                onChange={formik.handleChange}
-                value={formik.values.full_name}
-                error={!!(formik.touched.full_name && formik.errors.full_name)}
-                helperText={formik.touched.full_name && formik.errors.full_name}
-              />
+              <Stack spacing={2} direction={{ xs: "column", md: "row" }}>
+                <TextField
+                  fullWidth
+                  label="Họ và tên"
+                  name="full_name"
+                  placeholder="Nhập tên của bạn"
+                  size="small"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values.full_name}
+                  error={
+                    !!(formik.touched.full_name && formik.errors.full_name)
+                  }
+                  helperText={
+                    formik.touched.full_name && formik.errors.full_name
+                  }
+                />
+                <TextField
+                  fullWidth
+                  label="Số điện thoại"
+                  name="phone"
+                  placeholder="Nhập số điện thoại của bạn"
+                  size="small"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values.phone}
+                  error={!!(formik.touched.phone && formik.errors.phone)}
+                  helperText={formik.touched.phone && formik.errors.phone}
+                />
+              </Stack>
               <div>
                 <FormControl
                   sx={{ px: 1.5 }}
