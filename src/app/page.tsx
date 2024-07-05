@@ -4,6 +4,7 @@ import * as React from "react";
 import { Box, CardMedia } from "@mui/material";
 import SearchBar from "@/components/home/search";
 import OutstandingHotel from "@/components/home/outstanding-hotel";
+import Provinces from "@/components/home/province-card";
 
 export default function Home() {
   return (
@@ -49,7 +50,7 @@ export default function Home() {
         </Box>
       </Box>
       <OutstandingHotel />
-      {/* <MapComponent /> */}
+      <Provinces />
     </>
   );
 }

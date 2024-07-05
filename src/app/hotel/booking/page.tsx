@@ -212,11 +212,16 @@ export default function Booking(props: any) {
 
   const handleBooking = async () => {
     if (!selectedPaymentMethod) {
-      alert("Vui lòng chọn phương thức thanh toán!");
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.WARNING,
+          message: "Vui lòng chọn phương thức thanh toán!",
+        })
+      );
       return;
     }
 
-    await formik.handleSubmit();
+    formik.handleSubmit();
 
     const amount = bookingData?.cost?.final_price;
     const description = `Payment for booking at ${hotelData?.name} from ${checkIn} to ${checkOut}. 

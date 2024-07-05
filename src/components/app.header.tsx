@@ -20,6 +20,8 @@ import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { usePopover } from "@/lib/use-popover";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { openAlert } from "@/redux/slices/alert-slice";
+import { ALERT_TYPE } from "@/constant/constants";
 
 const pages = ["Đơn đặt phòng", "Khách sạn yêu thích", "Tài khoản"];
 
@@ -83,6 +85,12 @@ export default function Header() {
   const handleLogoutAction = () => {
     setAnchorEl(null);
     dispatch(logout());
+    dispatch(
+      openAlert({
+        type: ALERT_TYPE.SUCCESS,
+        message: "Đăng xuất thành công.",
+      })
+    );
     router.push("/login");
   };
 
@@ -241,11 +249,54 @@ export default function Header() {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page) => (
+              {/* {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
-              ))}
+              ))} */}
+
+              <MenuItem onClick={() => router.push("/account/my-booking")}>
+                <IconButton
+                  size="large"
+                  aria-label="show 17 new notifications"
+                  color="inherit"
+                >
+                  <ShoppingCartIcon />
+                </IconButton>
+                <p>Đơn đặt phòng</p>
+              </MenuItem>
+              <MenuItem onClick={() => router.push("/account/favorite-hotel")}>
+                <IconButton
+                  size="large"
+                  aria-label="show 17 new notifications"
+                  color="inherit"
+                >
+                  <HotelIcon />
+                </IconButton>
+                <p>Khách sạn yêu thích</p>
+              </MenuItem>
+              <MenuItem onClick={handleProfileMenuOpen}>
+                <IconButton
+                  size="small"
+                  edge="end"
+                  aria-label="account of current user"
+                  aria-controls={menuId}
+                  aria-haspopup="true"
+                  onClick={handleProfileMenuOpen}
+                  color="inherit"
+                >
+                  <Avatar
+                    sx={{
+                      cursor: "pointer",
+                      height: 40,
+                      width: 40,
+                    }}
+                    alt={email ?? "User Avatar"}
+                    src={avatar ?? undefined}
+                  />
+                </IconButton>
+                <p>Hồ sơ</p>
+              </MenuItem>
             </Menu>
           </Box>
           <Link href="/" passHref>

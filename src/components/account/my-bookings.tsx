@@ -12,6 +12,9 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
+  SvgIcon,
+  Stack,
+  Pagination,
 } from "@mui/material";
 import Link from "next/link";
 import dayjs from "dayjs";
@@ -20,14 +23,20 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
 import ModeNightIcon from "@mui/icons-material/ModeNight";
 import NoBookings from "./no-bookings";
-import { getRequest } from "@/services/api-instance";
-import { FALLBACK_URL, STATUS_CODE } from "@/constant/constants";
+import { postRequest } from "@/services/api-instance";
+import { FALLBACK_URL, PAGINATION, STATUS_CODE } from "@/constant/constants";
 import formatCurrency from "@/utils/format-currency";
 import { getBookingStatusColor } from "@/utils/get-status-color";
 import { useRouter } from "next/navigation";
 import { formatDateLocaleVi } from "@/utils/format-date";
 import { useAppSelector } from "@/redux/store/store";
 import { RootState } from "@/redux/store/store";
+import NewReleasesIcon from "@mui/icons-material/NewReleases";
+import HistoryIcon from "@mui/icons-material/History";
+import CancelIcon from "@mui/icons-material/Cancel";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
 interface MyBookingsProps {}
 
@@ -39,42 +48,63 @@ type RoomBookingList = RoomBooking[];
 
 const sortOptions = [
   {
-    code: "newest",
+    code: "NEWEST",
     textDetail: "Mới nhất",
+    icon: <NewReleasesIcon />,
   },
   {
-    code: "oldest",
+    code: "OLDEST",
     textDetail: "Cũ nhất",
+    icon: <HistoryIcon />,
   },
   {
-    code: "cancelled",
+    code: "CANCELLED",
     textDetail: "Đã hủy",
+    icon: <CancelIcon />,
   },
   {
-    code: "booked",
+    code: "CONFIRMED",
     textDetail: "Đã đặt phòng",
+    icon: <CheckCircleIcon />,
+  },
+  {
+    code: "CHECKED_IN",
+    textDetail: "Đã nhận phòng",
+    icon: <MeetingRoomIcon />,
+  },
+  {
+    code: "CHECKED_OUT",
+    textDetail: "Đã trả phòng",
+    icon: <ExitToAppIcon />,
   },
 ];
 
 const MyBookings: FC<MyBookingsProps> = () => {
   const router = useRouter();
-
   const customer_id = useAppSelector(
     (state: RootState) => state.auth.customer_id
   );
 
   const initialLoad = React.useRef(true);
   const [myBookings, setMyBookingsData] = React.useState<RoomBookingList>([]);
-  const [sortOption, setSortOption] = React.useState("newest");
+  const [sortOption, setSortOption] = React.useState("NEWEST");
+  const [numBookings, setNumBookings] = React.useState<number>(0);
+  const [page, setPage] = React.useState<number>(PAGINATION.INITIAL_PAGE);
 
   const fetchBookings = async () => {
     try {
-      const response = await getRequest(
-        `/booking/getAllBookingsByCustomerId/${customer_id}`
+      const response = await postRequest(
+        `/booking/getAllBookingsByCustomerId/${customer_id}`,
+        {
+          sortOption,
+          page,
+          size: 5,
+        }
       );
 
       if (response?.status === STATUS_CODE.OK) {
         setMyBookingsData(response.data);
+        setNumBookings(response.totalBookings);
       }
     } catch (error: any) {
       console.error(error.response?.data?.message || error.message);
@@ -89,9 +119,32 @@ const MyBookings: FC<MyBookingsProps> = () => {
     fetchBookings();
   }, []);
 
+  React.useEffect(() => {
+    fetchBookings();
+  }, [page, sortOption]);
+
   const handleSortOptionChange = (event: SelectChangeEvent) => {
     setSortOption(event.target.value as string);
+    setPage(PAGINATION.INITIAL_PAGE); // Reset page to initial when sort option changes
   };
+
+  const handleChangePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  React.useEffect(() => {
+    scrollToTop();
+  }, [page]);
 
   return (
     <Box sx={{ flex: "1" }}>
@@ -110,25 +163,38 @@ const MyBookings: FC<MyBookingsProps> = () => {
             justifyContent: "flex-end",
             alignItems: "center",
             borderBottom: "1px solid",
-            borderBottomColor: "primary.main ",
+            borderBottomColor: "primary.main",
             ml: 3,
             pt: "12px !important",
           }}
         >
           <Typography variant="h6">Sắp xếp&nbsp;&nbsp;</Typography>
-          <FormControl sx={{ m: 1, minWidth: 150 }} size="small">
+          <FormControl
+            sx={{
+              m: 1,
+              minWidth: 180,
+              "& .MuiSelect-select.MuiSelect-outlined": {
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+              },
+            }}
+            size="small"
+          >
             <Select
               autoWidth
               labelId="select-option-label"
               id="select-option"
-              defaultValue="newest"
+              defaultValue="NEWEST"
               sx={{ bgcolor: "background.paper" }}
               value={sortOption}
               onChange={handleSortOptionChange}
             >
               {sortOptions?.map((option) => (
                 <MenuItem key={option.code} value={option.code}>
-                  {option.textDetail}
+                  <SvgIcon>{option.icon}</SvgIcon>
+                  &nbsp;&nbsp;
+                  <Typography>{option.textDetail}</Typography>
                 </MenuItem>
               ))}
             </Select>
@@ -490,6 +556,21 @@ const MyBookings: FC<MyBookingsProps> = () => {
         </Grid>
       ) : (
         <NoBookings />
+      )}
+
+      {myBookings?.length > 0 && (
+        <Stack spacing={2} my={2} direction="row" justifyContent="center">
+          <Pagination
+            showFirstButton
+            showLastButton
+            defaultPage={Math.min(1, Math.ceil(numBookings / 5))}
+            boundaryCount={2}
+            count={Math.ceil(numBookings / 5)}
+            color="primary"
+            page={page}
+            onChange={handleChangePage}
+          />
+        </Stack>
       )}
     </Box>
   );

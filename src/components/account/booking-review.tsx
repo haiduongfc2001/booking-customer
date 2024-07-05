@@ -14,10 +14,16 @@ import {
   Slide,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
-import { API, STATUS_CODE } from "@/constant/constants";
+import { ALERT_TYPE, API, STATUS_CODE } from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
-import { useAppSelector } from "@/redux/store/store";
+import {
+  AppDispatch,
+  useAppDispatch,
+  useAppSelector,
+} from "@/redux/store/store";
 import { RootState } from "@/redux/store/store";
+import { openAlert } from "@/redux/slices/alert-slice";
+import { openLoadingApi } from "@/redux/slices/loading-slice";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -54,10 +60,16 @@ const BookingReview: React.FC<BookingReviewProps> = ({
   setOpenModalReview,
 }) => {
   const [ratings, setRatings] = useState(initialRatings);
+  const [hover, setHover] = useState<{ name: string; value: number | null }>({
+    name: "",
+    value: null,
+  });
 
   const customer_id = useAppSelector(
     (state: RootState) => state.auth.customer_id
   );
+
+  const dispatch: AppDispatch = useAppDispatch();
 
   const handleCloseModalReview = () => {
     setOpenModalReview(false);
@@ -88,13 +100,18 @@ const BookingReview: React.FC<BookingReviewProps> = ({
       !ratings.amenities_rating ||
       !ratings.comment
     ) {
-      // Nếu một trong các trường không được điền, hiển thị cảnh báo và không thực hiện hành động gửi đánh giá
-      alert("Vui lòng điền đầy đủ thông tin đánh giá trước khi gửi.");
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.WARNING,
+          message: "Vui lòng điền đầy đủ thông tin đánh giá trước khi gửi!",
+        })
+      );
       return;
     }
 
     setOpenModalReview(false);
     try {
+      dispatch(openLoadingApi());
       const response = await postRequest(API.REVIEW.CREATE_REVIEW, {
         booking_id: Number(booking_id),
         customer_id,
@@ -102,10 +119,28 @@ const BookingReview: React.FC<BookingReviewProps> = ({
       });
 
       if (response?.status === STATUS_CODE.CREATED) {
-        alert("Đánh giá thành công");
+        dispatch(
+          openAlert({
+            type: ALERT_TYPE.SUCCESS,
+            message: response?.message,
+          })
+        );
+      } else {
+        dispatch(
+          openAlert({
+            type: ALERT_TYPE.ERROR,
+            message: response?.data?.error,
+          })
+        );
       }
     } catch (error: any) {
       console.error(error.response?.data?.message || error.message);
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.ERROR,
+          message: error.response?.data?.message || error.message,
+        })
+      );
     } finally {
       setOpenModalReview(false);
       window.location.reload();
@@ -120,13 +155,17 @@ const BookingReview: React.FC<BookingReviewProps> = ({
       onClose={handleCloseModalReview}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
+      disableScrollLock // Ngăn chặn cuộn màn hình nền
+      scroll="paper" // Thêm cuộn cho nội dung bên trong dialog
     >
       <DialogTitle id="alert-dialog-title">
         <Typography component="div" variant="h4" gutterBottom>
           Đánh giá đơn đặt phòng
         </Typography>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent dividers>
+        {" "}
+        {/* dividers để thêm đường kẻ giữa tiêu đề và nội dung */}
         <DialogContentText id="alert-dialog-description"></DialogContentText>
         <Box component="form" noValidate autoComplete="off" sx={{ mt: 2 }}>
           <Grid container spacing={3}>
@@ -144,12 +183,46 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                   </Typography>
                 </Grid>
                 <Grid item xs={8}>
-                  <Rating
-                    name={item.name}
-                    value={ratings[item.name as RatingKeys] as number}
-                    onChange={handleRatingChange(item.name as RatingKeys)}
-                    max={10}
-                  />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Rating
+                      name={item.name}
+                      value={ratings[item.name as RatingKeys] as number}
+                      onChange={handleRatingChange(item.name as RatingKeys)}
+                      onChangeActive={(event, newHover) => {
+                        setHover({
+                          name: item.name,
+                          value: newHover !== -1 ? newHover : null,
+                        });
+                      }}
+                      max={10}
+                    />
+                    {hover.name === item.name &&
+                    hover.value !== null &&
+                    (ratings[item.name as RatingKeys] as number) !== 0 ? (
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ ml: 1 }}
+                      >
+                        {hover.value}/10
+                      </Typography>
+                    ) : (
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ ml: 1 }}
+                      >
+                        {ratings[item.name as RatingKeys] as number}/10
+                      </Typography>
+                    )}
+                  </Box>
                 </Grid>
               </Grid>
             ))}
@@ -170,7 +243,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
       <DialogActions>
         <Button
           variant="contained"
-          color="primary"
+          color="success"
           onClick={handleReviewBooking}
         >
           Gửi đánh giá

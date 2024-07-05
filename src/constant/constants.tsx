@@ -83,6 +83,11 @@ export const FILTER: IFilter = {
   },
 };
 
+export const PAGINATION = {
+  INITIAL_PAGE: 1,
+  PAGE_SIZE: 10,
+};
+
 export const RATING_CATEGORIES: IRatingCategories = {
   AMAZING: "Tuyệt vời",
   VERY_GOOD: "Rất tốt",

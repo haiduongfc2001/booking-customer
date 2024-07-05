@@ -6,6 +6,7 @@ import {
   CardMedia,
   Grid,
   IconButton,
+  Pagination,
   Stack,
   Typography,
 } from "@mui/material";
@@ -16,11 +17,15 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import Link from "next/link";
 import dayjs from "dayjs";
 import NoHotels from "./no-hotels";
-import { ALERT_TYPE, FALLBACK_URL, STATUS_CODE } from "@/constant/constants";
-import { useAppDispatch, useAppSelector } from "@/redux/store/store";
+import {
+  ALERT_TYPE,
+  FALLBACK_URL,
+  PAGINATION,
+  STATUS_CODE,
+} from "@/constant/constants";
+import { RootState, useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
-import { getRequest, postRequest } from "@/services/api-instance";
-import { RootState } from "@/redux/store/store";
+import { postRequest } from "@/services/api-instance";
 import { openAlert } from "@/redux/slices/alert-slice";
 
 interface FavoriteHotelsProps {}
@@ -29,9 +34,12 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
   const [likedHotels, setLikedHotels] = React.useState<
     { [key: string]: any }[]
   >([]);
+  const [numLikedHotels, setNumLikedHotels] = React.useState<number>(0);
+  const [page, setPage] = React.useState<number>(PAGINATION.INITIAL_PAGE);
 
-  // const customer_id = useAppSelector((state: RootState) => state.auth.customer_id);
-  const customer_id = 525;
+  const customer_id = useAppSelector(
+    (state: RootState) => state.auth.customer_id
+  );
   const dispatch = useAppDispatch();
   const initialLoad = React.useRef(true);
 
@@ -41,12 +49,17 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
     dispatch(openLoadingApi());
 
     try {
-      const response = await getRequest(
-        `/customer/${customer_id}/getFavoriteHotelsByCustomerId`
+      const response = await postRequest(
+        `/customer/${customer_id}/getFavoriteHotelsByCustomerId`,
+        {
+          page,
+          size: PAGINATION.PAGE_SIZE,
+        }
       );
 
       if (response?.status === STATUS_CODE.OK) {
         setLikedHotels(response.data);
+        setNumLikedHotels(response.numFavoriteHotels);
       }
     } catch (error: any) {
       console.error(error.response?.data?.message || error.message);
@@ -116,6 +129,24 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
 
   const formattedCheckIn = dayjs().add(5, "day").format("YYYY-MM-DD");
   const formattedCheckOut = dayjs().add(6, "day").format("YYYY-MM-DD");
+
+  const handleChangePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  React.useEffect(() => {
+    scrollToTop();
+  }, [page]);
 
   return (
     <Box sx={{ flex: "1" }}>
@@ -294,6 +325,24 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
         </Grid>
       ) : (
         <NoHotels />
+      )}
+
+      {likedHotels?.length > 0 && (
+        <Stack spacing={2} my={2} direction="row" justifyContent="center">
+          <Pagination
+            showFirstButton
+            showLastButton
+            defaultPage={Math.min(
+              1,
+              Math.ceil(numLikedHotels / PAGINATION.PAGE_SIZE)
+            )}
+            boundaryCount={2}
+            count={Math.ceil(numLikedHotels / PAGINATION.PAGE_SIZE)}
+            color="primary"
+            page={page}
+            onChange={handleChangePage}
+          />
+        </Stack>
       )}
     </Box>
   );

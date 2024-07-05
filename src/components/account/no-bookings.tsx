@@ -22,7 +22,7 @@ const NoBookings = () => {
           height="210"
           // loading="lazy"
         />
-        <Typography variant="h6" sx={{ pb: 2 }}>
+        <Typography variant="h6" sx={{ pb: 2, pt: 1 }}>
           Chưa có đơn đặt phòng nào
         </Typography>
         <Button variant="contained" color="primary">

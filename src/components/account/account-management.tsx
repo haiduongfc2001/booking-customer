@@ -177,7 +177,12 @@ const AccountManagement: FC<IAccountManagement> = () => {
       };
       reader.readAsDataURL(selectedFile);
     } else {
-      alert("Vui lòng chỉ chọn duy nhất một ảnh!");
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.WARNING,
+          message: "Vui lòng chỉ chọn duy nhất một ảnh!",
+        })
+      );
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
