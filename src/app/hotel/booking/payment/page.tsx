@@ -94,7 +94,7 @@ export default function UpdateBookingStatus(props: any) {
         `/payment/zalopay/orderStatus/${apptransid}`
       );
 
-      if (response && response.status === STATUS_CODE.OK) {
+      if (response?.status === STATUS_CODE.OK) {
         setPayment(response.data);
         setBooking(response.data?.bookingInfo);
 

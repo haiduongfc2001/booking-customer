@@ -101,7 +101,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
         ...ratings,
       });
 
-      if (response && response.status === STATUS_CODE.CREATED) {
+      if (response?.status === STATUS_CODE.CREATED) {
         alert("Đánh giá thành công");
       }
     } catch (error: any) {

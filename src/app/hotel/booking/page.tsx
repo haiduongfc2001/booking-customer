@@ -100,7 +100,7 @@ export default function Booking(props: any) {
         bookingBody
       );
 
-      if (response && response.status === STATUS_CODE.CREATED) {
+      if (response?.status === STATUS_CODE.CREATED) {
         setBookingData(response.data);
         setHotelData(response.data?.hotel);
       }
@@ -241,7 +241,7 @@ export default function Booking(props: any) {
           body
         );
 
-        if (response && response.return_code === 1) {
+        if (response?.return_code === 1) {
           window.location.href = response?.order_url;
         }
       } catch (error: any) {

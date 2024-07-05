@@ -73,7 +73,7 @@ const MyBookings: FC<MyBookingsProps> = () => {
         `/booking/getAllBookingsByCustomerId/${customer_id}`
       );
 
-      if (response && response.status === STATUS_CODE.OK) {
+      if (response?.status === STATUS_CODE.OK) {
         setMyBookingsData(response.data);
       }
     } catch (error: any) {

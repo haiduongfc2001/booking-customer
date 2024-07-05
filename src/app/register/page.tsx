@@ -99,7 +99,7 @@ export default function RegisterPage() {
           password,
         });
 
-        if (response && response.status === STATUS_CODE.CREATED) {
+        if (response?.status === STATUS_CODE.CREATED) {
           formik.resetForm();
 
           dispatch(

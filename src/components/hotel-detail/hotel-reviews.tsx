@@ -79,7 +79,7 @@ const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
       try {
         const response = await getRequest(`/review/getHotelReviews/${hotelId}`);
 
-        if (response && response.status === STATUS_CODE.OK) {
+        if (response?.status === STATUS_CODE.OK) {
           setHotelReviews(response.data);
         }
       } catch (error: any) {

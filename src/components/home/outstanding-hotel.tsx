@@ -42,7 +42,7 @@ const OutstandingHotel: React.FC = () => {
     } else if (isMd) {
       return 3;
     } else {
-      return 4; // For lg and up
+      return 4;
     }
   });
   const [likedHotels, setLikedHotels] = React.useState<number[]>([]);

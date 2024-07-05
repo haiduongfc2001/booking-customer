@@ -19,6 +19,7 @@ import {
 import * as React from "react";
 import { getRequest, postRequest } from "@/services/api-instance";
 import {
+  ALERT_TYPE,
   API,
   BOOKING_STATUS,
   FALLBACK_URL,
@@ -47,6 +48,8 @@ import CustomizedTooltip from "@/lib/tooltip";
 import InfoIcon from "@mui/icons-material/Info";
 import BookingReview from "@/components/account/booking-review";
 import { useRouter } from "next/navigation";
+import { AppDispatch, useAppDispatch } from "@/redux/store/store";
+import { openAlert } from "@/redux/slices/alert-slice";
 
 interface Booking {
   [key: string]: any;
@@ -120,6 +123,7 @@ export default function BookingDetails(props: any) {
   const { booking_id } = props.params;
 
   const initialLoad = React.useRef(true);
+  const dispatch: AppDispatch = useAppDispatch();
 
   const fetchBookingDetails = async () => {
     try {
@@ -127,7 +131,7 @@ export default function BookingDetails(props: any) {
         `/booking/${booking_id}/getBookingById`
       );
 
-      if (response && response.status === STATUS_CODE.OK) {
+      if (response?.status === STATUS_CODE.OK) {
         setBooking(response.data);
       }
     } catch (error: any) {
@@ -166,80 +170,108 @@ export default function BookingDetails(props: any) {
       );
 
       // Send refund request
-      await postRequest("/payment/zalopay/zaloPayRefund", {
-        booking_id,
-        amount,
-        description: `Refund ${refundPercentage}% for booking id ${booking_id}`,
-      });
-
-      alert("Hủy phòng thành công");
-
-      // Check if amount is 0 or less
-      if (amount <= 0) {
-        setBookingStatus({
-          status: BOOKING_STATUS.CANCELLED,
-          translateStatus: "Đã hủy",
-        });
-        return;
-      }
-
-      // Fetch initial booking details
-      const response = await getRequest(
-        `/payment/zalopay/zaloPayRefundStatus/${payment_id}`
+      const responseRefund = await postRequest(
+        "/payment/zalopay/zaloPayRefund",
+        {
+          booking_id,
+          amount,
+          description: `Refund ${refundPercentage}% for booking id ${booking_id}`,
+        }
       );
 
-      // Update state based on initial response
-      if (response && response.status === STATUS_CODE.OK) {
-        setCancelledBooking(true);
-        setRefund(response.data);
-        setBookingStatus({
-          status: BOOKING_STATUS.CANCELLED,
-          translateStatus: "Đã hủy",
-        });
+      if (responseRefund?.status === STATUS_CODE.OK) {
+        dispatch(
+          openAlert({
+            type: ALERT_TYPE.SUCCESS,
+            message: responseRefund?.message,
+          })
+        );
 
-        // Handle return_code
-        const { return_code } = response.details;
-        if (return_code === 1) {
-          // Clear any existing interval if the condition is met
+        // Check if amount is 0 or less
+        if (amount <= 0) {
+          setBookingStatus({
+            status: BOOKING_STATUS.CANCELLED,
+            translateStatus: "Đã hủy",
+          });
+          return;
+        }
+
+        // Fetch initial booking details
+        const response = await getRequest(
+          `/payment/zalopay/zaloPayRefundStatus/${payment_id}`
+        );
+
+        // Update state based on initial response
+        if (response?.status === STATUS_CODE.OK) {
+          setCancelledBooking(true);
+          setRefund(response.data);
+          setBookingStatus({
+            status: BOOKING_STATUS.CANCELLED,
+            translateStatus: "Đã hủy",
+          });
+
+          // Handle return_code
+          const { return_code } = response.details;
+          if (return_code === 1) {
+            // Clear any existing interval if the condition is met
+            if (intervalRef.current) {
+              clearInterval(intervalRef.current);
+            }
+          } else if (return_code === 2) {
+            dispatch(
+              openAlert({
+                type: ALERT_TYPE.ERROR,
+                message: "Hủy phòng thất bại",
+              })
+            );
+          } else if (return_code === 3) {
+            // Set up the interval to fetch data every 2000 milliseconds
+            intervalRef.current = setInterval(async () => {
+              try {
+                const intervalResponse = await getRequest(
+                  `/payment/zalopay/zaloPayRefundStatus/${payment_id}`
+                );
+
+                if (
+                  intervalResponse &&
+                  intervalResponse.status === STATUS_CODE.OK
+                ) {
+                  setRefund(intervalResponse.data);
+                  if (intervalResponse.details.return_code === 1) {
+                    window.location.reload();
+                    if (intervalRef.current) {
+                      clearInterval(intervalRef.current);
+                    }
+                  }
+                }
+              } catch (error: any) {
+                console.error(error.response?.data?.message || error.message);
+              }
+            }, 2000);
+          }
+        }
+
+        // Clean up interval on component unmount
+        return () => {
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
           }
-        } else if (return_code === 2) {
-          alert("Hủy phòng thất bại");
-        } else if (return_code === 3) {
-          // Set up the interval to fetch data every 2000 milliseconds
-          intervalRef.current = setInterval(async () => {
-            try {
-              const intervalResponse = await getRequest(
-                `/payment/zalopay/zaloPayRefundStatus/${payment_id}`
-              );
-
-              if (
-                intervalResponse &&
-                intervalResponse.status === STATUS_CODE.OK
-              ) {
-                setRefund(intervalResponse.data);
-                if (intervalResponse.details.return_code === 1) {
-                  window.location.reload();
-                  if (intervalRef.current) {
-                    clearInterval(intervalRef.current);
-                  }
-                }
-              }
-            } catch (error: any) {
-              console.error(error.response?.data?.message || error.message);
-            }
-          }, 2000);
-        }
+        };
+      } else {
+        dispatch(
+          openAlert({
+            type: ALERT_TYPE.ERROR,
+            message: responseRefund?.data?.error,
+          })
+        );
       }
-
-      // Clean up interval on component unmount
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-      };
     } catch (error: any) {
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.ERROR,
+          message: error.response?.data?.message || error.message,
+        })
+      );
       console.error(error.response?.data?.message || error.message);
     } finally {
       setOpenModalCancelBooking(false);
