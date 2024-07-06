@@ -5,8 +5,12 @@ import { Box, CardMedia } from "@mui/material";
 import SearchBar from "@/components/home/search";
 import OutstandingHotel from "@/components/home/outstanding-hotel";
 import Provinces from "@/components/home/province-card";
+import { AppDispatch, useAppDispatch } from "@/redux/store/store";
+import { closeLoadingApi } from "@/redux/slices/loading-slice";
 
 export default function Home() {
+  const dispatch: AppDispatch = useAppDispatch();
+  dispatch(closeLoadingApi());
   return (
     <>
       <Box

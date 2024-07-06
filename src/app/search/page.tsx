@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { Box, Button, Card } from "@mui/material";
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import SearchHotel from "@/components/search/search-hotel";
 import dayjs from "dayjs";
 import SearchResult from "@/components/search/search-result";
@@ -14,6 +14,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { AppDispatch } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 import { RootState } from "@/redux/store/store";
+import Image from "next/image";
 
 export default function Search(props: any) {
   const [priceRange, setPriceRange] = React.useState<number[]>([
@@ -31,7 +32,6 @@ export default function Search(props: any) {
   const customer_id = useAppSelector(
     (state: RootState) => state.auth.customer_id
   );
-  // const customer_id = 525;
 
   const dispatch: AppDispatch = useAppDispatch();
 
@@ -45,9 +45,10 @@ export default function Search(props: any) {
     childrenAges = [],
   } = props.searchParams;
 
-  const childrenAgesArray: number[] = childrenAges
-    .split(",")
-    .map((age: string) => Number(age));
+  const childrenAgesArray: number[] =
+    childrenAges.length > 0
+      ? childrenAges.split(",").map((age: string) => Number(age))
+      : [];
 
   React.useEffect(() => {
     const fetchHotels = async () => {
@@ -215,20 +216,62 @@ export default function Search(props: any) {
           >
             {error}
           </Card>
-        ) : hotelSearchResults?.items?.length > 0 ? (
-          <SearchResult
-            location={location}
-            checkIn={dayjs(checkIn)}
-            checkOut={dayjs(checkOut)}
-            numAdults={numAdults}
-            numChildren={numChildren}
-            childrenAges={childrenAgesArray}
-            numRooms={numRooms}
-            hotelSearchResults={hotelSearchResults}
-            customer_id={customer_id}
-          />
         ) : (
-          <div>Không có khách sạn nào thỏa mãn yêu cầu của quý khách!</div>
+          <Box
+            sx={{
+              width: "100%",
+              mx: 2,
+            }}
+          >
+            {hotelSearchResults?.items?.length > 0 ? (
+              <SearchResult
+                location={location}
+                checkIn={dayjs(checkIn)}
+                checkOut={dayjs(checkOut)}
+                numAdults={numAdults}
+                numChildren={numChildren}
+                childrenAges={childrenAgesArray}
+                numRooms={numRooms}
+                hotelSearchResults={hotelSearchResults}
+                customer_id={customer_id}
+              />
+            ) : (
+              <Card
+                sx={{
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 1,
+                  marginTop: "10px",
+                  boxShadow: 1,
+                  m: 1,
+                  bgcolor: "background.paper",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <CardContent
+                  sx={{
+                    m: "32px 0 32px !important",
+                    display: "flex",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Image
+                    src="https://static.vecteezy.com/system/resources/previews/015/694/767/original/skyscraper-hotel-building-flat-cartoon-hand-drawn-illustration-template-with-view-on-city-space-of-street-panorama-design-vector.jpg"
+                    alt="no-hotels"
+                    width="249"
+                    height="210"
+                    loading="lazy"
+                  />
+                  <Typography variant="body1" gutterBottom>
+                    Không có khách sạn nào thỏa mãn yêu cầu của quý khách!
+                  </Typography>
+                </CardContent>
+              </Card>
+            )}
+          </Box>
         )}
       </Box>
     </>

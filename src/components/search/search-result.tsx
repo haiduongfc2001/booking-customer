@@ -6,6 +6,7 @@ import {
   CardMedia,
   Grid,
   IconButton,
+  Pagination,
   Stack,
   Typography,
 } from "@mui/material";
@@ -14,7 +15,7 @@ import formatCurrency from "@/utils/format-currency";
 import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { ALERT_TYPE, FALLBACK_URL } from "@/constant/constants";
+import { ALERT_TYPE, FALLBACK_URL, PAGINATION } from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
 import { useAppDispatch, useAppSelector } from "@/redux/store/store";
 import { openAlert } from "@/redux/slices/alert-slice";
@@ -49,10 +50,19 @@ const SearchResult: FC<SearchResultProps> = ({
 }) => {
   const router = useRouter();
   const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
+  const [page, setPage] = React.useState<number>(PAGINATION.INITIAL_PAGE);
+
   const isLoggedIn = useAppSelector(
     (state: RootState) => state.auth.isLoggedIn
   );
   const dispatch = useAppDispatch();
+
+  const handleChangePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+  };
 
   const handleNavigate = (hotel_id: number) => {
     const formattedCheckIn = checkIn.format("YYYY-MM-DD");
@@ -241,6 +251,13 @@ const SearchResult: FC<SearchResultProps> = ({
                           alignItems: "inherit",
                           justifyContent: "inherit",
                         },
+                        "&:hover, &:focus": {
+                          backgroundColor: "rgba(0, 0, 0, 0.08)",
+                        },
+                        "&:hover svg": {
+                          color: "red",
+                          transition: "color 0.2s ease",
+                        },
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -372,6 +389,26 @@ const SearchResult: FC<SearchResultProps> = ({
           );
         })}
       </Grid>
+
+      {hotelSearchResults?.items?.length > 0 && (
+        <Stack spacing={2} my={2} direction="row" justifyContent="center">
+          <Pagination
+            showFirstButton
+            showLastButton
+            defaultPage={Math.min(
+              1,
+              Math.ceil(hotelSearchResults?.total / PAGINATION.PAGE_SIZE)
+            )}
+            boundaryCount={2}
+            count={
+              Math.ceil(hotelSearchResults?.total / PAGINATION.PAGE_SIZE) || 1
+            }
+            color="primary"
+            page={page}
+            onChange={handleChangePage}
+          />
+        </Stack>
+      )}
     </Box>
   );
 };

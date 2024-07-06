@@ -721,7 +721,7 @@ export default function HotelDetail(props: any) {
           />
         </Box>
 
-        {hotelData?.averageRatings?.overall !== 0 && (
+        {hotelData?.id && hotelData?.averageRatings?.overall !== 0 && (
           <HotelReviews hotelId={hotelData.id} reviewRef={reviewRef} />
         )}
       </Box>

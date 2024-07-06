@@ -3,14 +3,18 @@ import { FC } from "react";
 import * as React from "react";
 import dayjs, { Dayjs } from "dayjs";
 import {
+  Autocomplete,
+  Avatar,
   Box,
   Button,
   FormControl,
   Grid,
   IconButton,
   InputAdornment,
+  InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   Stack,
   TextField,
   Typography,
@@ -31,13 +35,47 @@ import { useRouter } from "next/navigation";
 import { AppDispatch, useAppDispatch } from "@/redux/store/store";
 import { searchHotel } from "@/redux/slices/search-slice";
 import { RootState, useAppSelector } from "@/redux/store/store";
+import { getRequest } from "@/services/api-instance";
+import { STATUS_CODE } from "@/constant/constants";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 interface SearchBarProps {}
+
+interface Province {
+  id: number;
+  name: string;
+}
+
+interface Hotel {
+  id: number;
+  name: string;
+  avatar: string;
+}
+
+interface Option {
+  // label: string;
+  // value: string;
+  // type: "province" | "hotel";
+  // avatar: string;
+  [key: string]: any;
+}
+
+interface FormValues {
+  location: string;
+  checkIn: Date;
+  checkOut: Date;
+  numAdults: number;
+  numChildren: number;
+  childrenAges: number[];
+  numRooms: number;
+}
 
 const SearchBar: FC<SearchBarProps> = () => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
+  const [provinces, setProvinces] = React.useState<Province[]>([]);
+  const [hotels, setHotels] = React.useState<Hotel[]>([]);
   const {
     location,
     checkIn,
@@ -50,6 +88,35 @@ const SearchBar: FC<SearchBarProps> = () => {
 
   const router = useRouter();
   const dispatch: AppDispatch = useAppDispatch();
+
+  React.useEffect(() => {
+    fetchProvinces();
+    fetchHotels();
+  }, []);
+
+  const fetchProvinces = async () => {
+    try {
+      const response = await getRequest("/address/getAllProvinces");
+
+      if (response?.status === STATUS_CODE.OK) {
+        setProvinces(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching provinces:", error);
+    }
+  };
+
+  const fetchHotels = async () => {
+    try {
+      const response = await getRequest("/hotel/getHotelList");
+
+      if (response?.status === STATUS_CODE.OK) {
+        setHotels(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching hotels:", error);
+    }
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -66,7 +133,7 @@ const SearchBar: FC<SearchBarProps> = () => {
 
   const formik = useFormik({
     initialValues: {
-      location: location ?? "Hà Nội",
+      location: location ?? "",
       checkIn: dayjs(checkIn) ?? dayjs().add(1, "day"),
       checkOut: dayjs(checkOut) ?? dayjs().add(2, "day"),
       numRooms: numRooms ?? 1,
@@ -77,9 +144,10 @@ const SearchBar: FC<SearchBarProps> = () => {
     },
     validationSchema: Yup.object({
       location: Yup.string().required("Vui lòng chọn điểm đến!"),
-      checkIn: Yup.date().required("Vui lòng chọn ngày đến!"),
-      checkOut: Yup.date().required("Vui lòng chọn ngày về!"),
-      // .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
+      // checkIn: Yup.date().min(dayjs().add(1, "day").required("Vui lòng chọn ngày đến!"),
+      // checkOut: Yup.date()
+      //   .required("Vui lòng chọn ngày về!")
+      //   .min(dayjs().add(2, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
       numAdults: Yup.number()
         .min(1, "Số lượng người lớn tối thiểu phải là 1!")
         .test({
@@ -116,18 +184,8 @@ const SearchBar: FC<SearchBarProps> = () => {
           numRooms,
         } = values;
 
-        const formattedCheckIn = checkIn.format("YYYY-MM-DD");
-        const formattedCheckOut = checkOut.format("YYYY-MM-DD");
-
-        const searchQueryParams = new URLSearchParams({
-          location,
-          checkIn: formattedCheckIn,
-          checkOut: formattedCheckOut,
-          numAdults: String(numAdults),
-          numChildren: String(numChildren),
-          childrenAges: childrenAges.join(","),
-          numRooms: String(numRooms),
-        }).toString();
+        const formattedCheckIn = checkIn.toISOString().split("T")[0];
+        const formattedCheckOut = checkOut.toISOString().split("T")[0];
 
         dispatch(
           searchHotel({
@@ -141,7 +199,27 @@ const SearchBar: FC<SearchBarProps> = () => {
           })
         );
 
-        router.push(`/search?${searchQueryParams}`, { scroll: true });
+        let redirectUrl = "";
+        if (location.startsWith("/hotel/")) {
+          redirectUrl =
+            location +
+            `?checkIn=${formattedCheckIn}&checkOut=${formattedCheckOut}&numAdults=${numAdults}&numChildren=${numChildren}&childrenAges=${childrenAges.join(
+              ","
+            )}&numRooms=${numRooms}`;
+        } else {
+          const searchQueryParams = new URLSearchParams({
+            location,
+            checkIn: formattedCheckIn,
+            checkOut: formattedCheckOut,
+            numAdults: String(numAdults),
+            numChildren: String(numChildren),
+            childrenAges: childrenAges.join(","),
+            numRooms: String(numRooms),
+          }).toString();
+          redirectUrl = `/search?${searchQueryParams}`;
+        }
+
+        router.push(redirectUrl, { scroll: true });
       } catch (err: any) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
@@ -230,6 +308,22 @@ const SearchBar: FC<SearchBarProps> = () => {
     updateFieldValue("childrenAges", updatedChildrenAges);
   };
 
+  // Assuming you have a way to distinguish between provinces and hotels in your data
+  const options: Option[] = [
+    ...provinces.map((province) => ({
+      label: province.name,
+      value: province.name,
+      type: "province",
+      avatar: "",
+    })),
+    ...hotels.map((hotel) => ({
+      label: hotel.name,
+      value: `/hotel/${hotel.id}`,
+      type: "hotel",
+      avatar: hotel.avatar,
+    })),
+  ];
+
   return (
     <Box
       sx={{
@@ -245,30 +339,51 @@ const SearchBar: FC<SearchBarProps> = () => {
     >
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={12} md={2.5}>
-          <TextField
+          <Autocomplete
+            id="location"
+            autoHighlight
             fullWidth
-            required
-            label="Địa điểm"
-            placeholder="Bạn muốn đến đâu?"
-            name="location"
-            type="text"
             sx={{
-              "& .MuiInputBase-input": {
-                bgcolor: "background.paper",
+              bgcolor: "background.paper",
+              width: "100%",
+              boxShadow: 1,
+              display: "flex",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              borderRadius: 1,
+              "&:hover": {
+                bgcolor: "neutral.100",
               },
             }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <HotelIcon />
-                </InputAdornment>
-              ),
+            options={options}
+            onChange={(event, newValue) => {
+              formik.setFieldValue("location", newValue?.value || "");
             }}
-            onBlur={formik.handleBlur}
-            value={formik.values.location}
-            onChange={formik.handleChange}
-            error={!!(formik.touched.location && formik.errors.location)}
-            // helperText={formik.touched.location && formik.errors.location}
+            isOptionEqualToValue={(option, value) => option.code === value}
+            getOptionLabel={(option) => option.label}
+            renderOption={(props, option) => (
+              <Box
+                component="li"
+                {...props}
+                key={option.value}
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                {option.type === "province" ? (
+                  <LocationOnIcon sx={{ marginRight: 2 }} />
+                ) : (
+                  <Avatar src={option.avatar} sx={{ marginRight: 2 }} />
+                )}
+                {option.label}
+              </Box>
+            )}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Chọn điểm đến / khách sạn"
+                error={Boolean(formik.errors.location)}
+                helperText={formik.errors.location}
+              />
+            )}
           />
         </Grid>
 
@@ -278,7 +393,13 @@ const SearchBar: FC<SearchBarProps> = () => {
               label="Ngày đến"
               name="checkIn"
               format="DD/MM/YYYY"
-              sx={{ bgcolor: "background.paper", width: "100%" }}
+              sx={{
+                bgcolor: "background.paper",
+                width: "100%",
+                "&.MuiFormControl-root": {
+                  borderRadius: 1,
+                },
+              }}
               minDate={dayjs()}
               value={formik.values.checkIn}
               onChange={(newValue) => handleCheckInChange(newValue)}
@@ -303,7 +424,13 @@ const SearchBar: FC<SearchBarProps> = () => {
               label="Ngày về"
               name="checkOut"
               format="DD/MM/YYYY"
-              sx={{ bgcolor: "background.paper", width: "100%" }}
+              sx={{
+                bgcolor: "background.paper",
+                width: "100%",
+                "&.MuiFormControl-root": {
+                  borderRadius: 1,
+                },
+              }}
               minDate={formik.values.checkIn.add(1, "day")}
               value={formik.values.checkOut}
               onChange={(newValue) => handleCheckOutChange(newValue)}

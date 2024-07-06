@@ -260,7 +260,7 @@ const OutstandingHotel: React.FC = () => {
             opacity: 1,
             transition: "opacity 0.2s ease",
           },
-          "& svg:hover": {
+          "&:hover svg": {
             color: "red",
             transition: "color 0.2s ease",
           },
