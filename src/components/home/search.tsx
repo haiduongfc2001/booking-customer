@@ -28,6 +28,9 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import HotelIcon from "@mui/icons-material/Hotel";
 import { useRouter } from "next/navigation";
+import { AppDispatch, useAppDispatch } from "@/redux/store/store";
+import { searchHotel } from "@/redux/slices/search-slice";
+import { RootState, useAppSelector } from "@/redux/store/store";
 
 interface SearchBarProps {}
 
@@ -35,8 +38,18 @@ const SearchBar: FC<SearchBarProps> = () => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
+  const {
+    location,
+    checkIn,
+    checkOut,
+    numAdults,
+    numChildren,
+    childrenAges,
+    numRooms,
+  } = useAppSelector((state: RootState) => state.search);
 
   const router = useRouter();
+  const dispatch: AppDispatch = useAppDispatch();
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -53,13 +66,13 @@ const SearchBar: FC<SearchBarProps> = () => {
 
   const formik = useFormik({
     initialValues: {
-      location: "Hà Nội",
-      checkIn: dayjs().add(5, "day"),
-      checkOut: dayjs().add(6, "day"),
-      numRooms: 1,
-      numAdults: 1,
-      numChildren: 0,
-      childrenAges: [],
+      location: location ?? "Hà Nội",
+      checkIn: dayjs(checkIn) ?? dayjs().add(1, "day"),
+      checkOut: dayjs(checkOut) ?? dayjs().add(2, "day"),
+      numRooms: numRooms ?? 1,
+      numAdults: numAdults ?? 1,
+      numChildren: numChildren ?? 0,
+      childrenAges: childrenAges ?? [],
       submit: null,
     },
     validationSchema: Yup.object({
@@ -115,6 +128,18 @@ const SearchBar: FC<SearchBarProps> = () => {
           childrenAges: childrenAges.join(","),
           numRooms: String(numRooms),
         }).toString();
+
+        dispatch(
+          searchHotel({
+            location,
+            checkIn: formattedCheckIn,
+            checkOut: formattedCheckOut,
+            numRooms,
+            numAdults,
+            numChildren,
+            childrenAges,
+          })
+        );
 
         router.push(`/search?${searchQueryParams}`, { scroll: true });
       } catch (err: any) {

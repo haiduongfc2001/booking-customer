@@ -5,17 +5,19 @@ import storage from "redux-persist/lib/storage"; // This will use localStorage
 import alertSlice from "../slices/alert-slice";
 import loadingSlice from "../slices/loading-slice";
 import authSlice from "../slices/auth-slice";
+import searchSlice from "../slices/search-slice";
 
 const rootReducer = combineReducers({
   alert: alertSlice,
   loading: loadingSlice,
   auth: authSlice,
+  search: searchSlice,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["alert", "loading", "auth"], // List of reducers to persist
+  whitelist: ["alert", "loading", "auth", "search"], // List of reducers to persist
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

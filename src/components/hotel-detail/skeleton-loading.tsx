@@ -3,11 +3,11 @@
 import { Box, Skeleton, Typography } from "@mui/material";
 
 interface ISkeletonLoadingProps {
-  itemsPerPage?: number;
+  hotelsPerPage?: number;
 }
 
 const SkeletonLoading: React.FC<ISkeletonLoadingProps> = ({
-  itemsPerPage = 4,
+  hotelsPerPage = 4,
 }) => {
   return (
     <Box
@@ -36,11 +36,11 @@ const SkeletonLoading: React.FC<ISkeletonLoadingProps> = ({
           gap: "16px",
         }}
       >
-        {Array.from({ length: itemsPerPage }).map((_, index) => (
+        {Array.from({ length: hotelsPerPage }).map((_, index) => (
           <Box
             key={index}
             sx={{
-              width: `calc(100% / ${itemsPerPage})`,
+              width: `calc(100% / ${hotelsPerPage})`,
               mx: "16px",
               borderRadius: "8px",
               overflow: "hidden",

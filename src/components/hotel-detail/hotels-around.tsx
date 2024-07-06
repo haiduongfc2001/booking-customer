@@ -45,7 +45,7 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
   const isSm = useMediaQuery(theme.breakpoints.only("sm"));
   const isMd = useMediaQuery(theme.breakpoints.only("md"));
 
-  const [itemsPerPage, setItemsPerPage] = useState(() => {
+  const [hotelsPerPage, setItemsPerPage] = useState(() => {
     if (isXs) {
       return 1;
     } else if (isSm) {
@@ -95,12 +95,12 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
   }, [hotelsAround]);
 
   if (!hotelsAround) {
-    return <SkeletonLoading itemsPerPage={itemsPerPage} />;
+    return <SkeletonLoading hotelsPerPage={hotelsPerPage} />;
   }
 
   const groupedItems = [];
-  for (let i = 0; i < hotelsAround.length; i += itemsPerPage) {
-    groupedItems.push(hotelsAround.slice(i, i + itemsPerPage));
+  for (let i = 0; i < hotelsAround.length; i += hotelsPerPage) {
+    groupedItems.push(hotelsAround.slice(i, i + hotelsPerPage));
   }
 
   const handleNavigate = (hotel_id: number) => {
@@ -206,7 +206,7 @@ const HotelsAround: FC<IHotelsAround> = ({ hotelsAround }) => {
                 <Box
                   key={itemIndex}
                   sx={{
-                    width: `calc(100% / ${itemsPerPage})`,
+                    width: `calc(100% / ${hotelsPerPage})`,
                     mx: "16px",
                     borderRadius: "8px",
                     overflow: "hidden",

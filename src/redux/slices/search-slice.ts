@@ -7,7 +7,7 @@ interface SearchState {
   numRooms: number | null;
   numAdults: number | null;
   numChildren: number | null;
-  chidlrenAges: number[];
+  childrenAges: number[];
 }
 
 const initialState: SearchState = {
@@ -17,14 +17,14 @@ const initialState: SearchState = {
   numRooms: null,
   numAdults: null,
   numChildren: null,
-  chidlrenAges: [],
+  childrenAges: [],
 };
 
 export const searchSlice = createSlice({
   name: "search",
   initialState,
   reducers: {
-    login: (
+    searchHotel: (
       state,
       action: PayloadAction<{
         location: string;
@@ -33,7 +33,7 @@ export const searchSlice = createSlice({
         numRooms: number;
         numAdults: number;
         numChildren: number;
-        chidlrenAges: number[];
+        childrenAges: number[];
       }>
     ) => {
       state.location = action.payload.location;
@@ -42,20 +42,11 @@ export const searchSlice = createSlice({
       state.numRooms = action.payload.numRooms;
       state.numAdults = action.payload.numAdults;
       state.numChildren = action.payload.numChildren;
-      state.chidlrenAges = action.payload.chidlrenAges;
-    },
-    logout: (state) => {
-      state.location = null;
-      state.checkIn = null;
-      state.checkOut = null;
-      state.numRooms = null;
-      state.numAdults = null;
-      state.numChildren = null;
-      state.chidlrenAges = [];
+      state.childrenAges = action.payload.childrenAges;
     },
   },
 });
 
-export const { login, logout } = searchSlice.actions;
+export const { searchHotel } = searchSlice.actions;
 
 export default searchSlice.reducer;

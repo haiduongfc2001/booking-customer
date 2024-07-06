@@ -27,6 +27,8 @@ import HotelIcon from "@mui/icons-material/Hotel";
 import { useRouter } from "next/navigation";
 import { FormikValues, useFormik } from "formik";
 import * as Yup from "yup";
+import { searchHotel } from "@/redux/slices/search-slice";
+import { AppDispatch, useAppDispatch } from "@/redux/store/store";
 
 interface SearchHotelProps {
   location: string;
@@ -67,6 +69,7 @@ const SearchHotel: FC<SearchHotelProps> = ({
 
   const open = Boolean(anchorEl);
   const id = open ? "popover" : undefined;
+  const dispatch: AppDispatch = useAppDispatch();
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -131,6 +134,18 @@ const SearchHotel: FC<SearchHotelProps> = ({
           childrenAges: childrenAges.join(","),
           numRooms: String(numRooms),
         }).toString();
+
+        dispatch(
+          searchHotel({
+            location,
+            checkIn: formattedCheckIn,
+            checkOut: formattedCheckOut,
+            numRooms,
+            numAdults,
+            numChildren,
+            childrenAges,
+          })
+        );
 
         router.push(`/search?${searchQueryParams}`, { scroll: true });
       } catch (err: any) {

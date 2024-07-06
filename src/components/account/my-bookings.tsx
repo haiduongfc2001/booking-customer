@@ -565,7 +565,7 @@ const MyBookings: FC<MyBookingsProps> = () => {
             showLastButton
             defaultPage={Math.min(1, Math.ceil(numBookings / 5))}
             boundaryCount={2}
-            count={Math.ceil(numBookings / 5)}
+            count={Math.ceil(numBookings / 5) || 1}
             color="primary"
             page={page}
             onChange={handleChangePage}

@@ -28,7 +28,6 @@ import HotelReviews from "@/components/hotel-detail/hotel-reviews";
 import calculateNumberOfNights from "@/utils/calculate-number-of-nights";
 import { API, STATUS_CODE } from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
-import SkeletonComponent from "@/components/layout/loading-skeleton";
 import { AppDispatch, useAppDispatch } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 

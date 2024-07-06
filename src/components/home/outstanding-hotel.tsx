@@ -24,6 +24,11 @@ import { useRouter } from "next/navigation";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import RateReviewIcon from "@mui/icons-material/RateReview";
 import ratingCategory from "@/utils/rating-category";
+import FavoriteButton from "../favorite-button";
+import { useAppDispatch, useAppSelector } from "@/redux/store/store";
+import { openAlert } from "@/redux/slices/alert-slice";
+import { postRequest } from "@/services/api-instance";
+import { ALERT_TYPE, STATUS_CODE } from "@/constant/constants";
 
 interface IHotel {
   [key: string]: string | number;
@@ -40,15 +45,17 @@ const OutstandingHotel: React.FC = () => {
   const isSm = useMediaQuery(theme.breakpoints.only("sm"));
   const isMd = useMediaQuery(theme.breakpoints.only("md"));
 
-  const { data, error, isLoading } = useCustomAPI(
-    API.HOTEL.GET_OUTSTANDING_HOTELS
-  );
-
   const [outstandingHotels, setOutStandingHotels] = useState<
     IOutstandingHotel[]
   >([]);
-  const [itemsPerPage, setItemsPerPage] = useState(4);
-  const [likedHotels, setLikedHotels] = useState<number[]>([]);
+  const [hotelsPerPage, setHotelsPerPage] = useState(4);
+
+  const customer_id = useAppSelector((state) => state.auth.customer_id);
+  const dispatch = useAppDispatch();
+
+  const { data, error, isLoading } = useCustomAPI(
+    `${API.HOTEL.GET_OUTSTANDING_HOTELS}?customer_id=${customer_id}`
+  );
 
   useEffect(() => {
     if (data) {
@@ -57,21 +64,21 @@ const OutstandingHotel: React.FC = () => {
   }, [data]);
 
   useEffect(() => {
-    const updateItemsPerPage = () => {
+    const updateHotelsPerPage = () => {
       if (isXs) {
-        setItemsPerPage(1);
+        setHotelsPerPage(1);
       } else if (isSm) {
-        setItemsPerPage(2);
+        setHotelsPerPage(2);
       } else if (isMd) {
-        setItemsPerPage(3);
+        setHotelsPerPage(3);
       } else {
-        setItemsPerPage(4);
+        setHotelsPerPage(4);
       }
     };
 
-    updateItemsPerPage();
+    updateHotelsPerPage();
     const handleResize = () => {
-      updateItemsPerPage();
+      updateHotelsPerPage();
     };
 
     window.addEventListener("resize", handleResize);
@@ -81,17 +88,8 @@ const OutstandingHotel: React.FC = () => {
     };
   }, [isMd, isSm, isXs, theme]);
 
-  useEffect(() => {
-    if (Array.isArray(outstandingHotels)) {
-      const initialLikedHotels = outstandingHotels
-        .map((hotel: IOutstandingHotel) => hotel.hotel_id)
-        .filter((hotelId: number) => likedHotels.includes(hotelId));
-      setLikedHotels(initialLikedHotels);
-    }
-  }, [outstandingHotels]);
-
   if (!outstandingHotels) {
-    return <SkeletonLoading itemsPerPage={itemsPerPage} />;
+    return <SkeletonLoading hotelsPerPage={hotelsPerPage} />;
   }
 
   if (error) {
@@ -120,12 +118,12 @@ const OutstandingHotel: React.FC = () => {
   }
 
   if (isLoading) {
-    return <SkeletonLoading itemsPerPage={itemsPerPage} />;
+    return <SkeletonLoading hotelsPerPage={hotelsPerPage} />;
   }
 
-  const groupedItems = [];
-  for (let i = 0; i < outstandingHotels.length; i += itemsPerPage) {
-    groupedItems.push(outstandingHotels.slice(i, i + itemsPerPage));
+  const groupedHotels = [];
+  for (let i = 0; i < outstandingHotels.length; i += hotelsPerPage) {
+    groupedHotels.push(outstandingHotels.slice(i, i + hotelsPerPage));
   }
 
   const extractCityFromAddress = (address: string): string => {
@@ -135,14 +133,14 @@ const OutstandingHotel: React.FC = () => {
 
   const handleNavigate = (hotel_id: number) => {
     const hotel = outstandingHotels.find(
-      (hotel: IOutstandingHotel) => hotel.id === hotel_id
+      (hotel: IOutstandingHotel) => hotel?.id === hotel_id
     );
     if (!hotel) {
       console.error(`Hotel with ID ${hotel_id} not found`);
       return;
     }
 
-    const city = extractCityFromAddress(hotel.hotel_address);
+    const city = extractCityFromAddress(hotel?.hotel_address);
 
     const searchQueryParams = new URLSearchParams({
       location: city,
@@ -155,17 +153,72 @@ const OutstandingHotel: React.FC = () => {
     router.push(`/hotel/${hotel_id}?${searchQueryParams}`, { scroll: true });
   };
 
-  const toggleLike = (hotel_id: number) => {
-    if (likedHotels.includes(hotel_id)) {
-      setLikedHotels((prevLikedHotels) =>
-        prevLikedHotels.filter((id) => id !== hotel_id)
+  const addFavoriteHotel = async (hotelId: number) => {
+    try {
+      const response = await postRequest(`/customer/addFavoriteHotel`, {
+        customer_id: customer_id,
+        hotel_id: hotelId,
+      });
+
+      if (response?.status === STATUS_CODE.OK) {
+      } else {
+        throw new Error(response.data?.message || "Lỗi không xác định.");
+      }
+    } catch (error: any) {
+      console.error("Error in addFavoriteHotel:", error);
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.ERROR,
+          message:
+            error.response?.data?.message || "Đã xảy ra lỗi không mong muốn.",
+        })
       );
-    } else {
-      setLikedHotels((prevLikedHotels) => [...prevLikedHotels, hotel_id]);
     }
   };
 
-  const isHotelLiked = (hotel_id: number) => likedHotels.includes(hotel_id);
+  const removeFavoriteHotel = async (hotelId: number) => {
+    try {
+      const response = await postRequest(`/customer/removeFavoriteHotel`, {
+        customer_id: customer_id,
+        hotel_id: hotelId,
+      });
+
+      if (response?.status === STATUS_CODE.OK) {
+      } else {
+        throw new Error(response.data?.message || "Lỗi không xác định.");
+      }
+    } catch (error: any) {
+      console.error("Error in removeFavoriteHotel:", error);
+      dispatch(
+        openAlert({
+          type: ALERT_TYPE.ERROR,
+          message:
+            error.response?.data?.message || "Đã xảy ra lỗi không mong muốn.",
+        })
+      );
+    }
+  };
+
+  const isHotelLiked = (id: number) =>
+    outstandingHotels.some(
+      (hotel) => hotel.id === id && hotel.is_favorite_hotel
+    );
+
+  const handleToggleLike = (hotelId: number) => {
+    console.log(isHotelLiked(hotelId));
+
+    const hotel = outstandingHotels.find((hotel) => hotel.id === hotelId);
+    if (!hotel) {
+      console.error(`Hotel with ID ${hotelId} not found`);
+      return;
+    }
+
+    if (hotel.is_favorite_hotel) {
+      removeFavoriteHotel(hotelId);
+    } else {
+      addFavoriteHotel(hotelId);
+    }
+  };
 
   return (
     <Box
@@ -208,12 +261,12 @@ const OutstandingHotel: React.FC = () => {
             transition: "opacity 0.2s ease",
           },
           "& svg:hover": {
-            color: "#00B6F3",
+            color: "red",
             transition: "color 0.2s ease",
           },
         }}
       >
-        {groupedItems.map((group, index) => (
+        {groupedHotels.map((group, index) => (
           <Box
             key={index}
             sx={{
@@ -224,19 +277,19 @@ const OutstandingHotel: React.FC = () => {
               gap: "16px",
             }}
           >
-            {group.map((item: IOutstandingHotel, itemIndex: number) => {
-              const hotel_avatar = item?.hotelImages?.filter(
+            {group.map((hotel: IOutstandingHotel, hotelIndex: number) => {
+              const hotel_avatar = hotel?.hotelImages?.filter(
                 (image: { [key: string]: any }) => {
                   return image.is_primary === true;
                 }
               )[0]?.url;
-              const hotel_address = `${item.street}, ${item.ward}, ${item.district}, ${item.province}`;
+              const hotel_address = `${hotel?.street}, ${hotel?.ward}, ${hotel?.district}, ${hotel?.province}`;
 
               return (
                 <Box
-                  key={itemIndex}
+                  key={hotelIndex}
                   sx={{
-                    width: `calc(100% / ${itemsPerPage})`,
+                    width: `calc(100% / ${hotelsPerPage})`,
                     mx: "16px",
                     borderRadius: "8px",
                     overflow: "hidden",
@@ -258,13 +311,13 @@ const OutstandingHotel: React.FC = () => {
                       cursor: "pointer",
                     },
                   }}
-                  onClick={() => handleNavigate(item?.id)}
+                  onClick={() => handleNavigate(hotel?.id)}
                 >
                   <Box position="relative">
                     <CardMedia
                       component="img"
                       src={hotel_avatar || FALLBACK_URL.HOTEL_NO_IMAGE}
-                      alt={item?.name}
+                      alt={hotel?.name}
                       sx={{
                         height: "150px",
                         objectFit: "cover",
@@ -292,20 +345,24 @@ const OutstandingHotel: React.FC = () => {
                           alignItems: "inherit",
                           justifyContent: "inherit",
                         },
-                        "& svg:hover": {
-                          color: "neutral.800",
-                          transition: "color 0.2s ease",
+                        "&:hover, &:focus": {
+                          backgroundColor: "rgba(0, 0, 0, 0.08)",
                         },
                       }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleLike(item?.id);
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleToggleLike(hotel.id);
                       }}
                     >
                       <FavoriteIcon
                         sx={{
-                          fill: isHotelLiked(item?.id) ? "red" : "neutral.900",
+                          fill: isHotelLiked(hotel.id) ? "red" : "neutral.900",
                           stroke: "#ffffff",
+                          "&:hover": {
+                            fill: isHotelLiked(hotel.id)
+                              ? "red"
+                              : "neutral.900",
+                          },
                         }}
                       />
                     </IconButton>
@@ -332,7 +389,7 @@ const OutstandingHotel: React.FC = () => {
                         color: "#333",
                       }}
                     >
-                      {item?.name}
+                      {hotel?.name}
                     </Typography>
                     <Stack
                       direction="row"
@@ -356,7 +413,7 @@ const OutstandingHotel: React.FC = () => {
                       </Typography>
                     </Stack>
 
-                    {item?.totalReviews !== 0 && (
+                    {hotel?.totalReviews !== 0 && (
                       <Box
                         sx={{
                           display: "flex",
@@ -385,24 +442,24 @@ const OutstandingHotel: React.FC = () => {
                               justifyContent: "center",
                             }}
                           >
-                            {item?.averageRatings}
+                            {hotel?.averageRatings}
                           </Typography>
                           <Typography
                             variant="body1"
                             sx={{ ml: 1, fontWeight: 600, color: "#333" }}
                           >
-                            {ratingCategory(item?.averageRatings)}
+                            {ratingCategory(hotel?.averageRatings)}
                           </Typography>
                         </Box>
-                        <Box
-                          component="span"
+                        <Typography
+                          variant="body2"
                           sx={{
                             color: "#757575",
                             ml: "5px",
                           }}
                         >
-                          ({item?.totalReviews} đánh giá)
-                        </Box>
+                          ({hotel?.totalReviews} đánh giá)
+                        </Typography>
                       </Box>
                     )}
                   </Box>
@@ -432,7 +489,8 @@ const OutstandingHotel: React.FC = () => {
                           alignItems: "flex-end",
                         }}
                       >
-                        {item?.original_room_price !== item?.min_room_price && (
+                        {hotel?.original_room_price !==
+                          hotel?.min_room_price && (
                           <Typography
                             variant="body2"
                             sx={{
@@ -442,7 +500,7 @@ const OutstandingHotel: React.FC = () => {
                             }}
                             component="span"
                           >
-                            {formatCurrency(item?.original_room_price)}
+                            {formatCurrency(hotel?.original_room_price)}
                           </Typography>
                         )}
                         <Typography
@@ -454,7 +512,7 @@ const OutstandingHotel: React.FC = () => {
                           }}
                           component="span"
                         >
-                          {formatCurrency(item?.min_room_price)}
+                          {formatCurrency(hotel?.min_room_price)}
                         </Typography>
                       </Box>
                     </Box>
