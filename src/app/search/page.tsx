@@ -5,7 +5,7 @@ import SearchHotel from "@/components/search/search-hotel";
 import dayjs from "dayjs";
 import SearchResult from "@/components/search/search-result";
 import PriceFilter from "@/components/search/filter/filter-hotel";
-import { API, FILTER, STATUS_CODE } from "@/constant/constants";
+import { API, FILTER, PAGINATION, STATUS_CODE } from "@/constant/constants";
 import AmenitiesFilter from "@/components/search/filter/amenities-filter";
 import RoomTypeFilter from "@/components/search/filter/room-type-filter";
 import RatingFilter from "@/components/search/filter/rating-filter";
@@ -28,12 +28,20 @@ export default function Search(props: any) {
   const [selectedMinRating, setSelectedMinRating] = React.useState<string>("");
   const [hotelSearchResults, setHotelSearchResults] = React.useState<any>();
   const [error, setError] = React.useState<string | null>(null);
+  const [page, setPage] = React.useState<number>(PAGINATION.INITIAL_PAGE);
+  const [sortOption, setSortOption] = React.useState("RELEVANT");
 
   const customer_id = useAppSelector(
     (state: RootState) => state.auth.customer_id
   );
-
   const dispatch: AppDispatch = useAppDispatch();
+
+  const handleChangePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+  };
 
   const {
     location = "",
@@ -73,7 +81,10 @@ export default function Search(props: any) {
       };
 
       try {
-        const response = await postRequest(API.SEARCH.SEARCH_HOTEL, body);
+        const response = await postRequest(
+          `${API.SEARCH.SEARCH_HOTEL}?sortOption=${sortOption}&page=${page}&size=${PAGINATION.PAGE_SIZE}`,
+          body
+        );
 
         if (response && response?.status === STATUS_CODE.OK) {
           setHotelSearchResults(response.data);
@@ -99,6 +110,8 @@ export default function Search(props: any) {
     selectedAmenities,
     selectedRoomType,
     selectedMinRating,
+    page,
+    sortOption,
   ]);
 
   const handleFilterHotel = () => {
@@ -139,6 +152,17 @@ export default function Search(props: any) {
   const handleRatingChange = (newMinRating: string) => {
     setSelectedMinRating(newMinRating);
   };
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  React.useEffect(() => {
+    scrollToTop();
+  }, [page]);
 
   return (
     <>
@@ -234,6 +258,11 @@ export default function Search(props: any) {
                 numRooms={numRooms}
                 hotelSearchResults={hotelSearchResults}
                 customer_id={customer_id}
+                page={page}
+                setPage={setPage}
+                handleChangePage={handleChangePage}
+                sortOption={sortOption}
+                setSortOption={setSortOption}
               />
             ) : (
               <Card

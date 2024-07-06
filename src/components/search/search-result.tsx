@@ -7,6 +7,7 @@ import {
   Grid,
   IconButton,
   Pagination,
+  SelectChangeEvent,
   Stack,
   Typography,
 } from "@mui/material";
@@ -15,11 +16,23 @@ import formatCurrency from "@/utils/format-currency";
 import { useRouter } from "next/navigation";
 import dayjs, { Dayjs } from "dayjs";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { ALERT_TYPE, FALLBACK_URL, PAGINATION } from "@/constant/constants";
+import {
+  ALERT_TYPE,
+  FALLBACK_URL,
+  PAGINATION,
+  STATUS_CODE,
+} from "@/constant/constants";
 import { postRequest } from "@/services/api-instance";
-import { useAppDispatch, useAppSelector } from "@/redux/store/store";
+import {
+  AppDispatch,
+  useAppDispatch,
+  useAppSelector,
+} from "@/redux/store/store";
 import { openAlert } from "@/redux/slices/alert-slice";
 import { RootState } from "@/redux/store/store";
+import CustomizedTabs, { StyledTab, StyledTabs } from "@/lib/tabs";
+import CustomizedSortOptionTabs from "./sort-search-result";
+import ratingCategory from "@/utils/rating-category";
 
 interface SearchResultProps {
   location: string;
@@ -31,11 +44,22 @@ interface SearchResultProps {
   numRooms: number;
   hotelSearchResults: { [key: string]: any };
   customer_id: string | number | null;
+  page: number;
+  handleChangePage: any;
+  [key: string]: any;
 }
 
 interface IHotel {
   [key: string]: string | number;
 }
+
+const sortOptions = [
+  { id: 1, label: "Phù hợp nhất", value: "RELEVANT" },
+  { id: 2, label: "Rẻ nhất", value: "CHEAPEST" },
+  { id: 3, label: "Đắt nhất", value: "MOST_EXPENSIVE" },
+  { id: 4, label: "Xếp hạng sao", value: "STAR_RATING" },
+  { id: 5, label: "Đánh giá cao nhất", value: "HIGHEST_RATED" },
+];
 
 const SearchResult: FC<SearchResultProps> = ({
   location = "",
@@ -47,22 +71,19 @@ const SearchResult: FC<SearchResultProps> = ({
   numRooms = 1,
   hotelSearchResults = {},
   customer_id = null,
+  page = 1,
+  setPage,
+  handleChangePage = () => {},
+  sortOption = "RELEVANT",
+  setSortOption,
 }) => {
   const router = useRouter();
   const [likedHotels, setLikedHotels] = React.useState<number[]>([]);
-  const [page, setPage] = React.useState<number>(PAGINATION.INITIAL_PAGE);
 
+  const dispatch: AppDispatch = useAppDispatch();
   const isLoggedIn = useAppSelector(
     (state: RootState) => state.auth.isLoggedIn
   );
-  const dispatch = useAppDispatch();
-
-  const handleChangePage = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setPage(value);
-  };
 
   const handleNavigate = (hotel_id: number) => {
     const formattedCheckIn = checkIn.format("YYYY-MM-DD");
@@ -115,7 +136,7 @@ const SearchResult: FC<SearchResultProps> = ({
         customer_id,
         hotel_id: hotelId,
       });
-      if (response?.status === 200) {
+      if (response?.status === STATUS_CODE.OK) {
         setLikedHotels((prevLikedHotels) =>
           prevLikedHotels.filter((id) => id !== hotelId)
         );
@@ -173,6 +194,25 @@ const SearchResult: FC<SearchResultProps> = ({
           {`Có ${hotelSearchResults?.total ?? 0} khách sạn ở ${location}`}
         </Typography>
       </Box>
+
+      {/* <Box
+        width="100%"
+        height="100px"
+        m={2}
+        p={2}
+        bgcolor="background.paper"
+        borderRadius="8px"
+        display="flex"
+        justifyContent="center"
+        flexDirection="row"
+      > */}
+      <CustomizedSortOptionTabs
+        tabs={sortOptions}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
+        setPage={setPage}
+      />
+      {/* </Box> */}
 
       <Grid container spacing={3}>
         {/* Display hotels as cards */}
@@ -305,6 +345,56 @@ const SearchResult: FC<SearchResultProps> = ({
                           {hotel?.address}
                         </Typography>
                       </Stack>
+
+                      {hotel?.totalReviews !== 0 && (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            mt: 2,
+                            p: 0.5,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                color: "#ffffff",
+                                display: "flex",
+                                padding: "4px 8px",
+                                fontSize: "14px",
+                                bgcolor: "primary.main",
+                                alignItems: "center",
+                                fontWeight: 600,
+                                borderRadius: "4px",
+                                justifyContent: "center",
+                              }}
+                            >
+                              {hotel?.averageRatings}
+                            </Typography>
+                            <Typography
+                              variant="body1"
+                              sx={{ ml: 1, fontWeight: 600, color: "#333" }}
+                            >
+                              {ratingCategory(hotel?.averageRatings || 0)}
+                            </Typography>
+                          </Box>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: "#757575",
+                              ml: "5px",
+                            }}
+                          >
+                            ({hotel?.totalReviews} đánh giá)
+                          </Typography>
+                        </Box>
+                      )}
                     </Box>
                   </Grid>
                   <Grid item sm={12} md={3}>

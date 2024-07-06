@@ -12,7 +12,7 @@ interface StyledTabsProps {
   onChange: (event: React.SyntheticEvent, newValue: number) => void;
 }
 
-const StyledTabs = styled((props: StyledTabsProps) => (
+export const StyledTabs = styled((props: StyledTabsProps) => (
   <Tabs
     {...props}
     TabIndicatorProps={{ children: <span className="MuiTabs-indicatorSpan" /> }}
@@ -33,7 +33,7 @@ interface StyledTabProps {
   label: string;
 }
 
-const StyledTab = styled((props: StyledTabProps) => (
+export const StyledTab = styled((props: StyledTabProps) => (
   <Tab disableRipple {...props} />
 ))(({ theme }) => ({
   textTransform: "none",
