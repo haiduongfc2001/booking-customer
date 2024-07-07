@@ -53,7 +53,7 @@ const BookingDetails: React.FC<BookingDetailsProps> = ({
           <Image
             priority
             src={hotelAvatar}
-            alt={booking?.hotel?.name}
+            alt={booking?.hotel?.name || "khách sạn"}
             width="64"
             height="64"
             // loading="lazy"

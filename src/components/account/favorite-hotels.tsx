@@ -35,7 +35,7 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
     (state: RootState) => state.auth.customer_id
   );
   const dispatch = useAppDispatch();
-  const initialLoad = React.useRef(true);
+  // const initialLoad = React.useRef(true);
 
   const fetchFavoriteHotels = async () => {
     if (!customer_id) return;
@@ -63,10 +63,10 @@ const FavoriteHotels: FC<FavoriteHotelsProps> = () => {
   };
 
   React.useEffect(() => {
-    if (initialLoad.current) {
-      initialLoad.current = false;
-      return;
-    }
+    // if (initialLoad.current) {
+    //   initialLoad.current = false;
+    //   return;
+    // }
     fetchFavoriteHotels();
   }, [customer_id]);
 

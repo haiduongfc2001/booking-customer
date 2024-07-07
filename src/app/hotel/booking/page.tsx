@@ -26,7 +26,7 @@ import RoomPricing from "@/components/booking/room-pricing";
 import RoomInfo from "@/components/booking/room-info";
 import BookingDetails from "@/components/booking/booking-details";
 import { paymentMethodsList } from "@/components/booking/payment-methods-list";
-import { getRequest, postRequest } from "@/services/api-instance";
+import { getRequest, patchRequest, postRequest } from "@/services/api-instance";
 import {
   ALERT_TYPE,
   API,
@@ -65,13 +65,19 @@ export default function Booking(props: any) {
   const [error, setError] = React.useState<string | null>(null);
   const [bookingData, setBookingData] = React.useState<any>({});
   const [hotelData, setHotelData] = React.useState<any>({});
+  const [customerData, setCustomerData] = React.useState({
+    email: "",
+    full_name: "",
+    phone: "",
+  });
+  const [bookingNote, setBookingNote] = React.useState<string>();
 
   const customer_id = useAppSelector(
     (state: RootState) => state.auth.customer_id
   );
   const dispatch: AppDispatch = useAppDispatch();
 
-  const initialLoad = React.useRef(true);
+  // const initialLoad = React.useRef(true);
 
   const handleChangePaymentMethod = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -103,6 +109,7 @@ export default function Booking(props: any) {
       if (response?.status === STATUS_CODE.CREATED) {
         setBookingData(response.data);
         setHotelData(response.data?.hotel);
+        setCustomerData(response.data?.customer);
       }
     } catch (error: any) {
       console.error(error.response?.data?.message || error.message);
@@ -111,10 +118,10 @@ export default function Booking(props: any) {
   };
 
   React.useEffect(() => {
-    if (initialLoad.current) {
-      initialLoad.current = false;
-      return;
-    }
+    // if (initialLoad.current) {
+    //   initialLoad.current = false;
+    //   return;
+    // }
     createBooking();
   }, [
     roomTypeId,
@@ -150,13 +157,19 @@ export default function Booking(props: any) {
     numRooms: String(numRooms),
   }).toString();
 
-  const formik = useFormik({
-    initialValues: {
-      email: bookingData?.customer?.email,
-      full_name: bookingData?.customer?.full_name,
-      phone: bookingData?.customer?.phone,
+  const initialValues = React.useMemo(
+    () => ({
+      email: customerData?.email || "",
+      full_name: customerData?.full_name || "",
+      phone: customerData?.phone || "",
       submit: null,
-    },
+    }),
+    [customerData?.email, customerData?.full_name, customerData?.phone]
+  );
+
+  const formik = useFormik({
+    initialValues,
+    enableReinitialize: true,
     validationSchema: Yup.object({
       email: Yup.string()
         .email("Vui lòng nhập địa chỉ email hợp lệ!")
@@ -164,18 +177,23 @@ export default function Booking(props: any) {
         .required("Vui lòng nhập địa chỉ email!"),
       full_name: Yup.string().max(30).required("Vui lòng nhập họ và tên!"),
       phone: Yup.string()
-        .matches(/^\d{10}$/, "Số điện thoại chỉ gồm 10 số!")
-        .required("Vui lòng nhập số điện thoại!"),
+        .matches(/^[0-9]{10}$/, "Số điện thoại chỉ gồm 10 số!")
+        .min(10, "Số điện thoại phải dài chính xác 10 ký tự!")
+        .max(10, "Số điện thoại phải dài chính xác 10 ký tự!")
+        .required("Vui lòng nhập số điện thoại của bạn!"),
     }),
     onSubmit: async (values, helpers) => {
       try {
         dispatch(openLoadingApi());
 
-        const { email, full_name, phone } = values;
+        const formData = new FormData();
+        formData.append("email", values.email);
+        formData.append("full_name", values.full_name);
+        formData.append("phone", values.phone);
 
-        const res = await postRequest(
+        const res = await patchRequest(
           `/customer/${customer_id}/updateCustomer`,
-          { email, full_name, phone }
+          formData
         );
 
         if (res?.status === STATUS_CODE.OK) {
@@ -203,6 +221,7 @@ export default function Booking(props: any) {
         );
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
+        helpers.setSubmitting(false);
       } finally {
         dispatch(closeLoadingApi());
         helpers.setSubmitting(false);
@@ -222,6 +241,12 @@ export default function Booking(props: any) {
     }
 
     formik.handleSubmit();
+
+    if (bookingNote) {
+      await postRequest(`/booking/${bookingData.id}/updateBooking`, {
+        note: bookingNote,
+      });
+    }
 
     const amount = bookingData?.cost?.final_price;
     const description = `Payment for booking at ${hotelData?.name} from ${checkIn} to ${checkOut}. 
@@ -298,7 +323,7 @@ export default function Booking(props: any) {
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      required
+                      // required
                       label="Họ và tên"
                       name="full_name"
                       type="text"
@@ -311,13 +336,13 @@ export default function Booking(props: any) {
                       }}
                       onBlur={formik.handleBlur}
                       onChange={formik.handleChange}
-                      value={bookingData?.customer?.full_name}
-                      // error={
-                      //   !!(formik.touched.full_name && formik.errors.full_name)
-                      // }
-                      // helperText={
-                      //   formik.touched.full_name && formik.errors.full_name
-                      // }
+                      value={formik.values.full_name}
+                      error={
+                        !!(formik.touched.full_name && formik.errors.full_name)
+                      }
+                      helperText={
+                        formik.touched.full_name && formik.errors.full_name
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -327,7 +352,6 @@ export default function Booking(props: any) {
                       label="Email"
                       name="email"
                       type="text"
-                      // placeholder="Nhập số điện thoại của bạn"
                       size="small"
                       sx={{
                         "& .MuiInputBase-input": {
@@ -339,15 +363,15 @@ export default function Booking(props: any) {
                       }}
                       onBlur={formik.handleBlur}
                       onChange={formik.handleChange}
-                      value={bookingData?.customer?.email}
-                      // error={!!(formik.touched.email && formik.errors.email)}
+                      value={formik.values.email}
+                      error={!!(formik.touched.email && formik.errors.email)}
                       // helperText={formik.touched.email && formik.errors.email}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
-                      required
+                      // required
                       label="Số điện thoại"
                       name="phone"
                       type="text"
@@ -361,8 +385,8 @@ export default function Booking(props: any) {
                       onBlur={formik.handleBlur}
                       onChange={formik.handleChange}
                       value={formik.values.phone}
-                      // error={!!(formik.touched.phone && formik.errors.phone)}
-                      // helperText={formik.touched.phone && formik.errors.phone}
+                      error={!!(formik.touched.phone && formik.errors.phone)}
+                      helperText={formik.touched.phone && formik.errors.phone}
                     />
                   </Grid>
                 </Grid>
@@ -426,7 +450,7 @@ export default function Booking(props: any) {
                     )
                   )}
 
-                <Box bgcolor="primary.light" mt={2} p={2}>
+                {/* <Box bgcolor="primary.light" mt={2} p={2}>
                   <Box
                     display="flex"
                     justifyContent="space-between"
@@ -490,6 +514,28 @@ export default function Booking(props: any) {
                       </Box>
                     </Box>
                   )}
+                </Box> */}
+
+                <Box mt={1}>
+                  <Typography variant="subtitle1" my={1}>
+                    Yêu cầu riêng của bạn
+                  </Typography>
+                  <TextField
+                    multiline
+                    fullWidth
+                    type="text"
+                    placeholder="Nhập yêu cầu khác"
+                    minRows={3}
+                    maxRows={5}
+                    sx={{
+                      bgcolor: "background.paper",
+                      borderRadius: 1,
+                      "& .MuiInputBase-root.MuiFilledInput-root": {
+                        p: "8px 12px",
+                      },
+                    }}
+                    onChange={(e) => setBookingNote(e.target.value)}
+                  />
                 </Box>
               </Box>
 

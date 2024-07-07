@@ -79,7 +79,6 @@ export default function CustomizedSortOptionTabs({
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setSortOption(newValue);
     setPage(PAGINATION.INITIAL_PAGE);
-    console.log(newValue);
   };
 
   return (

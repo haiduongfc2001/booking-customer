@@ -9,6 +9,7 @@ import ConfirmIcon from "@mui/icons-material/CheckCircleOutline";
 import { BankTransferIcon } from "@/constant/icons";
 import { renderBeds } from "@/utils/render-beds";
 import { FALLBACK_URL } from "@/constant/constants";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 interface RoomRate {
   shortCancelPolicy: string;
@@ -52,7 +53,7 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
       >
         <Image
           src={room_type_avatar}
-          alt={roomInfo?.name}
+          alt={roomInfo?.name || "khách sạn"}
           width={0}
           height={0}
           sizes="100vw"
@@ -115,15 +116,16 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
         </Box>
       </Box>
       {roomInfo?.views?.length > 0 && (
-        <Box display="flex" my={1}>
-          <SvgIcon>
-            <VisibilityOutlinedIcon />
-          </SvgIcon>
-          {roomInfo.views.map((view: string, index: number) => (
-            <Typography variant="subtitle2" sx={{ ml: 1 }} key={index}>
-              {view}
-            </Typography>
-          ))}
+        <Box
+          sx={{
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            pr: 3,
+          }}
+        >
+          <VisibilityIcon sx={{ mr: 1 }} />
+          <Typography variant="body1">{roomInfo.views.join(", ")}</Typography>
         </Box>
       )}
 
@@ -166,9 +168,15 @@ const RoomInfo: React.FC<RoomInfoProps> = ({ roomInfo, booking }) => {
         <SvgIcon>
           <ConfirmIcon />
         </SvgIcon>
-        <Typography variant="subtitle2" sx={{ ml: 1, color: "warning.main" }}>
-          Xác nhận ngay
-        </Typography>
+        {roomInfo?.free_breakfast ? (
+          <Typography variant="subtitle2" sx={{ ml: 1, color: "success.main" }}>
+            Bao gồm bữa ăn sáng
+          </Typography>
+        ) : (
+          <Typography variant="subtitle2" sx={{ ml: 1, color: "error.main" }}>
+            Không bao gồm bữa ăn sáng
+          </Typography>
+        )}
       </Box>
     </Box>
   );

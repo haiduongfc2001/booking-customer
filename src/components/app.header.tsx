@@ -22,6 +22,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { openAlert } from "@/redux/slices/alert-slice";
 import { ALERT_TYPE } from "@/constant/constants";
+import { removeAccessToken } from "@/services/storage";
 
 const pages = ["Đơn đặt phòng", "Khách sạn yêu thích", "Tài khoản"];
 
@@ -84,6 +85,9 @@ export default function Header() {
 
   const handleLogoutAction = () => {
     setAnchorEl(null);
+    setAnchorElNav(null);
+    setMobileMoreAnchorEl(null);
+    removeAccessToken();
     dispatch(logout());
     dispatch(
       openAlert({
@@ -220,85 +224,89 @@ export default function Header() {
     <Box sx={{ flexGrow: 1, maxHeight: "64px" }}>
       <AppBar position="static">
         <Toolbar sx={{ bgcolor: "background.paper", color: "black" }}>
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              {/* {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))} */}
+          {isLoggedIn && customer_id && (
+            <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleOpenNavMenu}
+                color="inherit"
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorElNav}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+                open={Boolean(anchorElNav)}
+                onClose={handleCloseNavMenu}
+                sx={{
+                  display: { xs: "block", md: "none" },
+                }}
+              >
+                {/* {pages.map((page) => (
+              <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <Typography textAlign="center">{page}</Typography>
+              </MenuItem>
+            ))} */}
 
-              <MenuItem onClick={() => router.push("/account/my-booking")}>
-                <IconButton
-                  size="large"
-                  aria-label="show 17 new notifications"
-                  color="inherit"
+                <MenuItem onClick={() => router.push("/account/my-booking")}>
+                  <IconButton
+                    size="large"
+                    aria-label="show 17 new notifications"
+                    color="inherit"
+                  >
+                    <ShoppingCartIcon />
+                  </IconButton>
+                  <p>Đơn đặt phòng</p>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => router.push("/account/favorite-hotel")}
                 >
-                  <ShoppingCartIcon />
-                </IconButton>
-                <p>Đơn đặt phòng</p>
-              </MenuItem>
-              <MenuItem onClick={() => router.push("/account/favorite-hotel")}>
-                <IconButton
-                  size="large"
-                  aria-label="show 17 new notifications"
-                  color="inherit"
-                >
-                  <HotelIcon />
-                </IconButton>
-                <p>Khách sạn yêu thích</p>
-              </MenuItem>
-              <MenuItem onClick={handleProfileMenuOpen}>
-                <IconButton
-                  size="small"
-                  edge="end"
-                  aria-label="account of current user"
-                  aria-controls={menuId}
-                  aria-haspopup="true"
-                  onClick={handleProfileMenuOpen}
-                  color="inherit"
-                >
-                  <Avatar
-                    sx={{
-                      cursor: "pointer",
-                      height: 40,
-                      width: 40,
-                    }}
-                    alt={email ?? "User Avatar"}
-                    src={avatar ?? undefined}
-                  />
-                </IconButton>
-                <p>Hồ sơ</p>
-              </MenuItem>
-            </Menu>
-          </Box>
+                  <IconButton
+                    size="large"
+                    aria-label="show 17 new notifications"
+                    color="inherit"
+                  >
+                    <HotelIcon />
+                  </IconButton>
+                  <p>Khách sạn yêu thích</p>
+                </MenuItem>
+                <MenuItem onClick={handleProfileMenuOpen}>
+                  <IconButton
+                    size="small"
+                    edge="end"
+                    aria-label="account of current user"
+                    aria-controls={menuId}
+                    aria-haspopup="true"
+                    onClick={handleProfileMenuOpen}
+                    color="inherit"
+                  >
+                    <Avatar
+                      sx={{
+                        cursor: "pointer",
+                        height: 40,
+                        width: 40,
+                      }}
+                      alt={email ?? "User Avatar"}
+                      src={avatar ?? undefined}
+                    />
+                  </IconButton>
+                  <p>Hồ sơ</p>
+                </MenuItem>
+              </Menu>
+            </Box>
+          )}
           <Link href="/" passHref>
             <Box
               sx={{

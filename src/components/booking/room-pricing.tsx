@@ -142,7 +142,9 @@ const RoomPricing: React.FC<RoomPricingProps> = ({
               Giá cho {numNights} đêm, {booking?.num_rooms} phòng
             </Typography>
           </Box>
-          <Typography>{formatCurrency(booking?.cost?.final_price)}</Typography>
+          <Typography variant="h6">
+            {formatCurrency(booking?.cost?.final_price)}
+          </Typography>
         </Box>
       </Box>
     </Box>

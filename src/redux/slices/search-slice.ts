@@ -11,7 +11,7 @@ interface SearchState {
 }
 
 const initialState: SearchState = {
-  location: null,
+  location: "Thành phố hà Nội",
   checkIn: null,
   checkOut: null,
   numRooms: null,
@@ -44,9 +44,18 @@ export const searchSlice = createSlice({
       state.numChildren = action.payload.numChildren;
       state.childrenAges = action.payload.childrenAges;
     },
+    updateSearchParams: (
+      state,
+      action: PayloadAction<Partial<SearchState>>
+    ) => {
+      return {
+        ...state,
+        ...action.payload,
+      };
+    },
   },
 });
 
-export const { searchHotel } = searchSlice.actions;
+export const { searchHotel, updateSearchParams } = searchSlice.actions;
 
 export default searchSlice.reducer;

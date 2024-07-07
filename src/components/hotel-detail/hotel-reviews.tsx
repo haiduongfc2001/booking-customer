@@ -11,18 +11,25 @@ import {
   Avatar,
   Card,
   CardContent,
+  SvgIcon,
+  Stack,
+  Pagination,
 } from "@mui/material";
 import { Line, Circle } from "rc-progress";
 import ratingCategory from "@/utils/rating-category";
-import { sortOptions } from "../../utils/data";
 import { getInitials } from "@/utils/get-initials";
 import BedIcon from "@mui/icons-material/Bed";
-import { STATUS_CODE } from "@/constant/constants";
+import { PAGINATION, STATUS_CODE } from "@/constant/constants";
 import { getRequest } from "@/services/api-instance";
 import dayjs from "dayjs";
 import { useAppDispatch } from "@/redux/store/store";
 import { AppDispatch } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
+import NewReleasesIcon from "@mui/icons-material/NewReleases";
+import HistoryIcon from "@mui/icons-material/History";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import Image from "next/image";
 
 interface IReplyReview {
   content: string;
@@ -66,41 +73,63 @@ interface IHotelReviews {
   reviewRef: React.RefObject<HTMLDivElement>;
 }
 
+const sortOptions = [
+  {
+    code: "NEWEST",
+    textDetail: "Mới nhất",
+    icon: <NewReleasesIcon />,
+  },
+  {
+    code: "OLDEST",
+    textDetail: "Cũ nhất",
+    icon: <HistoryIcon />,
+  },
+  {
+    code: "LOWEST_RATING",
+    textDetail: "Điểm thấp nhất",
+    icon: <ArrowDownwardIcon />,
+  },
+  {
+    code: "HIGHEST_RATING",
+    textDetail: "Điểm cao nhất",
+    icon: <ArrowUpwardIcon />,
+  },
+];
+
 const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
   const [hotelReviews, setHotelReviews] =
     React.useState<HotelReviewsData | null>(null);
+  const [sortOption, setSortOption] = React.useState("NEWEST");
+  const [page, setPage] = React.useState<number>(PAGINATION.INITIAL_PAGE);
 
   const dispatch: AppDispatch = useAppDispatch();
 
-  React.useEffect(() => {
-    const fetchHotelReviews = async () => {
-      dispatch(openLoadingApi());
+  const fetchHotelReviews = async () => {
+    // dispatch(openLoadingApi());
 
-      try {
-        const response = await getRequest(`/review/getHotelReviews/${hotelId}`);
+    try {
+      const response = await getRequest(
+        `/review/getHotelReviews/${hotelId}?sortOption=${sortOption}&page=${page}&size=${PAGINATION.PAGE_SIZE}`
+      );
 
-        if (response?.status === STATUS_CODE.OK) {
-          setHotelReviews(response.data);
-        }
-      } catch (error: any) {
-        console.error(error.response?.data?.message || error.message);
-      } finally {
-        dispatch(closeLoadingApi());
+      if (response?.status === STATUS_CODE.OK) {
+        setHotelReviews(response.data);
       }
-    };
+    } catch (error: any) {
+      console.error(error.response?.data?.message || error.message);
+    } finally {
+      // dispatch(closeLoadingApi());
+    }
+  };
 
+  React.useEffect(() => {
     fetchHotelReviews();
-  }, [hotelId]);
-
-  const [sortOption, setSortOption] = React.useState("highest_rating");
+  }, [hotelId, page, sortOption]);
 
   const handleSortOptionChange = (event: SelectChangeEvent) => {
     setSortOption(event.target.value as string);
+    setPage(PAGINATION.INITIAL_PAGE);
   };
-
-  if (!hotelReviews) {
-    return <Typography>No reviews found.</Typography>;
-  }
 
   const ratingData = (averageRatings: { [key: string]: any }) => {
     return [
@@ -132,16 +161,16 @@ const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
     ];
   };
 
+  const handleChangePage = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+  };
+
   return (
     <>
-      {/* <Box sx={{ flex: "1" }}> */}
       <Box sx={{ width: "100%", background: "background.paper", py: 3 }}>
-        {/* <Grid
-            container
-            spacing={2}
-            sx={{ width: "100%", background: "background.paper", py: 3 }}
-          >
-            <Grid item xs={12} lg={7}> */}
         <Box
           ref={reviewRef}
           sx={{
@@ -162,8 +191,6 @@ const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
             Đánh giá
           </Typography>
         </Box>
-        {/* </Grid>
-            <Grid item xs={12} lg={5}> */}
         <Box sx={{ width: "100%", m: 0 }}>
           <Box
             sx={{
@@ -331,10 +358,7 @@ const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
             </Box>
           </Box>
         </Box>
-        {/* </Grid>
-          </Grid> */}
       </Box>
-      {/* </Box> */}
 
       <Box sx={{ width: "100%" }}>
         <Grid container spacing={3} alignItems="center" justifyContent="center">
@@ -351,19 +375,32 @@ const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
             }}
           >
             <Typography variant="h6">Sắp xếp&nbsp;&nbsp;</Typography>
-            <FormControl sx={{ m: 1, minWidth: 150 }} size="small">
+            <FormControl
+              sx={{
+                m: 1,
+                minWidth: 180,
+                "& .MuiSelect-select.MuiSelect-outlined": {
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                },
+              }}
+              size="small"
+            >
               <Select
                 autoWidth
                 labelId="select-option-label"
                 id="select-option"
-                defaultValue="highest_rating"
+                defaultValue="NEWEST"
                 sx={{ bgcolor: "background.paper" }}
                 value={sortOption}
                 onChange={handleSortOptionChange}
               >
                 {sortOptions?.map((option) => (
                   <MenuItem key={option.code} value={option.code}>
-                    {option.textDetail}
+                    <SvgIcon>{option.icon}</SvgIcon>
+                    &nbsp;&nbsp;
+                    <Typography>{option.textDetail}</Typography>
                   </MenuItem>
                 ))}
               </Select>
@@ -371,99 +408,201 @@ const HotelReviews: FC<IHotelReviews> = ({ hotelId, reviewRef }) => {
           </Grid>
 
           <Grid item xs={12} sx={{ px: 3 }}>
-            {hotelReviews?.reviews?.map((review: { [key: string]: any }) => (
-              <Box
-                key={review?.id}
-                sx={{
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-                  bgcolor: "background.paper",
-                  mb: 3,
-                  p: 3,
-                }}
-              >
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={3}>
-                    <Box display="flex" alignItems="center" mb={2}>
-                      <Avatar
-                        src={review?.customer.avatar}
-                        alt={review?.customer.full_name ?? ""}
-                        sx={{
-                          color: "primary.main",
-                          width: 64,
-                          height: 64,
-                          display: "flex",
-                          fontSize: 24,
-                          bgcolor: "primary.light",
-                          fontWeight: 600,
-                          lineHeight: "28px",
-                          mr: 2,
-                        }}
-                      >
-                        {review?.customer.full_name
-                          ? getInitials(review?.customer.full_name)
-                          : ""}
-                      </Avatar>
-                      <Box display="flex" flexDirection="column">
-                        <Typography variant="h6" component="div">
-                          {review?.customer.full_name ?? "Ẩn danh"}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          {dayjs(review?.created_at).format("DD/MM/YYYY")}
-                        </Typography>
-                        <Box display="flex" alignItems="center" mt={1}>
-                          <BedIcon sx={{ mr: 1, color: "text.secondary" }} />
+            {hotelReviews?.reviews?.map((review: { [key: string]: any }) => {
+              const replyReview = review.replyReview;
+              return (
+                <Box
+                  key={review?.id}
+                  sx={{
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "8px",
+                    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                    bgcolor: "background.paper",
+                    mb: 3,
+                    p: 3,
+                    pb: 0,
+                  }}
+                >
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={3}>
+                      <Box display="flex" alignItems="center" mb={2}>
+                        <Avatar
+                          src={review?.customer.avatar}
+                          alt={review?.customer.full_name ?? ""}
+                          sx={{
+                            color: "primary.main",
+                            width: 64,
+                            height: 64,
+                            display: "flex",
+                            fontSize: 24,
+                            bgcolor: "primary.light",
+                            fontWeight: 600,
+                            lineHeight: "28px",
+                            mr: 2,
+                          }}
+                        >
+                          {review?.customer.full_name
+                            ? getInitials(review?.customer.full_name)
+                            : ""}
+                        </Avatar>
+                        <Box display="flex" flexDirection="column">
+                          <Typography variant="h6" component="div">
+                            {review?.customer.full_name ?? "Ẩn danh"}
+                          </Typography>
                           <Typography variant="body2" color="textSecondary">
-                            {review?.roomType?.name}
+                            {dayjs(review?.created_at).format("DD/MM/YYYY")}
+                          </Typography>
+                          <Box display="flex" alignItems="center" mt={1}>
+                            <BedIcon sx={{ mr: 1, color: "text.secondary" }} />
+                            <Typography variant="body2" color="textSecondary">
+                              {review?.roomType?.name}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={12} md={9}>
+                      <Box display="flex" alignItems="flex-start" mt={1}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            mt: "4px",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              color: "#ffffff",
+                              display: "flex",
+                              padding: "4px 8px",
+                              fontSize: "14px",
+                              bgcolor: "primary.main",
+                              alignItems: "center",
+                              fontWeight: 600,
+                              borderRadius: "4px",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {review?.averageRating}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            sx={{ ml: 1, fontWeight: 600 }}
+                          >
+                            {ratingCategory(review?.averageRating)}
                           </Typography>
                         </Box>
                       </Box>
-                    </Box>
+                      <Typography variant="body1" gutterBottom mt={2}>
+                        {review?.comment}
+                      </Typography>
+                    </Grid>
                   </Grid>
-                  <Grid item xs={12} md={9}>
-                    <Box display="flex" alignItems="flex-start" mt={1}>
-                      <Box
+
+                  {replyReview && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        position: "relative",
+                        mt: 2,
+                        p: 2,
+                      }}
+                    >
+                      <Grid
+                        container
+                        spacing={3}
                         sx={{
-                          display: "flex",
-                          mt: "4px",
-                          alignItems: "center",
+                          width: "70%",
+                          bgcolor: "primary.light",
+                          borderRadius: 1,
+                          position: "relative",
                         }}
                       >
-                        <Typography
-                          variant="body1"
+                        <Box
                           sx={{
-                            color: "#ffffff",
-                            display: "flex",
-                            padding: "4px 8px",
-                            fontSize: "14px",
-                            bgcolor: "primary.main",
-                            alignItems: "center",
-                            fontWeight: 600,
-                            borderRadius: "4px",
-                            justifyContent: "center",
+                            top: "-7px",
+                            left: "calc(10% - 7px)",
+                            width: "14px",
+                            height: "14px",
+                            position: "absolute",
+                            transform: "rotate(45deg)",
+                            bgcolor: "primary.light",
                           }}
-                        >
-                          {review?.averageRating}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          sx={{ ml: 1, fontWeight: 600 }}
-                        >
-                          {ratingCategory(review?.averageRating)}
-                        </Typography>
-                      </Box>
+                        />
+                        <Grid item xs={12} md={3}>
+                          <Avatar
+                            src={replyReview?.staff.avatar}
+                            alt={replyReview?.staff.full_name ?? ""}
+                            sx={{
+                              color: "primary.main",
+                              width: 64,
+                              height: 64,
+                              display: "flex",
+                              fontSize: 24,
+                              bgcolor: "primary.lightest",
+                              fontWeight: 600,
+                              lineHeight: "28px",
+                              mr: 2,
+                            }}
+                          >
+                            {replyReview?.staff.full_name
+                              ? getInitials(replyReview?.staff.full_name)
+                              : ""}
+                          </Avatar>
+                        </Grid>
+                        <Grid item xs={12} md={9} pl={"0px !important"}>
+                          <Box display="flex" alignItems="center" mb={2}>
+                            <Box display="flex" flexDirection="column">
+                              <Typography variant="h6" component="div">
+                                Quản lý Khách sạn
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary">
+                                {dayjs(replyReview?.created_at).format(
+                                  "DD/MM/YYYY"
+                                )}
+                              </Typography>
+                              <Typography variant="body1" gutterBottom mt={2}>
+                                {replyReview?.reply}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Grid>
+                      </Grid>
                     </Box>
-                    <Typography variant="body1" gutterBottom mt={2}>
-                      {review?.comment}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Box>
-            ))}
+                  )}
+                </Box>
+              );
+            })}
           </Grid>
         </Grid>
       </Box>
+
+      {hotelReviews?.reviews?.length > 0 && (
+        <Stack spacing={2} my={2} direction="row" justifyContent="center">
+          <Pagination
+            showFirstButton
+            showLastButton
+            defaultPage={Math.min(
+              1,
+              Math.ceil(
+                hotelReviews?.reviews?.totalReviews / PAGINATION.PAGE_SIZE
+              )
+            )}
+            boundaryCount={2}
+            count={
+              Math.ceil(
+                hotelReviews?.reviews?.totalReviews / PAGINATION.PAGE_SIZE
+              ) || 1
+            }
+            color="primary"
+            page={page}
+            onChange={handleChangePage}
+          />
+        </Stack>
+      )}
     </>
   );
 };

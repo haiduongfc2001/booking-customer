@@ -12,8 +12,9 @@ const Footer: React.FC = () => {
       <Stack direction={{ xs: "column", sm: "row" }} spacing={4}>
         <Stack
           direction="column"
+          alignItems="center"
           spacing={2}
-          sx={{ width: { xs: "100%", sm: "50%" } }}
+          sx={{ width: { xs: "100%", sm: "100%" } }}
         >
           <Stack direction="row" alignItems="center" spacing={2}>
             <HotelIcon
@@ -41,13 +42,13 @@ const Footer: React.FC = () => {
             </Typography>
           </Stack>
           <Typography variant="body1" color="text.secondary" align="left">
-            A short description of what you do here
+            Dịch Vụ Đặt Phòng - Nơi Nâng Tầm Chuyến Đi Của Bạn.
           </Typography>
           <Typography variant="body2" color="text.secondary" align="left">
-            © 2024 Company Terms Privacy Blog
+            © 2024 DHD Booking
           </Typography>
         </Stack>
-        <Stack
+        {/* <Stack
           direction="row"
           spacing={2}
           sx={{
@@ -154,7 +155,7 @@ const Footer: React.FC = () => {
               </Stack>
             </Link>
           </Stack>
-        </Stack>
+        </Stack> */}
       </Stack>
     </Box>
   );

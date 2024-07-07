@@ -3,6 +3,8 @@ import { FC } from "react";
 import * as React from "react";
 import dayjs, { Dayjs } from "dayjs";
 import {
+  Autocomplete,
+  Avatar,
   Box,
   Button,
   FormControl,
@@ -29,6 +31,9 @@ import { FormikValues, useFormik } from "formik";
 import * as Yup from "yup";
 import { searchHotel } from "@/redux/slices/search-slice";
 import { AppDispatch, useAppDispatch } from "@/redux/store/store";
+import { getRequest } from "@/services/api-instance";
+import { STATUS_CODE } from "@/constant/constants";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 interface SearchHotelProps {
   location: string;
@@ -38,6 +43,25 @@ interface SearchHotelProps {
   numChildren: number;
   childrenAges: number[];
   numRooms: number;
+}
+
+interface Province {
+  id: number;
+  name: string;
+}
+
+interface Hotel {
+  id: number;
+  name: string;
+  avatar: string;
+}
+
+interface Option {
+  // label: string;
+  // value: string;
+  // type: "province" | "hotel";
+  // avatar: string;
+  [key: string]: any;
 }
 
 const ageOptions = Array.from({ length: 17 }, (_, i) => i + 1);
@@ -54,7 +78,39 @@ const SearchHotel: FC<SearchHotelProps> = ({
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
     null
   );
+  const [provinces, setProvinces] = React.useState<Province[]>([]);
+  const [hotels, setHotels] = React.useState<Hotel[]>([]);
+
   const router = useRouter();
+
+  React.useEffect(() => {
+    fetchProvinces();
+    fetchHotels();
+  }, []);
+
+  const fetchProvinces = async () => {
+    try {
+      const response = await getRequest("/address/getAllProvinces");
+
+      if (response?.status === STATUS_CODE.OK) {
+        setProvinces(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching provinces:", error);
+    }
+  };
+
+  const fetchHotels = async () => {
+    try {
+      const response = await getRequest("/hotel/getHotelList");
+
+      if (response?.status === STATUS_CODE.OK) {
+        setHotels(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching hotels:", error);
+    }
+  };
 
   const initialValues: FormikValues = {
     location,
@@ -82,10 +138,11 @@ const SearchHotel: FC<SearchHotelProps> = ({
   const formik = useFormik({
     initialValues,
     validationSchema: Yup.object({
-      location: Yup.string().required("Vui lòng chọn điểm đến!"),
-      checkIn: Yup.date().required("Vui lòng chọn ngày đến!"),
-      checkOut: Yup.date().required("Vui lòng chọn ngày về!"),
-      // .min(dayjs().add(1, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
+      location: Yup.string().required("Vui lòng chọn điểm đến / khách sạn!"),
+      // checkIn: Yup.date().min(dayjs().add(1, "day").required("Vui lòng chọn ngày đến!"),
+      // checkOut: Yup.date()
+      //   .required("Vui lòng chọn ngày về!")
+      //   .min(dayjs().add(2, "day"), "Ngày về phải sau ngày đến ít nhất 1 ngày"),
       numAdults: Yup.number()
         .min(1, "Số lượng người lớn tối thiểu phải là 1!")
         .test({
@@ -103,11 +160,11 @@ const SearchHotel: FC<SearchHotelProps> = ({
       numRooms: Yup.number()
         .min(1, "Số lượng phòng tối thiểu phải là 1!")
         .required("Vui lòng chọn số lượng phòng!"),
-      // childrenAges: Yup.array().of(
-      //   Yup.number()
-      //     .min(1, "Tuổi trẻ em phải từ 1 đến 17!")
-      //     .max(17, "Tuổi trẻ em phải từ 1 đến 17!")
-      // ),
+      childrenAges: Yup.array().of(
+        Yup.number()
+          .min(1, "Tuổi trẻ em phải từ 1 đến 17!")
+          .max(17, "Tuổi trẻ em phải từ 1 đến 17!")
+      ),
     }),
 
     onSubmit: async (values, helpers) => {
@@ -125,16 +182,6 @@ const SearchHotel: FC<SearchHotelProps> = ({
         const formattedCheckIn = checkIn.format("YYYY-MM-DD");
         const formattedCheckOut = checkOut.format("YYYY-MM-DD");
 
-        const searchQueryParams = new URLSearchParams({
-          location,
-          checkIn: formattedCheckIn,
-          checkOut: formattedCheckOut,
-          numAdults: String(numAdults),
-          numChildren: String(numChildren),
-          childrenAges: childrenAges.join(","),
-          numRooms: String(numRooms),
-        }).toString();
-
         dispatch(
           searchHotel({
             location,
@@ -147,7 +194,27 @@ const SearchHotel: FC<SearchHotelProps> = ({
           })
         );
 
-        router.push(`/search?${searchQueryParams}`, { scroll: true });
+        let redirectUrl = "";
+        if (location.startsWith("/hotel/")) {
+          redirectUrl =
+            location +
+            `?checkIn=${formattedCheckIn}&checkOut=${formattedCheckOut}&numAdults=${numAdults}&numChildren=${numChildren}&childrenAges=${childrenAges.join(
+              ","
+            )}&numRooms=${numRooms}`;
+        } else {
+          const searchQueryParams = new URLSearchParams({
+            location,
+            checkIn: formattedCheckIn,
+            checkOut: formattedCheckOut,
+            numAdults: String(numAdults),
+            numChildren: String(numChildren),
+            childrenAges: childrenAges.join(","),
+            numRooms: String(numRooms),
+          }).toString();
+          redirectUrl = `/search?${searchQueryParams}`;
+        }
+
+        router.push(redirectUrl, { scroll: true });
       } catch (err: any) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
@@ -236,6 +303,22 @@ const SearchHotel: FC<SearchHotelProps> = ({
     updateFieldValue("childrenAges", updatedChildrenAges);
   };
 
+  // Assuming you have a way to distinguish between provinces and hotels in your data
+  const options: Option[] = [
+    ...provinces.map((province) => ({
+      label: province.name,
+      value: province.name,
+      type: "province",
+      avatar: "",
+    })),
+    ...hotels.map((hotel) => ({
+      label: hotel.name,
+      value: `/hotel/${hotel.id}`,
+      type: "hotel",
+      avatar: hotel.avatar,
+    })),
+  ];
+
   return (
     <Box
       sx={{
@@ -251,7 +334,7 @@ const SearchHotel: FC<SearchHotelProps> = ({
     >
       <Grid container spacing={2} alignItems="center">
         <Grid item xs={12} md={2.5}>
-          <TextField
+          {/* <TextField
             fullWidth
             required
             label="Địa điểm"
@@ -275,6 +358,56 @@ const SearchHotel: FC<SearchHotelProps> = ({
             onChange={formik.handleChange}
             error={!!(formik.touched.location && formik.errors.location)}
             // helperText={formik.touched.location && formik.errors.location}
+          /> */}
+
+          <Autocomplete
+            id="location"
+            autoHighlight
+            fullWidth
+            sx={{
+              bgcolor: "background.paper",
+              width: "100%",
+              boxShadow: 1,
+              display: "flex",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              borderRadius: 1,
+              "&:hover": {
+                bgcolor: "neutral.100",
+              },
+            }}
+            options={options}
+            value={
+              options.find((opt) => opt.value === formik.values.location) ||
+              null
+            }
+            onChange={(event, newValue) => {
+              formik.setFieldValue("location", newValue?.value || "");
+            }}
+            getOptionLabel={(option) => option.label || ""}
+            renderOption={(props, option) => (
+              <Box
+                component="li"
+                {...props}
+                key={option.value}
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                {option.type === "province" ? (
+                  <LocationOnIcon sx={{ marginRight: 2 }} />
+                ) : (
+                  <Avatar src={option.avatar} sx={{ marginRight: 2 }} />
+                )}
+                {option.label}
+              </Box>
+            )}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Chọn điểm đến / khách sạn"
+                error={Boolean(formik.errors.location)}
+                // helperText={formik.errors.location}
+              />
+            )}
           />
         </Grid>
 

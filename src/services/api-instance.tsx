@@ -1,5 +1,6 @@
 import axios from "axios";
-import { extractErrorInfo } from "../utils/extract-error-info"; // Assuming this handles error extraction
+import { extractErrorInfo } from "../utils/extract-error-info";
+import { getAccessToken } from "./storage";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -12,7 +13,7 @@ const commonService = axios.create({
 });
 
 interface CommonServiceResponse {
-  token?: string; // Include possible response properties
+  token?: string;
   message?: string;
   data?: any;
   [key: string]: any;
@@ -24,27 +25,27 @@ interface ErrorInfo {
 }
 
 interface RequestOptions {
-  params?: Record<string, any>; // Optional query parameters
-  headers?: { [key: string]: string }; // Optional custom headers
-  data?: any; // Optional data for DELETE requests
+  params?: Record<string, any>;
+  headers?: { [key: string]: string };
+  data?: any;
 }
 
-// Utility function to get authorization headers
-const getAuthHeaders = (): { Authorization: string } => {
-  // const accessToken = getAccessToken();
-  // if (!accessToken) {
-  //   throw new Error("Access token is null");
-  // }
-  return {
-    Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjEsImVtYWlsIjoiaGFpZHVvbmd0YjIwMDFAZ21haWwuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzE3MjYyMTI0fQ.CzSl-0WKC7EUBPnEpFntfobA1S-WCig__oJB0--0HkA`,
-  };
+const getAuthHeaders = (): { Authorization?: string } => {
+  const accessToken = getAccessToken();
+  if (accessToken) {
+    return {
+      Authorization: `Bearer ${accessToken}`,
+    };
+  }
+  return {};
 };
 
 export const get = async (
   path: string,
   options?: RequestOptions
 ): Promise<CommonServiceResponse> => {
-  const response = await commonService.get(path, options);
+  const headers = getAuthHeaders();
+  const response = await commonService.get(path, { ...options, headers });
   return response.data;
 };
 
@@ -53,7 +54,11 @@ export const post = async (
   data: any,
   options?: RequestOptions
 ): Promise<CommonServiceResponse> => {
-  const response = await commonService.post(path, data, options);
+  const headers = getAuthHeaders();
+  const response = await commonService.post(path, data, {
+    ...options,
+    headers,
+  });
   return response.data;
 };
 
@@ -62,7 +67,11 @@ export const patch = async (
   data: any,
   options?: RequestOptions
 ): Promise<CommonServiceResponse> => {
-  const response = await commonService.patch(path, data, options);
+  const headers = getAuthHeaders();
+  const response = await commonService.patch(path, data, {
+    ...options,
+    headers,
+  });
   return response.data;
 };
 
@@ -71,7 +80,8 @@ export const put = async (
   data: any,
   options?: RequestOptions
 ): Promise<CommonServiceResponse> => {
-  const response = await commonService.put(path, data, options);
+  const headers = getAuthHeaders();
+  const response = await commonService.put(path, data, { ...options, headers });
   return response.data;
 };
 
@@ -79,7 +89,8 @@ export const _delete = async (
   path: string,
   options?: RequestOptions
 ): Promise<CommonServiceResponse> => {
-  const response = await commonService.delete(path, options);
+  const headers = getAuthHeaders();
+  const response = await commonService.delete(path, { ...options, headers });
   return response.data;
 };
 
@@ -89,8 +100,9 @@ const handleRequest = async (
   data?: any
 ): Promise<CommonServiceResponse | ErrorInfo> => {
   try {
+    const headers = getAuthHeaders();
     const options: RequestOptions = {
-      headers: getAuthHeaders(),
+      headers,
     };
 
     if (method === "get" || method === "delete") {

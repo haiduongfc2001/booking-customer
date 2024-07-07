@@ -33,7 +33,7 @@ import AddIcon from "@mui/icons-material/Add";
 import HotelIcon from "@mui/icons-material/Hotel";
 import { useRouter } from "next/navigation";
 import { AppDispatch, useAppDispatch } from "@/redux/store/store";
-import { searchHotel } from "@/redux/slices/search-slice";
+import { searchHotel, updateSearchParams } from "@/redux/slices/search-slice";
 import { RootState, useAppSelector } from "@/redux/store/store";
 import { getRequest } from "@/services/api-instance";
 import { STATUS_CODE } from "@/constant/constants";
@@ -76,6 +76,8 @@ const SearchBar: FC<SearchBarProps> = () => {
   );
   const [provinces, setProvinces] = React.useState<Province[]>([]);
   const [hotels, setHotels] = React.useState<Hotel[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
   const {
     location,
     checkIn,
@@ -90,9 +92,44 @@ const SearchBar: FC<SearchBarProps> = () => {
   const dispatch: AppDispatch = useAppDispatch();
 
   React.useEffect(() => {
-    fetchProvinces();
-    fetchHotels();
+    const fetchData = async () => {
+      await fetchProvinces();
+      await fetchHotels();
+      updateCheckInIfExpired();
+      setIsLoading(false);
+    };
+    fetchData();
   }, []);
+
+  const updateCheckInIfExpired = () => {
+    const currentDate = dayjs();
+    const currentCheckIn = dayjs(checkIn);
+    const currentCheckOut = dayjs(checkOut);
+
+    if (currentCheckIn.isBefore(currentDate, "day")) {
+      const newCheckIn = currentDate.format("YYYY-MM-DD");
+      let newCheckOut = currentCheckOut.format("YYYY-MM-DD");
+
+      if (
+        currentCheckOut.isSame(currentDate, "day") ||
+        currentCheckOut.isBefore(currentDate, "day")
+      ) {
+        newCheckOut = currentDate.add(1, "day").format("YYYY-MM-DD");
+      } else if (
+        currentCheckOut.isSame(currentCheckIn, "day") ||
+        currentCheckOut.isBefore(currentCheckIn, "day")
+      ) {
+        newCheckOut = dayjs(newCheckIn).add(1, "day").format("YYYY-MM-DD");
+      }
+
+      dispatch(
+        updateSearchParams({
+          checkIn: newCheckIn,
+          checkOut: newCheckOut,
+        })
+      );
+    }
+  };
 
   const fetchProvinces = async () => {
     try {
@@ -131,19 +168,32 @@ const SearchBar: FC<SearchBarProps> = () => {
 
   const ageOptions = Array.from({ length: 17 }, (_, i) => i + 1);
 
-  const formik = useFormik({
-    initialValues: {
-      location: location ?? "",
+  const initialValues = React.useMemo(
+    () => ({
+      location: location ?? "Thành phố Hà Nội",
       checkIn: dayjs(checkIn) ?? dayjs().add(1, "day"),
       checkOut: dayjs(checkOut) ?? dayjs().add(2, "day"),
       numRooms: numRooms ?? 1,
-      numAdults: numAdults ?? 1,
-      numChildren: numChildren ?? 0,
-      childrenAges: childrenAges ?? [],
+      numAdults: numAdults || 1,
+      numChildren: numChildren || 0,
+      childrenAges: childrenAges || [],
       submit: null,
-    },
+    }),
+    [
+      location,
+      checkIn,
+      checkOut,
+      numRooms,
+      numAdults,
+      numChildren,
+      childrenAges,
+    ]
+  );
+
+  const formik = useFormik({
+    initialValues,
     validationSchema: Yup.object({
-      location: Yup.string().required("Vui lòng chọn điểm đến!"),
+      location: Yup.string().required("Vui lòng chọn điểm đến / khách sạn!"),
       // checkIn: Yup.date().min(dayjs().add(1, "day").required("Vui lòng chọn ngày đến!"),
       // checkOut: Yup.date()
       //   .required("Vui lòng chọn ngày về!")
@@ -184,8 +234,8 @@ const SearchBar: FC<SearchBarProps> = () => {
           numRooms,
         } = values;
 
-        const formattedCheckIn = checkIn.toISOString().split("T")[0];
-        const formattedCheckOut = checkOut.toISOString().split("T")[0];
+        const formattedCheckIn = dayjs(checkIn).format("YYYY-MM-DD");
+        const formattedCheckOut = dayjs(checkOut).format("YYYY-MM-DD");
 
         dispatch(
           searchHotel({
@@ -343,6 +393,7 @@ const SearchBar: FC<SearchBarProps> = () => {
             id="location"
             autoHighlight
             fullWidth
+            noOptionsText={"Không có sự lựa chọn nào"}
             sx={{
               bgcolor: "background.paper",
               width: "100%",
@@ -355,12 +406,18 @@ const SearchBar: FC<SearchBarProps> = () => {
                 bgcolor: "neutral.100",
               },
             }}
-            options={options}
+            options={isLoading ? [] : options}
+            value={
+              options.find((opt) => opt.value === formik.values.location) ||
+              "Thành phố Hà Nội"
+            }
             onChange={(event, newValue) => {
               formik.setFieldValue("location", newValue?.value || "");
             }}
-            isOptionEqualToValue={(option, value) => option.code === value}
-            getOptionLabel={(option) => option.label}
+            isOptionEqualToValue={(option, value) =>
+              option.label === value.label
+            }
+            getOptionLabel={(option) => option.label || ""}
             renderOption={(props, option) => (
               <Box
                 component="li"

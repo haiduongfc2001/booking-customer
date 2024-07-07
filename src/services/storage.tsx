@@ -60,3 +60,7 @@ export const updateAppToken = (appToken: string): void => {
 export const updateUserId = (userId: string): void => {
   setLocalItem("userId", userId);
 };
+
+export const removeAccessToken = (): void => {
+  localStorage.removeItem("accessToken");
+};

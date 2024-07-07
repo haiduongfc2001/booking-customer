@@ -122,7 +122,7 @@ export default function BookingDetails(props: any) {
 
   const { booking_id } = props.params;
 
-  const initialLoad = React.useRef(true);
+  // const initialLoad = React.useRef(true);
   const dispatch: AppDispatch = useAppDispatch();
 
   const fetchBookingDetails = async () => {
@@ -140,10 +140,10 @@ export default function BookingDetails(props: any) {
   };
 
   React.useEffect(() => {
-    if (initialLoad.current) {
-      initialLoad.current = false;
-      return;
-    }
+    // if (initialLoad.current) {
+    //   initialLoad.current = false;
+    //   return;
+    // }
     fetchBookingDetails();
   }, [booking_id]);
 

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -6,44 +7,54 @@ import {
   RadioGroup,
   Typography,
 } from "@mui/material";
-import React from "react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 const ratingCategories = [
   {
-    value: "9.0",
+    value: 9,
     label: "Tuyệt vời (9.0+)",
   },
   {
-    value: "8.0",
+    value: 8,
     label: "Rất tốt (8.0+)",
   },
   {
-    value: "7.0",
+    value: 7,
     label: "Tốt (7.0+)",
   },
   {
-    value: "6.0",
+    value: 6,
     label: "Hài lòng (6.0+)",
   },
 ];
 
 interface RatingFilterProps {
-  selectedMinRating: string;
-  onChangeRating: (newMinRating: string) => void;
+  selectedMinRating: number | null;
+  onChangeRating: (newMinRating: number | null) => void;
 }
 
 const RatingFilter: React.FC<RatingFilterProps> = ({
   selectedMinRating,
   onChangeRating,
 }) => {
+  const [showAll, setShowAll] = useState(false);
+
   const handleMinRatingChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    onChangeRating(event.target.value);
+    onChangeRating(Number(event.target.value));
   };
 
   return (
-    <Box mt={4}>
+    <Box
+      mt={4}
+      sx={{
+        borderRadius: 1,
+        bgcolor: "background.paper",
+        px: 2,
+      }}
+    >
       <Box
         sx={{
           display: "flex",
@@ -59,7 +70,7 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
           <Button
             color="error"
             sx={{ p: 0 }}
-            onClick={() => onChangeRating("")}
+            onClick={() => onChangeRating(null)}
           >
             Xóa
           </Button>
@@ -89,6 +100,26 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
           />
         ))}
       </RadioGroup>
+      {ratingCategories.length > 5 && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            mb: 1,
+            pb: 1,
+          }}
+        >
+          <Button
+            variant="text"
+            color="primary"
+            onClick={() => setShowAll((prevShowAll) => !prevShowAll)}
+            endIcon={showAll ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          >
+            {showAll ? "Thu gọn" : "Mở rộng"}
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -54,7 +54,9 @@ const OutstandingHotel: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const { data, error, isLoading } = useCustomAPI(
-    `${API.HOTEL.GET_OUTSTANDING_HOTELS}?customer_id=${customer_id}`
+    customer_id
+      ? `${API.HOTEL.GET_OUTSTANDING_HOTELS}?customer_id=${customer_id}`
+      : `${API.HOTEL.GET_OUTSTANDING_HOTELS}`
   );
 
   useEffect(() => {
@@ -126,11 +128,6 @@ const OutstandingHotel: React.FC = () => {
     groupedHotels.push(outstandingHotels.slice(i, i + hotelsPerPage));
   }
 
-  const extractCityFromAddress = (address: string): string => {
-    const parts = address.split(",");
-    return parts[parts.length - 1].trim();
-  };
-
   const handleNavigate = (hotel_id: number) => {
     const hotel = outstandingHotels.find(
       (hotel: IOutstandingHotel) => hotel?.id === hotel_id
@@ -140,10 +137,8 @@ const OutstandingHotel: React.FC = () => {
       return;
     }
 
-    const city = extractCityFromAddress(hotel?.hotel_address);
-
     const searchQueryParams = new URLSearchParams({
-      location: city,
+      location: hotel.province,
       checkIn: dayjs().format("YYYY-MM-DD"),
       checkOut: dayjs().add(1, "day").format("YYYY-MM-DD"),
       numAdults: "1",
@@ -205,8 +200,6 @@ const OutstandingHotel: React.FC = () => {
     );
 
   const handleToggleLike = (hotelId: number) => {
-    console.log(isHotelLiked(hotelId));
-
     const hotel = outstandingHotels.find((hotel) => hotel.id === hotelId);
     if (!hotel) {
       console.error(`Hotel with ID ${hotelId} not found`);
@@ -220,7 +213,7 @@ const OutstandingHotel: React.FC = () => {
     }
   };
 
-  return (
+  return outstandingHotels.length > 0 ? (
     <Box
       sx={{
         width: "100%",
@@ -259,10 +252,6 @@ const OutstandingHotel: React.FC = () => {
           "& .MuiButtonBase-root": {
             opacity: 1,
             transition: "opacity 0.2s ease",
-          },
-          "&:hover svg": {
-            color: "red",
-            transition: "color 0.2s ease",
           },
         }}
       >
@@ -347,6 +336,10 @@ const OutstandingHotel: React.FC = () => {
                         },
                         "&:hover, &:focus": {
                           backgroundColor: "rgba(0, 0, 0, 0.08)",
+                        },
+                        "&:hover svg": {
+                          color: "red",
+                          transition: "color 0.2s ease",
                         },
                       }}
                       onClick={(event) => {
@@ -524,6 +517,8 @@ const OutstandingHotel: React.FC = () => {
         ))}
       </Carousel>
     </Box>
+  ) : (
+    <></>
   );
 };
 

@@ -15,6 +15,7 @@ import { AppDispatch } from "@/redux/store/store";
 import { closeLoadingApi, openLoadingApi } from "@/redux/slices/loading-slice";
 import { RootState } from "@/redux/store/store";
 import Image from "next/image";
+import DistrictFilter from "@/components/search/filter/district-filter";
 
 export default function Search(props: any) {
   const [priceRange, setPriceRange] = React.useState<number[]>([
@@ -24,8 +25,11 @@ export default function Search(props: any) {
   const [selectedAmenities, setSelectedAmenities] = React.useState<string[]>(
     []
   );
-  const [selectedRoomType, setSelectedRoomType] = React.useState<string[]>([]);
-  const [selectedMinRating, setSelectedMinRating] = React.useState<string>("");
+  // const [selectedRoomType, setSelectedRoomType] = React.useState<string[]>([]);
+  const [selectedMinRating, setSelectedMinRating] = React.useState<
+    number | null
+  >(null);
+  const [selectedDistrict, setSelectedDistrict] = React.useState<string>("");
   const [hotelSearchResults, setHotelSearchResults] = React.useState<any>();
   const [error, setError] = React.useState<string | null>(null);
   const [page, setPage] = React.useState<number>(PAGINATION.INITIAL_PAGE);
@@ -58,45 +62,56 @@ export default function Search(props: any) {
       ? childrenAges.split(",").map((age: string) => Number(age))
       : [];
 
-  React.useEffect(() => {
-    const fetchHotels = async () => {
-      dispatch(openLoadingApi());
-      setError(null);
+  const fetchHotels = async () => {
+    dispatch(openLoadingApi());
+    setError(null);
 
-      const body = {
-        location,
-        check_in: checkIn,
-        check_out: checkOut,
-        num_adults: numAdults,
-        num_children: numChildren,
-        num_rooms: numRooms,
-        children_ages: childrenAgesArray,
-        filters: {
-          price_range: priceRange,
-          amenities: selectedAmenities,
-          room_type: selectedRoomType,
-          min_rating: selectedMinRating,
-        },
-        customer_id,
-      };
-
-      try {
-        const response = await postRequest(
-          `${API.SEARCH.SEARCH_HOTEL}?sortOption=${sortOption}&page=${page}&size=${PAGINATION.PAGE_SIZE}`,
-          body
-        );
-
-        if (response && response?.status === STATUS_CODE.OK) {
-          setHotelSearchResults(response.data);
-        }
-      } catch (error: any) {
-        console.error(error.response?.data?.message || error.message);
-        setError(error.message);
-      } finally {
-        dispatch(closeLoadingApi());
-      }
+    const body: any = {
+      location,
+      check_in: checkIn,
+      check_out: checkOut,
+      num_adults: numAdults,
+      num_children: numChildren,
+      num_rooms: numRooms,
+      children_ages: childrenAgesArray,
+      customer_id,
+      filters: {},
     };
 
+    if (priceRange && priceRange.length === 2) {
+      body.filters.price_range = priceRange;
+    }
+
+    if (selectedAmenities && selectedAmenities.length > 0) {
+      body.filters.hotel_amenities = selectedAmenities;
+    }
+
+    if (selectedDistrict) {
+      body.filters.district_name = selectedDistrict;
+    }
+
+    if (selectedMinRating !== null && selectedMinRating !== undefined) {
+      body.filters.min_rating = selectedMinRating;
+    }
+
+    try {
+      const queryString = `sortOption=${sortOption}&page=${page}&size=${PAGINATION.PAGE_SIZE}`;
+      const url = `${API.SEARCH.SEARCH_HOTEL}?${queryString}`;
+
+      const response = await postRequest(url, body);
+
+      if (response && response.status === STATUS_CODE.OK) {
+        setHotelSearchResults(response.data);
+      }
+    } catch (error: any) {
+      console.error(error.response?.data?.message || error.message);
+      setError(error.message);
+    } finally {
+      dispatch(closeLoadingApi());
+    }
+  };
+
+  React.useEffect(() => {
     fetchHotels();
   }, [
     location,
@@ -106,28 +121,9 @@ export default function Search(props: any) {
     numChildren,
     childrenAges,
     numRooms,
-    priceRange,
-    selectedAmenities,
-    selectedRoomType,
-    selectedMinRating,
     page,
     sortOption,
   ]);
-
-  const handleFilterHotel = () => {
-    console.log({
-      location,
-      checkIn,
-      checkOut,
-      numRooms,
-      numAdults,
-      priceRange,
-      selectedAmenities,
-      selectedRoomType,
-      minRating: selectedMinRating,
-      hotelSearchResults,
-    });
-  };
 
   const handlePriceRangeChange = (newPriceRange: number[]) => {
     setPriceRange((prevState) => {
@@ -145,12 +141,16 @@ export default function Search(props: any) {
     setSelectedAmenities(newAmenities);
   };
 
-  const handleRoomTypeChange = (newRoomType: string[]) => {
-    setSelectedRoomType(newRoomType);
+  // const handleRoomTypeChange = (newRoomType: string[]) => {
+  //   setSelectedRoomType(newRoomType);
+  // };
+
+  const handleRatingChange = (newMinRating: number | null) => {
+    setSelectedMinRating(newMinRating);
   };
 
-  const handleRatingChange = (newMinRating: string) => {
-    setSelectedMinRating(newMinRating);
+  const handleDistrictChange = (newDistrict: string) => {
+    setSelectedDistrict(newDistrict);
   };
 
   const scrollToTop = () => {
@@ -197,6 +197,8 @@ export default function Search(props: any) {
             flex: "0 0 25%",
             borderRight: "1px solid #ccc",
             padding: "0 20px",
+            // height: "calc(100vh - 64px)",
+            // overflowY: "auto",
           }}
         >
           <PriceFilter
@@ -207,9 +209,14 @@ export default function Search(props: any) {
             selectedAmenities={selectedAmenities}
             onAmenitiesChange={handleAmenitiesChange}
           />
-          <RoomTypeFilter
+          {/* <RoomTypeFilter
             selectedRoomType={selectedRoomType}
             onRoomTypeChange={handleRoomTypeChange}
+          /> */}
+          <DistrictFilter
+            location={location}
+            selectedDistrict={selectedDistrict}
+            onChangeDistrict={handleDistrictChange}
           />
           <RatingFilter
             selectedMinRating={selectedMinRating}
@@ -221,7 +228,7 @@ export default function Search(props: any) {
             variant="contained"
             color="primary"
             sx={{ mt: 3 }}
-            onClick={handleFilterHotel}
+            onClick={() => fetchHotels()}
           >
             Lọc
           </Button>

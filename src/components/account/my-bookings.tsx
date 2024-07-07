@@ -85,7 +85,7 @@ const MyBookings: FC<MyBookingsProps> = () => {
     (state: RootState) => state.auth.customer_id
   );
 
-  const initialLoad = React.useRef(true);
+  // const initialLoad = React.useRef(true);
   const [myBookings, setMyBookingsData] = React.useState<RoomBookingList>([]);
   const [sortOption, setSortOption] = React.useState("NEWEST");
   const [numBookings, setNumBookings] = React.useState<number>(0);
@@ -112,10 +112,10 @@ const MyBookings: FC<MyBookingsProps> = () => {
   };
 
   React.useEffect(() => {
-    if (initialLoad.current) {
-      initialLoad.current = false;
-      return;
-    }
+    // if (initialLoad.current) {
+    //   initialLoad.current = false;
+    //   return;
+    // }
     fetchBookings();
   }, []);
 
